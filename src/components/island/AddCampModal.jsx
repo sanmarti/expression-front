@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Modal from '../ui/Modal.jsx'
 import { createStakeholder } from '../../api/stakeholders.js'
 import useIslandStore from '../../store/islandStore.js'
@@ -23,13 +23,26 @@ const ZONE_COLORS = {
   desert: '#D97706', river: '#1D4ED8', lake: '#0EA5E9', coast: '#BAE6FD', volcano: '#991B1B',
 }
 
-export default function AddCampModal({ open, onClose, defaultZone }) {
+export default function AddCampModal({ open, onClose, defaultZone, defaultPosition }) {
   const toast = useToast()
   const addStakeholder = useIslandStore((s) => s.addStakeholder)
   const [form, setForm] = useState({
-    name: '', description: '', category: 'Cliente', zone: defaultZone || 'forest',
+    name: '', description: '', category: 'Cliente', zone: 'forest',
+    position_x: 50, position_y: 50,
   })
   const [loading, setLoading] = useState(false)
+
+  // Sync zone and position each time the modal opens
+  useEffect(() => {
+    if (open) {
+      setForm((f) => ({
+        ...f,
+        zone: defaultZone || 'forest',
+        position_x: defaultPosition?.x ?? 50,
+        position_y: defaultPosition?.y ?? 50,
+      }))
+    }
+  }, [open, defaultZone, defaultPosition])
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
 
@@ -41,7 +54,7 @@ export default function AddCampModal({ open, onClose, defaultZone }) {
       addStakeholder(data)
       toast('Camp planted! 🚩', 'success')
       onClose()
-      setForm({ name: '', description: '', category: 'Cliente', zone: 'forest' })
+      setForm({ name: '', description: '', category: 'Cliente', zone: 'forest', position_x: 50, position_y: 50 })
     } catch (err) {
       toast(err.response?.data?.message || 'Failed to create camp', 'error')
     } finally {

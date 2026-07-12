@@ -14,6 +14,15 @@ const ZONES = [
   { id: 'volcano',  d: 'M460,0 Q540,0 560,60 Q500,100 440,60 Z' },
 ]
 
+function getSVGCoords(e) {
+  const svg = e.currentTarget.ownerSVGElement || e.currentTarget
+  const pt = svg.createSVGPoint()
+  pt.x = e.clientX
+  pt.y = e.clientY
+  const svgPt = pt.matrixTransform(svg.getScreenCTM().inverse())
+  return { x: Math.round(svgPt.x / 10), y: Math.round(svgPt.y / 7) }
+}
+
 export default function IslandMap({ onZoneClick }) {
   const navigate = useNavigate()
   const { stakeholders, updateStakeholderClimate } = useIslandStore()
@@ -48,25 +57,25 @@ export default function IslandMap({ onZoneClick }) {
       {/* Dark overlay to improve pin readability */}
       <rect width="1000" height="700" fill="rgba(0,0,0,0.18)" />
 
-      {/* Invisible clickable zones mapped to photo geography */}
+      {/* Fallback: click anywhere opens modal with click coordinates */}
+      <rect
+        width="1000"
+        height="700"
+        fill="transparent"
+        style={{ cursor: 'crosshair' }}
+        onClick={(e) => onZoneClick && onZoneClick(null, getSVGCoords(e))}
+      />
+
+      {/* Invisible clickable zones — override fallback for named zones */}
       {ZONES.map((z) => (
         <path
           key={z.id}
           d={z.d}
           fill="transparent"
           style={{ cursor: 'pointer' }}
-          onClick={() => onZoneClick && onZoneClick(z.id)}
+          onClick={(e) => { e.stopPropagation(); onZoneClick && onZoneClick(z.id, getSVGCoords(e)) }}
         />
       ))}
-
-      {/* Fallback: click anywhere else opens modal with no pre-selected zone */}
-      <rect
-        width="1000"
-        height="700"
-        fill="transparent"
-        style={{ cursor: 'crosshair' }}
-        onClick={() => onZoneClick && onZoneClick(null)}
-      />
 
       {/* Campfire pins — rendered on top of everything */}
       {stakeholders.map((s) => (

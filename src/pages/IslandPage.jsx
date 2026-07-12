@@ -14,6 +14,7 @@ export default function IslandPage() {
   const { setStakeholders, isLoading, setLoading } = useIslandStore()
   const [showAddModal, setShowAddModal] = useState(false)
   const [selectedZone, setSelectedZone] = useState(null)
+  const [clickPos, setClickPos] = useState(null)
 
   useClimateSync()
 
@@ -25,8 +26,9 @@ export default function IslandPage() {
       .finally(() => setLoading(false))
   }, [setStakeholders, setLoading])
 
-  const handleZoneClick = (zone) => {
+  const handleZoneClick = (zone, pos) => {
     setSelectedZone(zone)
+    setClickPos(pos ?? null)
     setShowAddModal(true)
   }
 
@@ -90,6 +92,7 @@ export default function IslandPage() {
         open={showAddModal}
         onClose={() => setShowAddModal(false)}
         defaultZone={selectedZone}
+        defaultPosition={clickPos}
       />
     </div>
   )
