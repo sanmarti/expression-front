@@ -21,7 +21,7 @@ function AvatarDisplay({ member, size = 120 }) {
           src={src}
           onError={() => setSrc(av.placeholder)}
           alt={member.display_name || member.email}
-          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center' }}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: '50% 20%' }}
         />
       </div>
     )

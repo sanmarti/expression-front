@@ -119,7 +119,7 @@ export default function CockpitWidget() {
                 src={imgSrc}
                 onError={() => setImgSrc(avatar.placeholder)}
                 alt={user?.display_name}
-                style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center', display: 'block' }}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: '50% 20%', display: 'block' }}
               />
             ) : (
               <div style={{ width: '100%', height: '100%', background: '#1C2B45', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32 }}>✈</div>

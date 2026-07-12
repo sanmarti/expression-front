@@ -153,7 +153,7 @@ export default function ProfilePage() {
                   src={imgSrc}
                   onError={() => setImgSrc(previewAvatar.placeholder)}
                   alt={displayName || user?.display_name}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center', display: 'block' }}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: '50% 20%', display: 'block' }}
                 />
               ) : (
                 <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48, color: 'rgba(255,255,255,0.20)' }}>✈</div>
@@ -355,7 +355,7 @@ function PilotCard({ avatar, selected, onSelect }) {
           src={imgSrc}
           onError={() => setImgSrc(avatar.placeholder)}
           alt={avatar.name}
-          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center', display: 'block' }}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: '50% 20%', display: 'block' }}
         />
       </div>
     </button>

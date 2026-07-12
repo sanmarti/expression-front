@@ -95,7 +95,7 @@ export default function CockpitPage() {
                 src={imgSrc}
                 onError={() => setImgSrc(avatar.placeholder)}
                 alt={avatar.name}
-                style={{ width: 110, height: 110, borderRadius: '50%', objectFit: 'cover', objectPosition: 'top center', border: `4px solid ${avatar.color}`, marginBottom: 10 }}
+                style={{ width: 110, height: 110, borderRadius: '50%', objectFit: 'cover', objectPosition: '50% 20%', border: `4px solid ${avatar.color}`, marginBottom: 10 }}
               />
             ) : (
               <div style={{ width: 110, height: 110, borderRadius: '50%', background: '#1C2B45', marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40 }}>✈</div>

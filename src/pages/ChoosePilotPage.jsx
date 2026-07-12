@@ -118,7 +118,7 @@ function AvatarCard({ avatar, selected, onSelect }) {
           src={imgSrc}
           onError={() => setImgSrc(avatar.placeholder)}
           alt={avatar.name}
-          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center', display: 'block' }}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: '50% 20%', display: 'block' }}
         />
       </div>
     </button>
