@@ -10,6 +10,28 @@ import { useOrganization } from '../hooks/useOrganization.js'
 import useAuthStore from '../store/authStore.js'
 import { useNavigate } from 'react-router-dom'
 
+// Placeholder members shown until real users are invited
+const DEMO_MEMBERS = [
+  {
+    id: 'demo-1',
+    display_name: 'Carlos Mendez',
+    email: 'carlos.mendez@cocacola.com',
+    role: 'member',
+    selected_avatar: 'pilot_5',
+    joined_at: '2025-03-10',
+    cockpit: { altitude: 82, fuel: 74, visibility: 88, speed: 65 },
+  },
+  {
+    id: 'demo-2',
+    display_name: 'Sofia Ruiz',
+    email: 'sofia.ruiz@cocacola.com',
+    role: 'viewer',
+    selected_avatar: 'pilot_18',
+    joined_at: '2025-04-22',
+    cockpit: { altitude: 55, fuel: 48, visibility: 70, speed: 60 },
+  },
+]
+
 export default function MembersPage() {
   const navigate = useNavigate()
   const toast = useToast()
@@ -50,11 +72,17 @@ export default function MembersPage() {
   const currentStakeholders = org?.stakeholder_count || 0
   const limitReached = members.length >= maxMembers
 
-  const pageStyle = { minHeight: '100vh', background: '#0B1120', padding: '24px 32px' }
+  // Merge real members with demo placeholders (demo shown only when fewer than 2 real members)
+  const displayMembers = [
+    ...members,
+    ...(members.length < 2 ? DEMO_MEMBERS.slice(0, 2 - members.length) : []),
+  ]
 
   return (
-    <div style={pageStyle}>
-      <div style={{ maxWidth: 800, margin: '0 auto' }}>
+    <div style={{ minHeight: '100vh', background: '#0B1120', padding: '24px 32px' }}>
+      <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+
+        {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <button onClick={() => navigate('/island')} style={{ background: 'none', border: 'none', color: '#3B82F6', cursor: 'pointer', fontSize: 14, padding: 0 }}>
@@ -67,44 +95,54 @@ export default function MembersPage() {
               onClick={() => setShowInvite(true)}
               style={{ padding: '10px 20px', borderRadius: 8, border: 'none', cursor: 'pointer', background: 'linear-gradient(135deg,#3B82F6,#14B8A6)', color: 'white', fontWeight: 600, fontSize: 14 }}
             >
-              Invite Member
+              + Invite Member
             </button>
           )}
         </div>
 
         {/* Usage bars */}
-        <div style={{ background: '#141E35', border: '1px solid #1C2B45', borderRadius: 12, padding: 20, marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div style={{ background: '#141E35', border: '1px solid #1C2B45', borderRadius: 14, padding: '20px 24px', marginBottom: 32, display: 'flex', flexDirection: 'column', gap: 14 }}>
           <ProgressBar value={members.length} max={maxMembers} label="Members" color="#3B82F6" />
           <ProgressBar value={currentStakeholders} max={maxStakeholders} label="Stakeholders" color="#14B8A6" />
         </div>
 
         {loading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: 48 }}><Spinner size={36} /></div>
+          <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}><Spinner size={40} /></div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {members.map((m) => (
-              <MemberCard
-                key={m.id}
-                member={m}
-                canRemove={isAdmin}
-                onRemove={handleRemove}
-              />
-            ))}
-          </div>
-        )}
+          <>
+            {/* Member cards grid */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+              gap: 20,
+              marginBottom: 48,
+            }}>
+              {displayMembers.map((m) => (
+                <MemberCard
+                  key={m.id}
+                  member={m}
+                  canRemove={isAdmin}
+                  onRemove={handleRemove}
+                />
+              ))}
+            </div>
 
-        {/* Invitations */}
-        <div style={{ marginTop: 36 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 600, color: 'rgba(255,255,255,0.92)', marginBottom: 16 }}>
-            Pending Invitations
-            {invitations.length > 0 && (
-              <span style={{ marginLeft: 8, fontSize: 13, background: 'rgba(59,130,246,0.15)', color: '#3B82F6', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 20, padding: '2px 10px' }}>
-                {invitations.length}
-              </span>
+            {/* Pending invitations */}
+            {(isAdmin || invitations.length > 0) && (
+              <div>
+                <h2 style={{ fontSize: 16, fontWeight: 700, color: 'rgba(255,255,255,0.55)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
+                  Pending Invitations
+                  {invitations.length > 0 && (
+                    <span style={{ fontSize: 12, background: 'rgba(59,130,246,0.15)', color: '#3B82F6', border: '1px solid rgba(59,130,246,0.30)', borderRadius: 20, padding: '2px 10px', fontWeight: 700 }}>
+                      {invitations.length}
+                    </span>
+                  )}
+                </h2>
+                <InvitationList invitations={invitations} onRefresh={load} />
+              </div>
             )}
-          </h2>
-          <InvitationList invitations={invitations} onRefresh={load} />
-        </div>
+          </>
+        )}
       </div>
 
       <InviteModal
