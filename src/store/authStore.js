@@ -18,6 +18,7 @@ const useAuthStore = create((set) => ({
   },
 
   setOrg: (org, role) => set({ org, orgRole: role }),
+  setUser: (user) => set({ user }),
 }))
 
 export default useAuthStore

@@ -6,6 +6,7 @@ import LogoutConfirmModal from '../components/ui/LogoutConfirmModal.jsx'
 import Spinner from '../components/ui/Spinner.jsx'
 import useIslandStore from '../store/islandStore.js'
 import useAuthStore from '../store/authStore.js'
+import Avatar from '../components/ui/Avatar.jsx'
 import { getStakeholders } from '../api/stakeholders.js'
 import { useClimateSync } from '../hooks/useClimateSync.js'
 
@@ -58,11 +59,20 @@ export default function IslandPage() {
           </div>
         )}
 
-        <div style={{ display: 'flex', gap: 8, marginLeft: 'auto' }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginLeft: 'auto' }}>
           <NavBtn onClick={() => navigate('/members')}>Members</NavBtn>
-          <NavBtn onClick={() => navigate('/profile')}>Profile</NavBtn>
-          <NavBtn onClick={() => navigate('/subscription')}>⚙️</NavBtn>
           <NavBtn onClick={() => setShowLogout(true)} style={{ color: 'rgba(239,68,68,0.8)' }}>Logout</NavBtn>
+          <button
+            onClick={() => navigate('/profile')}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginLeft: 4, display: 'flex' }}
+            title="Profile"
+          >
+            <Avatar
+              name={user?.display_name || user?.email || '?'}
+              size={34}
+              src={user?.avatar_url || null}
+            />
+          </button>
         </div>
       </div>
 
