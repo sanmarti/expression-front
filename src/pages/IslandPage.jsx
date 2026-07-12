@@ -38,7 +38,21 @@ export default function IslandPage() {
   }
 
   return (
-    <div style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden', background: '#0C4A6E' }}>
+    <div style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden', background: '#060a16' }}>
+      {/* Full-screen background video */}
+      <video
+        autoPlay muted loop playsInline
+        style={{
+          position: 'absolute', inset: 0,
+          width: '100%', height: '100%',
+          objectFit: 'cover', objectPosition: 'center',
+          zIndex: 0, opacity: 0.55,
+        }}
+      >
+        <source src="/bg.mp4" type="video/mp4" />
+      </video>
+      {/* Dark overlay to keep UI readable */}
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(6,10,22,0.45)', zIndex: 1 }} />
       {/* TopBar */}
       <div style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,

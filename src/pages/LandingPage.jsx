@@ -10,15 +10,18 @@ export default function LandingPage() {
       flexDirection: 'row',
       overflow: 'hidden',
     }}>
-      {/* Full-screen background image */}
-      <div style={{
-        position: 'absolute', inset: 0,
-        backgroundImage: 'url(/hero-bg.png)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center 30%',
-        backgroundRepeat: 'no-repeat',
-        zIndex: 0,
-      }} />
+      {/* Full-screen background video */}
+      <video
+        autoPlay muted loop playsInline
+        style={{
+          position: 'absolute', inset: 0,
+          width: '100%', height: '100%',
+          objectFit: 'cover', objectPosition: 'center',
+          zIndex: 0,
+        }}
+      >
+        <source src="/bg.mp4" type="video/mp4" />
+      </video>
 
       {/* Dark gradient overlay — lighter on left, darker on right for contrast */}
       <div style={{
