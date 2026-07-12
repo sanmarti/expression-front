@@ -7,20 +7,20 @@ import { getCockpitScore } from '../../api/cockpit.js'
 function ScoreBar({ label, icon, color, score }) {
   const pct = score ?? 0
   return (
-    <div style={{ marginBottom: 6 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.45)', fontFamily: 'monospace', letterSpacing: '0.05em' }}>
+    <div style={{ marginBottom: 10 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
+        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', fontFamily: 'monospace', letterSpacing: '0.05em' }}>
           {icon} {label.toUpperCase()}
         </span>
-        <span style={{ fontSize: 10, color, fontWeight: 700, fontFamily: 'monospace' }}>
+        <span style={{ fontSize: 12, color, fontWeight: 700, fontFamily: 'monospace' }}>
           {score != null ? `${score}%` : '—'}
         </span>
       </div>
-      <div style={{ height: 4, background: 'rgba(255,255,255,0.08)', borderRadius: 2, overflow: 'hidden' }}>
+      <div style={{ height: 6, background: 'rgba(255,255,255,0.08)', borderRadius: 3, overflow: 'hidden' }}>
         <div style={{
           height: '100%', width: `${pct}%`, background: color,
-          borderRadius: 2, transition: 'width 0.6s ease',
-          boxShadow: `0 0 6px ${color}88`,
+          borderRadius: 3, transition: 'width 0.6s ease',
+          boxShadow: `0 0 8px ${color}88`,
         }} />
       </div>
     </div>
@@ -34,16 +34,16 @@ function FloatingChip({ emoji, score, color, style: extraStyle }) {
       background: 'rgba(6,10,22,0.88)',
       border: `1px solid ${color}55`,
       borderRadius: 20,
-      padding: '3px 8px 3px 5px',
-      display: 'flex', alignItems: 'center', gap: 4,
-      boxShadow: `0 0 10px ${color}33`,
+      padding: '5px 10px 5px 7px',
+      display: 'flex', alignItems: 'center', gap: 5,
+      boxShadow: `0 0 12px ${color}33`,
       whiteSpace: 'nowrap',
       pointerEvents: 'none',
       zIndex: 51,
       ...extraStyle,
     }}>
-      <span style={{ fontSize: 13 }}>{emoji}</span>
-      <span style={{ fontSize: 9, color, fontWeight: 700, fontFamily: 'monospace' }}>
+      <span style={{ fontSize: 15 }}>{emoji}</span>
+      <span style={{ fontSize: 11, color, fontWeight: 700, fontFamily: 'monospace' }}>
         {score != null ? `${score}%` : '—'}
       </span>
     </div>
@@ -79,7 +79,7 @@ export default function CockpitWidget() {
           emoji={ind.icon}
           score={scores[ind.id] ?? null}
           color={ind.color}
-          style={{ bottom: 'calc(100% + 8px)', left: i * 65 }}
+          style={{ bottom: 'calc(100% + 10px)', left: i * 88 }}
         />
       ))}
 
@@ -94,11 +94,11 @@ export default function CockpitWidget() {
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
           border: `1.5px solid ${hovered ? accentColor : 'rgba(255,255,255,0.10)'}`,
-          borderRadius: 16,
-          padding: '14px 16px',
+          borderRadius: 20,
+          padding: '20px 22px',
           cursor: 'pointer',
-          display: 'flex', flexDirection: 'column', gap: 12,
-          width: 300,
+          display: 'flex', flexDirection: 'column', gap: 16,
+          width: 380,
           boxShadow: hovered
             ? `0 0 24px ${accentColor}40, 0 8px 32px rgba(0,0,0,0.5)`
             : '0 4px 20px rgba(0,0,0,0.5)',
@@ -108,10 +108,11 @@ export default function CockpitWidget() {
         }}
       >
         {/* Avatar + title row */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{
-            width: 72, height: 72, borderRadius: '50%', overflow: 'hidden', flexShrink: 0,
-            border: `2.5px solid ${accentColor}`,
+            width: 88, height: 88, borderRadius: '50%', overflow: 'hidden', flexShrink: 0,
+            border: `3px solid ${accentColor}`,
+            boxShadow: `0 0 16px ${accentColor}55`,
           }}>
             {avatar ? (
               <img
@@ -121,16 +122,19 @@ export default function CockpitWidget() {
                 style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center', display: 'block' }}
               />
             ) : (
-              <div style={{ width: '100%', height: '100%', background: '#1C2B45', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26 }}>✈</div>
+              <div style={{ width: '100%', height: '100%', background: '#1C2B45', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32 }}>✈</div>
             )}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.92)', letterSpacing: '0.02em' }}>My Cockpit</div>
-            <div style={{ fontSize: 12, color: accentColor, marginTop: 2, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontFamily: 'monospace', letterSpacing: '0.1em', marginBottom: 4 }}>MY COCKPIT</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: 'rgba(255,255,255,0.95)', letterSpacing: '0.01em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {user?.display_name || (avatar ? 'Pilot' : 'Choose pilot')}
             </div>
+            <div style={{ fontSize: 12, color: accentColor, marginTop: 3, fontWeight: 600, fontFamily: 'monospace' }}>
+              {avatar?.name || '— select avatar →'}
+            </div>
           </div>
-          <div style={{ fontSize: 18, opacity: 0.25, flexShrink: 0 }}>✈</div>
+          <div style={{ fontSize: 24, opacity: 0.20, flexShrink: 0 }}>✈</div>
         </div>
 
         {/* Divider */}
@@ -149,7 +153,7 @@ export default function CockpitWidget() {
           ))}
         </div>
 
-        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.20)', fontFamily: 'monospace', letterSpacing: '0.08em', textAlign: 'right' }}>
+        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.20)', fontFamily: 'monospace', letterSpacing: '0.10em', textAlign: 'right' }}>
           CLICK TO ENTER COCKPIT →
         </div>
       </button>
