@@ -31,8 +31,8 @@ export default function ChoosePilotPage() {
   const selectedAvatar = AVATARS.find((a) => a.id === selected)
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0B1120', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px 16px' }}>
-      <div style={{ maxWidth: 680, width: '100%' }}>
+    <div style={{ minHeight: '100vh', background: '#0B1120', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
+      <div style={{ maxWidth: 900, width: '100%' }}>
 
         {/* Step indicator */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 40, justifyContent: 'center' }}>
@@ -48,7 +48,7 @@ export default function ChoosePilotPage() {
           Your pilot lives on the island and guides your cockpit
         </p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 36 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 12, marginBottom: 36 }}>
           {AVATARS.map((av) => (
             <AvatarCard key={av.id} avatar={av} selected={selected === av.id} onSelect={() => setSelected(av.id)} />
           ))}
@@ -101,25 +101,28 @@ function AvatarCard({ avatar, selected, onSelect }) {
       style={{
         background: selected ? `${avatar.color}18` : '#141E35',
         border: `2px solid ${selected ? avatar.color : '#1C2B45'}`,
-        borderRadius: 16, padding: '20px 12px 16px',
+        borderRadius: 14, padding: '12px 8px 10px',
         cursor: 'pointer', textAlign: 'center',
         transition: 'all 0.15s',
-        transform: selected ? 'scale(1.05)' : 'scale(1)',
-        boxShadow: selected ? `0 0 24px ${avatar.color}40` : 'none',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
+        transform: selected ? 'scale(1.06)' : 'scale(1)',
+        boxShadow: selected ? `0 0 20px ${avatar.color}40` : 'none',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
       }}
     >
-      <img
-        src={imgSrc}
-        onError={() => setImgSrc(avatar.placeholder)}
-        alt={avatar.name}
-        style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', border: `3px solid ${selected ? avatar.color : 'transparent'}` }}
-      />
-      <div style={{ fontSize: 13, fontWeight: 700, color: selected ? avatar.color : 'rgba(255,255,255,0.65)' }}>
-        {avatar.name}
+      <div style={{
+        width: 72, height: 72, borderRadius: '50%', overflow: 'hidden', flexShrink: 0,
+        border: `3px solid ${selected ? avatar.color : 'rgba(255,255,255,0.08)'}`,
+        transition: 'border-color 0.15s',
+      }}>
+        <img
+          src={imgSrc}
+          onError={() => setImgSrc(avatar.placeholder)}
+          alt={avatar.name}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center', display: 'block' }}
+        />
       </div>
-      <div style={{ height: 18 }}>
-        {selected && <div style={{ fontSize: 11, color: avatar.color, fontWeight: 600 }}>✓ Selected</div>}
+      <div style={{ fontSize: 12, fontWeight: 700, color: selected ? avatar.color : 'rgba(255,255,255,0.65)', lineHeight: 1.2 }}>
+        {avatar.name}
       </div>
     </button>
   )
