@@ -1,9 +1,18 @@
 import { useNavigate } from 'react-router-dom'
-import IslandZones from './IslandZones.jsx'
 import Campfire from './Campfire.jsx'
 import PlaneIcon from './PlaneIcon.jsx'
 import { updateStakeholder } from '../../api/stakeholders.js'
 import useIslandStore from '../../store/islandStore.js'
+
+// Invisible click zones mapped to the photo's geography
+const ZONES = [
+  { id: 'mountain', d: 'M350,30 Q500,0 650,30 Q700,120 620,200 Q500,240 380,200 Q300,130 350,30 Z' },
+  { id: 'forest',   d: 'M200,200 Q350,130 500,160 Q600,200 580,350 Q500,420 350,400 Q200,370 180,280 Z' },
+  { id: 'jungle',   d: 'M580,160 Q720,130 820,200 Q860,300 800,400 Q700,450 600,400 Q560,320 580,160 Z' },
+  { id: 'beach',    d: 'M200,450 Q400,500 650,470 Q750,430 780,520 Q500,590 180,530 Z' },
+  { id: 'coast',    d: 'M100,300 Q160,200 250,180 Q200,320 200,450 Q130,400 100,300 Z' },
+  { id: 'volcano',  d: 'M460,0 Q540,0 560,60 Q500,100 440,60 Z' },
+]
 
 export default function IslandMap({ onZoneClick }) {
   const navigate = useNavigate()
@@ -26,29 +35,40 @@ export default function IslandMap({ onZoneClick }) {
       preserveAspectRatio="xMidYMid slice"
       style={{ display: 'block' }}
     >
-      {/* Ocean background */}
-      <defs>
-        <radialGradient id="oceanGrad" cx="50%" cy="50%" r="70%">
-          <stop offset="0%" stopColor="#0C4A6E" />
-          <stop offset="100%" stopColor="#082F49" />
-        </radialGradient>
-      </defs>
-      <rect width="1000" height="700" fill="url(#oceanGrad)" />
-      {/* Wave lines */}
-      <path d="M0,200 Q250,180 500,200 Q750,220 1000,200" fill="none" stroke="white" strokeWidth="1" opacity="0.06" />
-      <path d="M0,350 Q250,330 500,350 Q750,370 1000,350" fill="none" stroke="white" strokeWidth="1" opacity="0.06" />
-      <path d="M0,500 Q250,480 500,500 Q750,520 1000,500" fill="none" stroke="white" strokeWidth="1" opacity="0.06" />
-
-      {/* Island base */}
-      <path
-        d="M180,320 Q200,180 360,110 Q500,60 660,110 Q820,170 860,320 Q880,460 700,570 Q500,630 280,570 Q120,490 180,320 Z"
-        fill="#2D5016"
+      {/* Photo background */}
+      <image
+        href="/island.png"
+        x="0"
+        y="0"
+        width="1000"
+        height="700"
+        preserveAspectRatio="xMidYMid slice"
       />
 
-      {/* Zones */}
-      <IslandZones onZoneClick={onZoneClick} />
+      {/* Dark overlay to improve pin readability */}
+      <rect width="1000" height="700" fill="rgba(0,0,0,0.18)" />
 
-      {/* Campfires */}
+      {/* Invisible clickable zones mapped to photo geography */}
+      {ZONES.map((z) => (
+        <path
+          key={z.id}
+          d={z.d}
+          fill="transparent"
+          style={{ cursor: 'pointer' }}
+          onClick={() => onZoneClick && onZoneClick(z.id)}
+        />
+      ))}
+
+      {/* Fallback: click anywhere else opens modal with no pre-selected zone */}
+      <rect
+        width="1000"
+        height="700"
+        fill="transparent"
+        style={{ cursor: 'crosshair' }}
+        onClick={() => onZoneClick && onZoneClick(null)}
+      />
+
+      {/* Campfire pins — rendered on top of everything */}
       {stakeholders.map((s) => (
         <Campfire
           key={s.id}
@@ -58,7 +78,7 @@ export default function IslandMap({ onZoneClick }) {
         />
       ))}
 
-      {/* Plane */}
+      {/* Animated plane */}
       <PlaneIcon stakeholders={stakeholders} />
     </svg>
   )
