@@ -1,0 +1,58 @@
+@keyframes fall {
+  from { transform: translateY(-10px); opacity: 1; }
+  to   { transform: translateY(10px);  opacity: 0; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-4px); }
+}
+@keyframes drift {
+  0%, 100% { transform: translateX(0px); }
+  50%       { transform: translateX(6px); }
+}
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.7; transform: scale(1.1); }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; }
+  50%       { opacity: 1; }
+}
+
+.island-zone {
+  cursor: pointer;
+  transition: opacity 0.2s, filter 0.2s;
+}
+.island-zone:hover {
+  opacity: 0.75;
+  filter: brightness(1.2);
+}
+.campfire {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.campfire:hover {
+  transform: scale(1.15);
+}
+.weather-rain line {
+  animation: fall 1.2s linear infinite;
+}
+.weather-rain line:nth-child(2) { animation-delay: 0.3s; }
+.weather-rain line:nth-child(3) { animation-delay: 0.6s; }
+.weather-sun .sun-ray {
+  animation: pulse-slow 2s ease-in-out infinite;
+}
+.weather-cloud ellipse {
+  animation: float 3s ease-in-out infinite;
+}
+.weather-wind path {
+  animation: drift 2s ease-in-out infinite;
+}
+.weather-snow circle {
+  animation: fall 2s linear infinite;
+}
+.weather-snow circle:nth-child(2) { animation-delay: 0.5s; }
+.weather-snow circle:nth-child(3) { animation-delay: 1s; }
+.weather-clear circle {
+  animation: twinkle 2s ease-in-out infinite;
+}
