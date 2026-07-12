@@ -16,7 +16,7 @@ export default function AuthPanel() {
 
   const inputStyle = {
     width: '100%', padding: '11px 14px', borderRadius: 8, marginTop: 6,
-    background: '#0B1120', border: '1px solid #1C2B45',
+    background: 'rgba(11,17,32,0.70)', border: '1px solid rgba(255,255,255,0.10)',
     color: 'rgba(255,255,255,0.92)', fontSize: 14, outline: 'none',
     display: 'block',
   }
@@ -71,8 +71,12 @@ export default function AuthPanel() {
 
   return (
     <div style={{
-      background: '#141E35', borderLeft: '1px solid #1C2B45',
+      background: 'rgba(10,15,30,0.72)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      borderLeft: '1px solid rgba(255,255,255,0.08)',
       padding: '60px 40px', display: 'flex', flexDirection: 'column', justifyContent: 'center',
+      minHeight: '100vh',
     }}>
       <h2 style={{ fontSize: 24, fontWeight: 700, color: 'rgba(255,255,255,0.92)', marginBottom: 24, marginTop: 0 }}>
         {tab === 'signin' ? 'Welcome back' : 'Get started'}

@@ -5,22 +5,38 @@ export default function LandingPage() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#0B1120',
+      position: 'relative',
       display: 'flex',
       flexDirection: 'row',
+      overflow: 'hidden',
     }}>
-      <div style={{ flex: '0 0 55%' }}>
+      {/* Full-screen background image */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        backgroundImage: 'url(/hero-bg.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center 30%',
+        backgroundRepeat: 'no-repeat',
+        zIndex: 0,
+      }} />
+
+      {/* Dark gradient overlay — lighter on left, darker on right for contrast */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        background: 'linear-gradient(105deg, rgba(11,17,32,0.62) 0%, rgba(11,17,32,0.45) 50%, rgba(11,17,32,0.80) 100%)',
+        zIndex: 1,
+      }} />
+
+      <div style={{ flex: '0 0 55%', position: 'relative', zIndex: 2 }}>
         <HeroLeft />
       </div>
-      <div style={{ flex: '0 0 45%' }}>
+      <div style={{ flex: '0 0 45%', position: 'relative', zIndex: 2 }}>
         <AuthPanel />
       </div>
 
       <style>{`
         @media (max-width: 768px) {
           div[style*="flex-direction: row"] { flex-direction: column !important; }
-          div[style*="flex: 0 0 55%"] { flex: 1 !important; }
-          div[style*="flex: 0 0 45%"] { flex: 1 !important; }
         }
       `}</style>
     </div>
