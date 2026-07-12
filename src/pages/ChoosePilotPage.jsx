@@ -99,19 +99,19 @@ function AvatarCard({ avatar, selected, onSelect }) {
     <button
       onClick={onSelect}
       style={{
-        background: selected ? `${avatar.color}18` : '#141E35',
-        border: `2px solid ${selected ? avatar.color : '#1C2B45'}`,
+        background: selected ? 'rgba(59,130,246,0.15)' : '#141E35',
+        border: `2px solid ${selected ? '#3B82F6' : '#1C2B45'}`,
         borderRadius: 16, padding: 12,
         cursor: 'pointer',
         transition: 'all 0.15s',
         transform: selected ? 'scale(1.05)' : 'scale(1)',
-        boxShadow: selected ? `0 0 28px ${avatar.color}50` : 'none',
+        boxShadow: selected ? '0 0 32px rgba(59,130,246,0.50)' : 'none',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}
     >
       <div style={{
         width: 120, height: 120, borderRadius: '50%', overflow: 'hidden', flexShrink: 0,
-        border: `3px solid ${selected ? avatar.color : 'rgba(255,255,255,0.08)'}`,
+        border: `3px solid ${selected ? '#3B82F6' : 'rgba(255,255,255,0.08)'}`,
         transition: 'border-color 0.15s',
       }}>
         <img

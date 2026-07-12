@@ -139,13 +139,14 @@ export default function ProfilePage() {
         <div style={card}>
           <div style={sectionTitle}>Your Profile</div>
 
-          {/* Profile picture (= selected pilot avatar) + name/email */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 28 }}>
+          {/* Profile picture (= selected pilot avatar) */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, marginBottom: 32 }}>
             <div style={{
-              width: 88, height: 88, borderRadius: '50%', overflow: 'hidden', flexShrink: 0,
-              border: `3px solid ${previewAvatar?.color || '#1C2B45'}`,
+              width: 160, height: 160, borderRadius: '50%', overflow: 'hidden', flexShrink: 0,
+              border: `4px solid ${previewAvatar ? '#3B82F6' : '#1C2B45'}`,
               background: '#0B1120',
               transition: 'border-color 0.2s',
+              boxShadow: previewAvatar ? '0 0 32px rgba(59,130,246,0.40)' : 'none',
             }}>
               {previewAvatar ? (
                 <img
@@ -155,11 +156,11 @@ export default function ProfilePage() {
                   style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center', display: 'block' }}
                 />
               ) : (
-                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, color: 'rgba(255,255,255,0.20)' }}>✈</div>
+                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48, color: 'rgba(255,255,255,0.20)' }}>✈</div>
               )}
             </div>
-            <div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: 'rgba(255,255,255,0.92)', marginBottom: 4 }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 20, fontWeight: 700, color: 'rgba(255,255,255,0.92)', marginBottom: 4 }}>
                 {displayName || user?.display_name}
               </div>
               <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.40)' }}>{user?.email}</div>
@@ -336,18 +337,18 @@ function PilotCard({ avatar, selected, onSelect }) {
     <button
       onClick={onSelect}
       style={{
-        background: selected ? `${avatar.color}18` : '#0B1120',
-        border: `2px solid ${selected ? avatar.color : '#1C2B45'}`,
-        borderRadius: 12, padding: '8px 4px',
+        background: selected ? 'rgba(59,130,246,0.15)' : '#0B1120',
+        border: `2px solid ${selected ? '#3B82F6' : '#1C2B45'}`,
+        borderRadius: 12, padding: '6px 4px',
         cursor: 'pointer',
         transform: selected ? 'scale(1.06)' : 'scale(1)',
-        boxShadow: selected ? `0 0 18px ${avatar.color}40` : 'none',
+        boxShadow: selected ? '0 0 20px rgba(59,130,246,0.45)' : 'none',
         transition: 'all 0.15s', display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}
     >
       <div style={{
-        width: 64, height: 64, borderRadius: '50%', overflow: 'hidden',
-        border: `2px solid ${selected ? avatar.color : 'rgba(255,255,255,0.06)'}`,
+        width: 80, height: 80, borderRadius: '50%', overflow: 'hidden',
+        border: `2px solid ${selected ? '#3B82F6' : 'rgba(255,255,255,0.06)'}`,
         transition: 'border-color 0.15s',
       }}>
         <img
