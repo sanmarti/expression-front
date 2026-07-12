@@ -22,7 +22,7 @@ import CockpitPage from './pages/CockpitPage.jsx'
 function ProtectedRoute({ children, requireOrg = false, requireSuperAdmin = false }) {
   const { token, org, user } = useAuthStore()
 
-  if (!token) return <Navigate to="/login" replace />
+  if (!token) return <Navigate to="/" replace />
   if (requireSuperAdmin && user?.role !== 'superadmin') return <Navigate to="/island" replace />
   if (requireOrg && !org) return <Navigate to={user?.role === 'superadmin' ? '/admin' : '/create-org'} replace />
 
@@ -57,8 +57,8 @@ export default function App() {
       <ToastProvider>
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<Navigate to="/" replace />} />
+          <Route path="/login" element={<Navigate to="/" replace />} />
           <Route path="/accept/:token" element={<AcceptInvitePage />} />
           <Route path="/choose-pilot" element={<ProtectedRoute><ChoosePilotPage /></ProtectedRoute>} />
           <Route path="/cockpit" element={<ProtectedRoute requireOrg><CockpitPage /></ProtectedRoute>} />
