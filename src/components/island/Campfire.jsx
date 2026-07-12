@@ -2,7 +2,7 @@ import { useState } from 'react'
 import WeatherEffect from './WeatherEffect.jsx'
 import StakeholderTooltip from './StakeholderTooltip.jsx'
 
-export default function Campfire({ stakeholder, isDragging, onMouseDown, onClick }) {
+export default function Campfire({ stakeholder, isDragging, onMouseDown }) {
   const [hovered, setHovered] = useState(false)
 
   const x = (stakeholder.position_x ?? 50) * 10
@@ -27,8 +27,11 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onClick
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onMouseDown={(e) => { e.stopPropagation(); onMouseDown(e) }}
-      onClick={(e) => { e.stopPropagation(); !isDragging && onClick() }}
+      onClick={(e) => e.stopPropagation()}
     >
+      {/* Invisible hit area — ensures <g> is hittable even though all visual children have pointer-events:none */}
+      <circle r={22} fill="none" style={{ pointerEvents: 'all' }} />
+
       {/* WeatherEffect renders the full 6-indicator visual centered at 0,0 */}
       <g transform="translate(0, 0)" style={{ pointerEvents: 'none' }}>
         <WeatherEffect climate={climate} size="small" />

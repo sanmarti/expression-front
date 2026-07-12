@@ -121,14 +121,18 @@ export default function IslandMap({ onZoneClick }) {
   const handleSVGMouseUp = async (e) => {
     if (!drag) return
     const { id, svgX, svgY } = drag
+    const wasDrag = dragMoved.current
     setDrag(null)
+    dragMoved.current = false
 
-    if (!dragMoved.current) return // was a click, not a drag
+    if (!wasDrag) {
+      navigate(`/stakeholders/${id}`)
+      return
+    }
 
     const newX = Math.round(Math.max(0, Math.min(100, svgX / 10)))
     const newY = Math.round(Math.max(0, Math.min(100, svgY / 7)))
 
-    // optimistic update
     updateStakeholderPosition(id, newX, newY)
 
     try {
@@ -202,7 +206,6 @@ export default function IslandMap({ onZoneClick }) {
             stakeholder={displayed}
             isDragging={isDragging}
             onMouseDown={(e) => handleCampMouseDown(e, s.id)}
-            onClick={() => navigate(`/stakeholders/${s.id}`)}
           />
         )
       })}
