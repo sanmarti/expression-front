@@ -29,7 +29,10 @@ export default function CreateOrgPage() {
     setLoading(true)
     try {
       const { data } = await createOrg(form)
-      setOrg(data.org, 'admin')
+      // API may return { org: {...} } or the org object directly
+      const org = data.org ?? data
+      const role = data.role ?? data.org_role ?? 'admin'
+      setOrg(org, role)
       navigate('/island')
     } catch (err) {
       toast(err.response?.data?.message || 'Failed to create organization', 'error')
