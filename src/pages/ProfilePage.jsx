@@ -63,7 +63,8 @@ const sectionTitle = { fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0
 export default function ProfilePage() {
   const navigate = useNavigate()
   const toast = useToast()
-  const { user, org, logout, setUser } = useAuthStore()
+  const { user, org, orgRole, logout, setUser } = useAuthStore()
+  const isAdmin = orgRole === 'admin'
   const fileRef = useRef(null)
   const [tab, setTab] = useState('profile')
 
@@ -156,7 +157,7 @@ export default function ProfilePage() {
 
         {/* Tab bar */}
         <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid #1C2B45', marginBottom: 28 }}>
-          {TABS.map((t) => {
+          {TABS.filter((t) => t.id !== 'plan' || isAdmin).map((t) => {
             const active = tab === t.id
             return (
               <button
@@ -361,14 +362,24 @@ export default function ProfilePage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
             {[
               { label: 'Name',  value: org?.name },
-              { label: 'Role',  value: user?.org_role, capitalize: true },
               { label: 'Email', value: user?.email },
-            ].map(({ label: l, value, capitalize }) => (
+            ].map(({ label: l, value }) => (
               <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                 <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', width: 80, flexShrink: 0 }}>{l}</span>
-                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', fontWeight: 600, textTransform: capitalize ? 'capitalize' : 'none' }}>{value || '—'}</span>
+                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', fontWeight: 600 }}>{value || '—'}</span>
               </div>
             ))}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', width: 80, flexShrink: 0 }}>Role</span>
+              <span style={{
+                fontSize: 12, fontWeight: 700, padding: '3px 10px', borderRadius: 20, textTransform: 'capitalize',
+                background: isAdmin ? 'rgba(59,130,246,0.15)' : 'rgba(107,114,128,0.15)',
+                color: isAdmin ? '#3B82F6' : '#9ca3af',
+                border: `1px solid ${isAdmin ? 'rgba(59,130,246,0.30)' : 'rgba(107,114,128,0.30)'}`,
+              }}>
+                {orgRole || '—'}
+              </span>
+            </div>
           </div>
         </div>
 
