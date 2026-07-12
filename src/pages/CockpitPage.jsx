@@ -100,7 +100,7 @@ export default function CockpitPage() {
             ) : (
               <div style={{ width: 110, height: 110, borderRadius: '50%', background: '#1C2B45', marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40 }}>✈</div>
             )}
-            <div style={{ fontSize: 14, fontWeight: 700, color: avatar?.color || 'rgba(255,255,255,0.7)' }}>{avatar?.name || 'No pilot'}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: avatar?.color || 'rgba(255,255,255,0.7)' }}>{user?.display_name || 'No pilot'}</div>
             {!avatar && (
               <button onClick={() => navigate('/choose-pilot')} style={{ marginTop: 8, fontSize: 12, color: '#3B82F6', background: 'none', border: 'none', cursor: 'pointer' }}>
                 Choose pilot →

@@ -48,7 +48,7 @@ export default function ChoosePilotPage() {
           Your pilot lives on the island and guides your cockpit
         </p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 12, marginBottom: 36 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 36 }}>
           {AVATARS.map((av) => (
             <AvatarCard key={av.id} avatar={av} selected={selected === av.id} onSelect={() => setSelected(av.id)} />
           ))}
@@ -65,7 +65,7 @@ export default function ChoosePilotPage() {
             transition: 'all 0.2s', letterSpacing: '0.01em',
           }}
         >
-          {saving ? 'Saving…' : selected ? `Fly as ${selectedAvatar?.name} →` : 'Select a pilot to continue'}
+          {saving ? 'Saving…' : selected ? `Fly as ${user?.display_name || user?.email} →` : 'Select a pilot to continue'}
         </button>
       </div>
     </div>
@@ -101,16 +101,16 @@ function AvatarCard({ avatar, selected, onSelect }) {
       style={{
         background: selected ? `${avatar.color}18` : '#141E35',
         border: `2px solid ${selected ? avatar.color : '#1C2B45'}`,
-        borderRadius: 14, padding: '12px 8px 10px',
-        cursor: 'pointer', textAlign: 'center',
+        borderRadius: 16, padding: 12,
+        cursor: 'pointer',
         transition: 'all 0.15s',
-        transform: selected ? 'scale(1.06)' : 'scale(1)',
-        boxShadow: selected ? `0 0 20px ${avatar.color}40` : 'none',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+        transform: selected ? 'scale(1.05)' : 'scale(1)',
+        boxShadow: selected ? `0 0 28px ${avatar.color}50` : 'none',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}
     >
       <div style={{
-        width: 72, height: 72, borderRadius: '50%', overflow: 'hidden', flexShrink: 0,
+        width: 120, height: 120, borderRadius: '50%', overflow: 'hidden', flexShrink: 0,
         border: `3px solid ${selected ? avatar.color : 'rgba(255,255,255,0.08)'}`,
         transition: 'border-color 0.15s',
       }}>
@@ -120,9 +120,6 @@ function AvatarCard({ avatar, selected, onSelect }) {
           alt={avatar.name}
           style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center', display: 'block' }}
         />
-      </div>
-      <div style={{ fontSize: 12, fontWeight: 700, color: selected ? avatar.color : 'rgba(255,255,255,0.65)', lineHeight: 1.2 }}>
-        {avatar.name}
       </div>
     </button>
   )

@@ -95,10 +95,10 @@ export default function CockpitWidget() {
           WebkitBackdropFilter: 'blur(16px)',
           border: `1.5px solid ${hovered ? accentColor : 'rgba(255,255,255,0.10)'}`,
           borderRadius: 16,
-          padding: '12px 16px',
+          padding: '14px 16px',
           cursor: 'pointer',
-          display: 'flex', flexDirection: 'column', gap: 10,
-          width: 268,
+          display: 'flex', flexDirection: 'column', gap: 12,
+          width: 300,
           boxShadow: hovered
             ? `0 0 24px ${accentColor}40, 0 8px 32px rgba(0,0,0,0.5)`
             : '0 4px 20px rgba(0,0,0,0.5)',
@@ -108,24 +108,29 @@ export default function CockpitWidget() {
         }}
       >
         {/* Avatar + title row */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          {avatar ? (
-            <img
-              src={imgSrc}
-              onError={() => setImgSrc(avatar.placeholder)}
-              alt={avatar.name}
-              style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', objectPosition: 'top center', border: `2px solid ${accentColor}`, flexShrink: 0 }}
-            />
-          ) : (
-            <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#1C2B45', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>✈</div>
-          )}
-          <div style={{ flex: 1 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{
+            width: 72, height: 72, borderRadius: '50%', overflow: 'hidden', flexShrink: 0,
+            border: `2.5px solid ${accentColor}`,
+          }}>
+            {avatar ? (
+              <img
+                src={imgSrc}
+                onError={() => setImgSrc(avatar.placeholder)}
+                alt={user?.display_name}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center', display: 'block' }}
+              />
+            ) : (
+              <div style={{ width: '100%', height: '100%', background: '#1C2B45', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26 }}>✈</div>
+            )}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.92)', letterSpacing: '0.02em' }}>My Cockpit</div>
-            <div style={{ fontSize: 11, color: accentColor, marginTop: 2, fontFamily: 'monospace' }}>
-              {avatar ? avatar.name : 'Choose pilot'}
+            <div style={{ fontSize: 12, color: accentColor, marginTop: 2, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {user?.display_name || (avatar ? 'Pilot' : 'Choose pilot')}
             </div>
           </div>
-          <div style={{ fontSize: 18, opacity: 0.25 }}>✈</div>
+          <div style={{ fontSize: 18, opacity: 0.25, flexShrink: 0 }}>✈</div>
         </div>
 
         {/* Divider */}
