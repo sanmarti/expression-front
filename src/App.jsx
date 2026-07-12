@@ -1,6 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import { ToastProvider } from './components/ui/Toast.jsx'
 import useAuthStore from './store/authStore.js'
+import { getMe } from './api/auth.js'
+import Spinner from './components/ui/Spinner.jsx'
 
 import LandingPage from './pages/LandingPage.jsx'
 import RegisterPage from './pages/RegisterPage.jsx'
@@ -25,6 +28,28 @@ function ProtectedRoute({ children, requireOrg = false, requireSuperAdmin = fals
 }
 
 export default function App() {
+  const { token, user, setUser, setOrg, logout } = useAuthStore()
+  const [hydrating, setHydrating] = useState(!!token && !user)
+
+  useEffect(() => {
+    if (!token || user) { setHydrating(false); return }
+    getMe()
+      .then(({ data }) => {
+        setUser({ id: data.id, email: data.email, display_name: data.display_name, role: data.role })
+        if (data.org_id) setOrg({ id: data.org_id, name: data.org_name, slug: data.slug }, data.org_role)
+      })
+      .catch(() => logout())
+      .finally(() => setHydrating(false))
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (hydrating) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#0B1120', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Spinner size={40} />
+      </div>
+    )
+  }
+
   return (
     <BrowserRouter>
       <ToastProvider>
