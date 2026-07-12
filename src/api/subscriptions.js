@@ -7,4 +7,4 @@ export const adminGetOrgs = () => client.get('/admin/organizations')
 export const adminGetUsers = () => client.get('/admin/users')
 export const adminGetStats = () => client.get('/admin/stats')
 export const adminUpdateSubscription = (id, plan) =>
-  client.put(`/admin/subscriptions/${id}`, { plan })
+  client.put(`/admin/subscriptions/${id}`, { plan_name: plan })

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { adminGetOrgs, adminGetUsers, adminGetStats, adminUpdateSubscription } from '../api/subscriptions.js'
+import { adminGetOrgs, adminGetUsers, adminUpdateSubscription } from '../api/subscriptions.js'
 import Badge from '../components/ui/Badge.jsx'
 import Spinner from '../components/ui/Spinner.jsx'
 import { useToast } from '../components/ui/Toast.jsx'
@@ -13,17 +13,21 @@ export default function AdminPage() {
   const [tab, setTab] = useState('orgs')
   const [orgs, setOrgs] = useState([])
   const [users, setUsers] = useState([])
-  const [stats, setStats] = useState(null)
+  const [totals, setTotals] = useState({ orgs: 0, users: 0 })
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const loads = [
-      adminGetOrgs().then(({ data }) => setOrgs(data)),
-      adminGetUsers().then(({ data }) => setUsers(data)),
-      adminGetStats().then(({ data }) => setStats(data)),
-    ]
-    Promise.allSettled(loads).finally(() => setLoading(false))
+    Promise.allSettled([
+      adminGetOrgs().then(({ data }) => {
+        setOrgs(data.organizations || [])
+        setTotals((t) => ({ ...t, orgs: data.total || 0 }))
+      }),
+      adminGetUsers().then(({ data }) => {
+        setUsers(data.users || [])
+        setTotals((t) => ({ ...t, users: data.total || 0 }))
+      }),
+    ]).finally(() => setLoading(false))
   }, [])
 
   const handlePlanChange = async (orgId, plan) => {
@@ -81,12 +85,12 @@ export default function AdminPage() {
                     <tr key={org.id}>
                       <td style={cellStyle}>{org.name}</td>
                       <td style={cellStyle}>{org.owner_email}</td>
-                      <td style={cellStyle}><Badge variant="blue">{org.plan}</Badge></td>
+                      <td style={cellStyle}><Badge variant="blue">{org.plan_name}</Badge></td>
                       <td style={cellStyle}>{org.member_count}</td>
-                      <td style={cellStyle}><Badge variant={org.active ? 'green' : 'gray'}>{org.active ? 'Active' : 'Inactive'}</Badge></td>
+                      <td style={cellStyle}><Badge variant={org.status === 'active' ? 'green' : 'gray'}>{org.status}</Badge></td>
                       <td style={cellStyle}>
                         <select
-                          value={org.plan}
+                          value={org.plan_name}
                           onChange={(e) => handlePlanChange(org.id, e.target.value)}
                           style={{ padding: '4px 8px', borderRadius: 6, background: '#0B1120', border: '1px solid #1C2B45', color: 'rgba(255,255,255,0.80)', fontSize: 12 }}
                         >
@@ -130,13 +134,13 @@ export default function AdminPage() {
               </>
             )}
 
-            {tab === 'stats' && stats && (
+            {tab === 'stats' && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16 }}>
                 {[
-                  { label: 'Total Users', value: stats.total_users, color: '#3B82F6' },
-                  { label: 'Total Orgs', value: stats.total_orgs, color: '#14B8A6' },
-                  { label: 'Active Orgs', value: stats.active_orgs, color: '#10B981' },
-                  { label: 'Est. Revenue', value: `$${stats.estimated_revenue || 0}`, color: '#F59E0B' },
+                  { label: 'Total Users', value: totals.users, color: '#3B82F6' },
+                  { label: 'Total Orgs', value: totals.orgs, color: '#14B8A6' },
+                  { label: 'Active Orgs', value: orgs.filter((o) => o.status === 'active').length, color: '#10B981' },
+                  { label: 'Plans loaded', value: orgs.length, color: '#F59E0B' },
                 ].map((kpi) => (
                   <div key={kpi.label} style={{ background: '#141E35', border: '1px solid #1C2B45', borderRadius: 14, padding: 24 }}>
                     <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.40)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{kpi.label}</div>
