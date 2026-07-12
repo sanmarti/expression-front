@@ -5,6 +5,7 @@ import { INDICATORS } from '../constants/avatars.js'
 import Badge from '../components/ui/Badge.jsx'
 import Spinner from '../components/ui/Spinner.jsx'
 import { useToast } from '../components/ui/Toast.jsx'
+import useAuthStore from '../store/authStore.js'
 
 const PLANS = ['free', 'starter', 'pro', 'enterprise']
 
@@ -54,6 +55,7 @@ function SparkLine({ data, color }) {
 
 export default function AdminPage() {
   const toast = useToast()
+  const { logout } = useAuthStore()
   const [tab, setTab] = useState('dashboard')
   const [orgs, setOrgs] = useState([])
   const [users, setUsers] = useState([])
@@ -172,6 +174,12 @@ export default function AdminPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 28 }}>
           <h1 style={{ fontSize: 24, fontWeight: 700, color: 'rgba(255,255,255,0.92)', margin: 0 }}>Admin Panel</h1>
           <Badge variant="red">Superadmin</Badge>
+          <button
+            onClick={logout}
+            style={{ marginLeft: 'auto', padding: '8px 18px', borderRadius: 8, border: '1px solid rgba(239,68,68,0.35)', background: 'transparent', color: '#EF4444', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}
+          >
+            Log out
+          </button>
         </div>
 
         <div style={{ borderBottom: '1px solid #1C2B45', marginBottom: 24, display: 'flex' }}>
