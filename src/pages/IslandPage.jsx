@@ -46,7 +46,7 @@ export default function IslandPage() {
           position: 'absolute', inset: 0,
           width: '100%', height: '100%',
           objectFit: 'cover', objectPosition: 'center',
-          zIndex: 0, opacity: 0.55,
+          zIndex: 0, opacity: 0.75,
         }}
       >
         <source src="/bg.mp4" type="video/mp4" />
