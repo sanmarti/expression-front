@@ -30,8 +30,10 @@ export default function AuthPanel() {
       const { data } = await apiLogin(form.email, form.password)
       login(data.token, data.user)
       const me = await getMe()
-      if (me.data.org) setOrg(me.data.org, me.data.orgRole)
-      navigate(me.data.org ? '/island' : '/create-org')
+      if (me.data.org_id) setOrg({ id: me.data.org_id, name: me.data.org_name, slug: me.data.slug }, me.data.org_role)
+      if (me.data.role === 'superadmin') navigate('/admin')
+      else if (me.data.org_id) navigate('/island')
+      else navigate('/create-org')
     } catch (err) {
       setError(err.response?.data?.message || 'Invalid credentials')
     } finally {
