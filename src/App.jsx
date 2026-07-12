@@ -18,8 +18,8 @@ function ProtectedRoute({ children, requireOrg = false, requireSuperAdmin = fals
   const { token, org, user } = useAuthStore()
 
   if (!token) return <Navigate to="/login" replace />
-  if (requireOrg && !org) return <Navigate to="/create-org" replace />
   if (requireSuperAdmin && user?.role !== 'superadmin') return <Navigate to="/island" replace />
+  if (requireOrg && !org) return <Navigate to={user?.role === 'superadmin' ? '/admin' : '/create-org'} replace />
 
   return children
 }
