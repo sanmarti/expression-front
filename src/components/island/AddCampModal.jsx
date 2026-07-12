@@ -51,7 +51,12 @@ export default function AddCampModal({ open, onClose, defaultZone, defaultPositi
     setLoading(true)
     try {
       const { data } = await createStakeholder(form)
-      addStakeholder(data)
+      // merge position from form in case the API doesn't echo it back
+      addStakeholder({
+        ...data,
+        position_x: data.position_x ?? form.position_x,
+        position_y: data.position_y ?? form.position_y,
+      })
       toast('Camp planted! 🚩', 'success')
       onClose()
       setForm({ name: '', description: '', category: 'Cliente', zone: 'forest', position_x: 50, position_y: 50 })

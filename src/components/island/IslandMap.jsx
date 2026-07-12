@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Campfire from './Campfire.jsx'
 import PlaneIcon from './PlaneIcon.jsx'
@@ -14,78 +15,125 @@ const ZONES = [
   { id: 'volcano',  d: 'M460,0 Q540,0 560,60 Q500,100 440,60 Z' },
 ]
 
-function getSVGCoords(e) {
-  const svg = e.currentTarget.ownerSVGElement || e.currentTarget
-  const pt = svg.createSVGPoint()
-  pt.x = e.clientX
-  pt.y = e.clientY
-  const svgPt = pt.matrixTransform(svg.getScreenCTM().inverse())
-  return { x: Math.round(svgPt.x / 10), y: Math.round(svgPt.y / 7) }
-}
-
 export default function IslandMap({ onZoneClick }) {
   const navigate = useNavigate()
-  const { stakeholders, updateStakeholderClimate } = useIslandStore()
+  const svgRef = useRef(null)
+  const { stakeholders, updateStakeholderPosition } = useIslandStore()
 
-  const handleDragEnd = async (id, newX, newY) => {
+  // drag state: { id, svgX, svgY } while dragging, null otherwise
+  const [drag, setDrag] = useState(null)
+  // track whether the pointer moved enough to be a drag vs a click
+  const dragMoved = useRef(false)
+
+  const getSVGPoint = (e) => {
+    const svg = svgRef.current
+    const pt = svg.createSVGPoint()
+    pt.x = e.clientX
+    pt.y = e.clientY
+    return pt.matrixTransform(svg.getScreenCTM().inverse())
+  }
+
+  const handleCampMouseDown = (e, id) => {
+    e.preventDefault()
+    dragMoved.current = false
+    const pt = getSVGPoint(e)
+    setDrag({ id, svgX: pt.x, svgY: pt.y })
+  }
+
+  const handleSVGMouseMove = (e) => {
+    if (!drag) return
+    dragMoved.current = true
+    const pt = getSVGPoint(e)
+    setDrag((prev) => ({ ...prev, svgX: pt.x, svgY: pt.y }))
+  }
+
+  const handleSVGMouseUp = async (e) => {
+    if (!drag) return
+    const { id, svgX, svgY } = drag
+    setDrag(null)
+
+    if (!dragMoved.current) return // was a click, not a drag
+
+    const newX = Math.round(Math.max(0, Math.min(100, svgX / 10)))
+    const newY = Math.round(Math.max(0, Math.min(100, svgY / 7)))
+
+    // optimistic update
+    updateStakeholderPosition(id, newX, newY)
+
     try {
       await updateStakeholder(id, { position_x: newX, position_y: newY })
-      updateStakeholderClimate(id, { position_x: newX, position_y: newY })
     } catch {
-      // silent
+      // silent — position stays optimistically updated
     }
+  }
+
+  const handleMapClick = (e, zoneId = null) => {
+    if (dragMoved.current) return // don't open modal after a drag
+    const pt = getSVGPoint(e)
+    const pos = {
+      x: Math.round(Math.max(0, Math.min(100, pt.x / 10))),
+      y: Math.round(Math.max(0, Math.min(100, pt.y / 7))),
+    }
+    onZoneClick && onZoneClick(zoneId, pos)
   }
 
   return (
     <svg
+      ref={svgRef}
       viewBox="0 0 1000 700"
       width="100%"
       height="100vh"
       preserveAspectRatio="xMidYMid slice"
-      style={{ display: 'block' }}
+      style={{ display: 'block', cursor: drag ? 'grabbing' : 'crosshair' }}
+      onMouseMove={handleSVGMouseMove}
+      onMouseUp={handleSVGMouseUp}
+      onMouseLeave={handleSVGMouseUp}
     >
       {/* Photo background */}
       <image
         href="/island.png"
-        x="0"
-        y="0"
-        width="1000"
-        height="700"
+        x="0" y="0"
+        width="1000" height="700"
         preserveAspectRatio="xMidYMid slice"
       />
 
-      {/* Dark overlay to improve pin readability */}
+      {/* Dark overlay */}
       <rect width="1000" height="700" fill="rgba(0,0,0,0.18)" />
 
-      {/* Fallback: click anywhere opens modal with click coordinates */}
+      {/* Fallback click area — whole map */}
       <rect
-        width="1000"
-        height="700"
+        width="1000" height="700"
         fill="transparent"
-        style={{ cursor: 'crosshair' }}
-        onClick={(e) => onZoneClick && onZoneClick(null, getSVGCoords(e))}
+        onClick={(e) => handleMapClick(e, null)}
       />
 
-      {/* Invisible clickable zones — override fallback for named zones */}
+      {/* Named zone overlays */}
       {ZONES.map((z) => (
         <path
           key={z.id}
           d={z.d}
           fill="transparent"
-          style={{ cursor: 'pointer' }}
-          onClick={(e) => { e.stopPropagation(); onZoneClick && onZoneClick(z.id, getSVGCoords(e)) }}
+          onClick={(e) => { e.stopPropagation(); handleMapClick(e, z.id) }}
         />
       ))}
 
-      {/* Campfire pins — rendered on top of everything */}
-      {stakeholders.map((s) => (
-        <Campfire
-          key={s.id}
-          stakeholder={s}
-          onDragEnd={handleDragEnd}
-          onClick={() => navigate(`/stakeholders/${s.id}`)}
-        />
-      ))}
+      {/* Campfire pins */}
+      {stakeholders.map((s) => {
+        const isDragging = drag?.id === s.id
+        const displayed = isDragging
+          ? { ...s, position_x: Math.round(drag.svgX / 10), position_y: Math.round(drag.svgY / 7) }
+          : s
+
+        return (
+          <Campfire
+            key={s.id}
+            stakeholder={displayed}
+            isDragging={isDragging}
+            onMouseDown={(e) => handleCampMouseDown(e, s.id)}
+            onClick={() => navigate(`/stakeholders/${s.id}`)}
+          />
+        )
+      })}
 
       {/* Animated plane */}
       <PlaneIcon stakeholders={stakeholders} />
