@@ -130,9 +130,6 @@ export default function CockpitWidget() {
             <div style={{ fontSize: 16, fontWeight: 700, color: 'rgba(255,255,255,0.95)', letterSpacing: '0.01em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {user?.display_name || (avatar ? 'Pilot' : 'Choose pilot')}
             </div>
-            <div style={{ fontSize: 12, color: accentColor, marginTop: 3, fontWeight: 600, fontFamily: 'monospace' }}>
-              {avatar?.name || '— select avatar →'}
-            </div>
           </div>
           <div style={{ fontSize: 24, opacity: 0.20, flexShrink: 0 }}>✈</div>
         </div>
