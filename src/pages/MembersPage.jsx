@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getMembers, getInvitations, removeMember } from '../api/members.js'
+import { getSubscription } from '../api/subscriptions.js'
 import MemberCard from '../components/members/MemberCard.jsx'
 import InviteModal from '../components/members/InviteModal.jsx'
 import InvitationList from '../components/members/InvitationList.jsx'
@@ -39,14 +40,16 @@ export default function MembersPage() {
   const org = useAuthStore((s) => s.org)
   const [members, setMembers] = useState([])
   const [invitations, setInvitations] = useState([])
+  const [planData, setPlanData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [showInvite, setShowInvite] = useState(false)
 
   const load = async () => {
     try {
-      const [m, i] = await Promise.all([getMembers(), getInvitations()])
+      const [m, i, sub] = await Promise.all([getMembers(), getInvitations(), getSubscription()])
       setMembers(m.data)
       setInvitations(i.data)
+      setPlanData(sub.data)
     } catch {
       toast('Failed to load members', 'error')
     } finally {
@@ -67,10 +70,11 @@ export default function MembersPage() {
     }
   }
 
-  const maxMembers = org?.subscription?.max_members || 3
-  const maxStakeholders = org?.subscription?.max_stakeholders || 5
-  const currentStakeholders = org?.stakeholder_count || 0
-  const limitReached = members.length >= maxMembers
+  const maxMembers = planData?.limits?.max_members ?? 3
+  const maxStakeholders = planData?.limits?.max_stakeholders ?? 5
+  const currentMembers = planData?.usage?.members ?? members.length
+  const currentStakeholders = planData?.usage?.stakeholders ?? 0
+  const limitReached = currentMembers >= maxMembers
 
   // Merge real members with demo placeholders (demo shown only when fewer than 2 real members)
   const displayMembers = [
@@ -102,7 +106,7 @@ export default function MembersPage() {
 
         {/* Usage bars */}
         <div style={{ background: '#141E35', border: '1px solid #1C2B45', borderRadius: 14, padding: '20px 24px', marginBottom: 32, display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <ProgressBar value={members.length} max={maxMembers} label="Members" color="#3B82F6" />
+          <ProgressBar value={currentMembers} max={maxMembers} label="Members" color="#3B82F6" />
           <ProgressBar value={currentStakeholders} max={maxStakeholders} label="Stakeholders" color="#14B8A6" />
         </div>
 

@@ -1,7 +1,7 @@
 import client from './client.js'
 
-export const getSubscription = () => client.get('/subscription')
-export const getPlans = () => client.get('/subscription/plans')
+export const getSubscription = () => client.get('/subscriptions/plan')
+export const getPlans = () => client.get('/subscriptions/plans')
 
 export const adminGetOrgs = () => client.get('/admin/organizations')
 export const adminGetUsers = () => client.get('/admin/users')
