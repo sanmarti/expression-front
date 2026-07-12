@@ -8,6 +8,18 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onClick
   const x = (stakeholder.position_x ?? 50) * 10
   const y = (stakeholder.position_y ?? 50) * 7
 
+  // Build climate object — supports both flat (from list API) and nested
+  const climate = stakeholder.climate ?? {
+    temperature:    stakeholder.temperature,
+    wind:           stakeholder.wind,
+    storm:          stakeholder.storm,
+    visibility:     stakeholder.visibility,
+    tide:           stakeholder.tide,
+    uv_index:       stakeholder.uv_index,
+    overall_status: stakeholder.overall_status,
+    weather_type:   stakeholder.weather_type,
+  }
+
   return (
     <g
       transform={`translate(${x}, ${y})`}
@@ -17,18 +29,14 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onClick
       onMouseDown={(e) => { e.stopPropagation(); onMouseDown(e) }}
       onClick={(e) => { e.stopPropagation(); !isDragging && onClick() }}
     >
-      {/* weather above */}
-      <g transform="translate(-14, -55)" style={{ pointerEvents: 'none' }}>
-        <WeatherEffect weather_type={stakeholder.climate?.weather_type} size="small" />
+      {/* WeatherEffect renders the full 6-indicator visual centered at 0,0 */}
+      <g transform="translate(0, 0)" style={{ pointerEvents: 'none' }}>
+        <WeatherEffect climate={climate} size="small" />
       </g>
-
-      {/* camp circle */}
-      <circle r="20" fill="#1C2B45" stroke="#F59E0B" strokeWidth="2" />
-      <text y="6" textAnchor="middle" fontSize="16" style={{ userSelect: 'none', pointerEvents: 'none' }}>🏕️</text>
 
       {/* name label */}
       <text
-        y="35"
+        y="30"
         textAnchor="middle"
         fontSize="11"
         fill="white"
@@ -40,10 +48,10 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onClick
         {stakeholder.name}
       </text>
 
-      {/* tooltip — pointerEvents none so it never triggers mouseLeave on parent */}
+      {/* tooltip */}
       {hovered && !isDragging && (
         <g style={{ pointerEvents: 'none' }}>
-          <StakeholderTooltip stakeholder={stakeholder} />
+          <StakeholderTooltip stakeholder={{ ...stakeholder, climate }} />
         </g>
       )}
     </g>

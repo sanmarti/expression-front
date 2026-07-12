@@ -1,9 +1,80 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Campfire from './Campfire.jsx'
 import PlaneIcon from './PlaneIcon.jsx'
 import { updateStakeholder } from '../../api/stakeholders.js'
 import useIslandStore from '../../store/islandStore.js'
+
+const STATUS_CFG = {
+  favorable: { icon: '🟢', color: '#22c55e', label: 'Favorable' },
+  attention:  { icon: '🟡', color: '#f59e0b', label: 'Attention' },
+  critical:   { icon: '🔴', color: '#ef4444', label: 'Critical' },
+  unknown:    { icon: '⚫', color: '#6b7280', label: 'Unknown' },
+}
+
+function ConditionsPanel({ stakeholders }) {
+  const [open, setOpen] = useState(false)
+
+  const counts = useMemo(() => {
+    const c = { favorable: 0, attention: 0, critical: 0, unknown: 0 }
+    stakeholders.forEach((s) => {
+      const st = s.overall_status ?? s.climate?.overall_status ?? 'unknown'
+      c[st] = (c[st] || 0) + 1
+    })
+    return c
+  }, [stakeholders])
+
+  const byStatus = useMemo(() => {
+    const groups = { favorable: [], attention: [], critical: [], unknown: [] }
+    stakeholders.forEach((s) => {
+      const st = s.overall_status ?? s.climate?.overall_status ?? 'unknown'
+      groups[st].push(s)
+    })
+    return groups
+  }, [stakeholders])
+
+  return (
+    <div style={{
+      position: 'absolute', top: 70, right: 16, zIndex: 40,
+      background: 'rgba(11,17,32,0.88)', backdropFilter: 'blur(10px)',
+      border: '1px solid rgba(255,255,255,0.10)', borderRadius: 12,
+      minWidth: 180,
+    }}>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        style={{
+          width: '100%', padding: '10px 14px', background: 'none', border: 'none',
+          cursor: 'pointer', display: 'flex', gap: 8, alignItems: 'center',
+          color: 'rgba(255,255,255,0.80)', fontSize: 13, fontWeight: 600,
+        }}
+      >
+        {['critical','attention','favorable','unknown'].map((st) => counts[st] > 0 && (
+          <span key={st}>{STATUS_CFG[st].icon} {counts[st]}</span>
+        ))}
+        <span style={{ marginLeft: 'auto', fontSize: 10 }}>{open ? '▲' : '▼'}</span>
+      </button>
+
+      {open && (
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', padding: '8px 0' }}>
+          {['critical','attention','favorable','unknown'].map((st) => (
+            byStatus[st].length > 0 && (
+              <div key={st}>
+                <div style={{ padding: '4px 14px', fontSize: 11, color: STATUS_CFG[st].color, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  {STATUS_CFG[st].icon} {STATUS_CFG[st].label}
+                </div>
+                {byStatus[st].map((s) => (
+                  <div key={s.id} style={{ padding: '3px 14px 3px 22px', fontSize: 12, color: 'rgba(255,255,255,0.70)' }}>
+                    {s.name}
+                  </div>
+                ))}
+              </div>
+            )
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
 
 // Invisible click zones mapped to the photo's geography
 const ZONES = [
@@ -78,6 +149,7 @@ export default function IslandMap({ onZoneClick }) {
   }
 
   return (
+    <div style={{ position: 'relative', width: '100%', height: '100vh' }}>
     <svg
       ref={svgRef}
       viewBox="0 0 1000 700"
@@ -137,6 +209,29 @@ export default function IslandMap({ onZoneClick }) {
 
       {/* Animated plane */}
       <PlaneIcon stakeholders={stakeholders} />
+
+      {/* Weather legend — bottom-left */}
+      <foreignObject x="12" y="620" width="200" height="80">
+        <div style={{
+          background: 'rgba(11,17,32,0.85)', backdropFilter: 'blur(8px)',
+          border: '1px solid rgba(255,255,255,0.10)', borderRadius: 10, padding: '8px 12px',
+        }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.50)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 4 }}>
+            Weather Legend
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px 10px' }}>
+            {Object.entries(STATUS_CFG).map(([st, cfg]) => (
+              <div key={st} style={{ fontSize: 11, color: cfg.color, display: 'flex', gap: 4, alignItems: 'center' }}>
+                {cfg.icon} {cfg.label}
+              </div>
+            ))}
+          </div>
+        </div>
+      </foreignObject>
     </svg>
+
+    {/* Conditions panel — HTML overlay, outside SVG */}
+    <ConditionsPanel stakeholders={stakeholders} />
+    </div>
   )
 }

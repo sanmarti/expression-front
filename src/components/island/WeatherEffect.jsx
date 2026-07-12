@@ -1,31 +1,190 @@
-export default function WeatherEffect({ weather_type, size = 'small' }) {
+// Renders combined SVG visual for a climate_state with 6 indicators
+// Used both on the island map (small) and in ClimateCard (medium/large)
+
+const TEMP_FILL = { cold: '#60A5FA', temperate: '#34D399', warm: '#FBBF24', hot: '#F87171' }
+const STATUS_STROKE = {
+  favorable: { stroke: '#22c55e', width: 3, dash: '' },
+  attention:  { stroke: '#f59e0b', width: 3, dash: '' },
+  critical:   { stroke: '#ef4444', width: 4, dash: '', blink: true },
+  unknown:    { stroke: '#6b7280', width: 2, dash: '4 2' },
+}
+const UV_GLOW = {
+  blocked:   { color: '#ef4444', opacity: 0.35 },
+  neutral:   null,
+  favorable: { color: '#60A5FA', opacity: 0.25 },
+  optimal:   { color: '#FCD34D', opacity: 0.45, pulse: true },
+}
+const VISIBILITY_OPACITY = { foggy: 0.3, misty: 0.55, partial: 0.75, clear: 1.0 }
+const TIDE_ARROW = { low: { sym: '↓', color: '#ef4444' }, stable: { sym: '→', color: '#9ca3af' }, high: { sym: '↑', color: '#22c55e' }, surge: { sym: '↕', color: '#f59e0b', blink: true } }
+
+function WindLines({ wind }) {
+  if (wind === 'calm') return null
+  const counts = { breeze: 2, windy: 4, gale: 6 }
+  const speed = { breeze: '3s', windy: '1.8s', gale: '0.9s' }
+  const n = counts[wind] || 0
+  const lines = Array.from({ length: n }, (_, i) => {
+    const y = -22 + i * 8
+    const len = wind === 'gale' ? 18 : wind === 'windy' ? 14 : 10
+    return (
+      <path
+        key={i}
+        d={`M-${len / 2},${y} Q0,${y - 3} ${len / 2},${y}`}
+        fill="none" stroke="#93c5fd" strokeWidth="1.5" strokeLinecap="round"
+        style={{ animation: `drift ${speed[wind]} ease-in-out infinite`, animationDelay: `${i * 0.2}s` }}
+      />
+    )
+  })
+  return <g>{lines}</g>
+}
+
+function StormIcon({ storm }) {
+  if (storm === 'clear') return (
+    <g transform="translate(0,-36)">
+      <circle r="5" fill="#FCD34D" style={{ animation: 'pulse-slow 2s ease-in-out infinite' }} />
+    </g>
+  )
+  if (storm === 'cloudy') return (
+    <g transform="translate(0,-38)" style={{ animation: 'float 3s ease-in-out infinite' }}>
+      <ellipse cx="0" cy="0" rx="9" ry="5" fill="#9ca3af" />
+      <ellipse cx="5" cy="-3" rx="6" ry="4" fill="#d1d5db" />
+    </g>
+  )
+  if (storm === 'rainy') return (
+    <g transform="translate(0,-38)" className="weather-rain">
+      <ellipse cx="0" cy="0" rx="9" ry="5" fill="#6b7280" />
+      <line x1="-5" y1="6" x2="-6" y2="13" stroke="#60A5FA" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="0"  y1="6" x2="-1" y2="13" stroke="#60A5FA" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="5"  y1="6" x2="4"  y2="13" stroke="#60A5FA" strokeWidth="1.5" strokeLinecap="round" />
+    </g>
+  )
+  if (storm === 'stormy') return (
+    <g transform="translate(0,-38)">
+      <ellipse cx="0" cy="0" rx="10" ry="6" fill="#374151" />
+      <polyline points="3,6 -1,13 3,13 -2,20" fill="none" stroke="#FCD34D" strokeWidth="2" strokeLinejoin="round" />
+    </g>
+  )
+  return null
+}
+
+function UVGlow({ uv_index, r }) {
+  const g = UV_GLOW[uv_index]
+  if (!g) return null
+  return (
+    <circle
+      r={r + 8}
+      fill={g.color}
+      fillOpacity={g.opacity}
+      style={g.pulse ? { animation: 'pulse-slow 2s ease-in-out infinite' } : undefined}
+    />
+  )
+}
+
+export default function WeatherEffect({ climate = {}, size = 'small' }) {
+  const r = size === 'large' ? 28 : size === 'medium' ? 20 : 14
+  const dim = r * 3.5
+
+  const {
+    temperature = 'temperate',
+    wind = 'calm',
+    storm = 'clear',
+    visibility = 'clear',
+    tide = 'stable',
+    uv_index = 'neutral',
+    overall_status = 'unknown',
+    // legacy single-field fallback
+    weather_type,
+  } = climate
+
+  const fillColor = TEMP_FILL[temperature] || '#34D399'
+  const strokeCfg = STATUS_STROKE[overall_status] || STATUS_STROKE.unknown
+  const visOpacity = VISIBILITY_OPACITY[visibility] ?? 1
+  const tideInfo = TIDE_ARROW[tide]
+
+  // Fallback: if only weather_type (legacy), skip 6-indicator render
+  const isLegacy = !climate.wind && weather_type
+
+  if (isLegacy) {
+    return <LegacyWeather weather_type={weather_type} size={size} />
+  }
+
+  return (
+    <svg
+      width={dim * 2} height={dim * 2}
+      viewBox={`${-dim} ${-dim} ${dim * 2} ${dim * 2}`}
+      overflow="visible"
+      style={{ overflow: 'visible' }}
+    >
+      <g opacity={visOpacity}>
+        {/* UV glow */}
+        <UVGlow uv_index={uv_index} r={r} />
+
+        {/* Fog halo */}
+        {(visibility === 'foggy' || visibility === 'misty') && (
+          <circle r={r + 12} fill="white"
+            fillOpacity={visibility === 'foggy' ? 0.18 : 0.10}
+            style={{ animation: 'float 4s ease-in-out infinite' }} />
+        )}
+
+        {/* Base circle (temperature color) */}
+        <circle
+          r={r}
+          fill={fillColor}
+          stroke={strokeCfg.stroke}
+          strokeWidth={strokeCfg.width}
+          strokeDasharray={strokeCfg.dash}
+          style={strokeCfg.blink ? { animation: 'pulse-slow 1s ease-in-out infinite' } : undefined}
+        />
+
+        {/* Camp icon */}
+        <text
+          textAnchor="middle"
+          dominantBaseline="central"
+          fontSize={r * 1.1}
+          style={{ userSelect: 'none', pointerEvents: 'none' }}
+        >
+          🏕️
+        </text>
+
+        {/* Wind lines */}
+        <WindLines wind={wind} />
+
+        {/* Storm icon above */}
+        <StormIcon storm={storm} />
+
+        {/* Tide arrow below name — only medium/large */}
+        {size !== 'small' && tideInfo && (
+          <text
+            y={r + 22}
+            textAnchor="middle"
+            fontSize="14"
+            fontWeight="700"
+            fill={tideInfo.color}
+            style={tideInfo.blink ? { animation: 'twinkle 1s ease-in-out infinite' } : undefined}
+          >
+            {tideInfo.sym}
+          </text>
+        )}
+      </g>
+    </svg>
+  )
+}
+
+// Kept for backward-compat (ClimateForm preview, history entries without 6 indicators)
+function LegacyWeather({ weather_type: w, size }) {
   const dim = size === 'large' ? 80 : size === 'medium' ? 48 : 28
-
-  const w = weather_type || 'clear'
-
   return (
     <svg width={dim} height={dim} viewBox="0 0 40 40" style={{ overflow: 'visible' }}>
       {w === 'sunny' && (
         <g className="weather-sun">
           <circle cx="20" cy="20" r="8" fill="#FCD34D" />
-          {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => (
-            <line
-              key={deg}
-              x1="20" y1="20"
-              x2={20 + Math.cos((deg * Math.PI) / 180) * 14}
-              y2={20 + Math.sin((deg * Math.PI) / 180) * 14}
-              stroke="#FCD34D" strokeWidth="2" strokeLinecap="round"
-              className="sun-ray"
-              style={{ transformOrigin: '20px 20px', animationDelay: `${deg / 360}s` }}
+          {[0,45,90,135,180,225,270,315].map((deg) => (
+            <line key={deg} x1="20" y1="20"
+              x2={20 + Math.cos((deg*Math.PI)/180)*14}
+              y2={20 + Math.sin((deg*Math.PI)/180)*14}
+              stroke="#FCD34D" strokeWidth="2" strokeLinecap="round" className="sun-ray"
+              style={{ transformOrigin:'20px 20px', animationDelay:`${deg/360}s` }}
             />
           ))}
-        </g>
-      )}
-      {w === 'cloudy' && (
-        <g className="weather-cloud">
-          <ellipse cx="18" cy="22" rx="10" ry="7" fill="#9CA3AF" />
-          <ellipse cx="24" cy="20" rx="8" ry="6" fill="#D1D5DB" style={{ animationDelay: '0.5s' }} />
-          <ellipse cx="14" cy="21" rx="7" ry="5" fill="#6B7280" style={{ animationDelay: '1s' }} />
         </g>
       )}
       {w === 'rainy' && (
@@ -34,50 +193,10 @@ export default function WeatherEffect({ weather_type, size = 'small' }) {
           <line x1="14" y1="24" x2="12" y2="32" stroke="#60A5FA" strokeWidth="1.5" strokeLinecap="round" />
           <line x1="20" y1="24" x2="18" y2="32" stroke="#60A5FA" strokeWidth="1.5" strokeLinecap="round" />
           <line x1="26" y1="24" x2="24" y2="32" stroke="#60A5FA" strokeWidth="1.5" strokeLinecap="round" />
-          <line x1="17" y1="26" x2="15" y2="34" stroke="#60A5FA" strokeWidth="1.5" strokeLinecap="round" />
-          <line x1="23" y1="26" x2="21" y2="34" stroke="#60A5FA" strokeWidth="1.5" strokeLinecap="round" />
         </g>
       )}
-      {w === 'stormy' && (
-        <g>
-          <ellipse cx="20" cy="14" rx="12" ry="7" fill="#374151" />
-          <polyline points="22,20 18,28 22,28 17,36" fill="none" stroke="#FCD34D" strokeWidth="2.5" strokeLinejoin="round" />
-        </g>
-      )}
-      {w === 'foggy' && (
-        <g>
-          {[14, 20, 26].map((y, i) => (
-            <ellipse key={y} cx="20" cy={y} rx="12" ry="3" fill="white" fillOpacity="0.25"
-              style={{ animation: `float 3s ease-in-out infinite`, animationDelay: `${i * 0.6}s` }} />
-          ))}
-        </g>
-      )}
-      {w === 'windy' && (
-        <g className="weather-wind">
-          <path d="M8,16 Q14,12 20,16 Q26,20 32,16" fill="none" stroke="#93C5FD" strokeWidth="2" strokeLinecap="round" />
-          <path d="M8,22 Q14,18 20,22 Q26,26 32,22" fill="none" stroke="#BFDBFE" strokeWidth="2" strokeLinecap="round" style={{ animationDelay: '0.4s' }} />
-          <path d="M10,28 Q16,24 22,28 Q28,32 34,28" fill="none" stroke="#93C5FD" strokeWidth="2" strokeLinecap="round" style={{ animationDelay: '0.8s' }} />
-        </g>
-      )}
-      {w === 'snowy' && (
-        <g className="weather-snow">
-          <ellipse cx="20" cy="14" rx="10" ry="6" fill="#D1D5DB" />
-          <circle cx="14" cy="26" r="2" fill="white" />
-          <circle cx="20" cy="24" r="2" fill="white" style={{ animationDelay: '0.5s' }} />
-          <circle cx="26" cy="28" r="2" fill="white" style={{ animationDelay: '1s' }} />
-          <circle cx="17" cy="32" r="1.5" fill="white" style={{ animationDelay: '0.25s' }} />
-          <circle cx="23" cy="34" r="1.5" fill="white" style={{ animationDelay: '0.75s' }} />
-        </g>
-      )}
-      {(w === 'clear' || !['sunny','cloudy','rainy','stormy','foggy','windy','snowy'].includes(w)) && (
-        <g className="weather-clear">
-          <circle cx="20" cy="20" r="10" fill="rgba(59,130,246,0.15)" stroke="#3B82F6" strokeWidth="1" />
-          <circle cx="20" cy="20" r="5" fill="rgba(59,130,246,0.3)" />
-          <circle cx="14" cy="14" r="2" fill="#60A5FA" style={{ animationDelay: '0s' }} />
-          <circle cx="26" cy="14" r="1.5" fill="#60A5FA" style={{ animationDelay: '0.5s' }} />
-          <circle cx="26" cy="26" r="2" fill="#60A5FA" style={{ animationDelay: '1s' }} />
-          <circle cx="14" cy="26" r="1.5" fill="#60A5FA" style={{ animationDelay: '1.5s' }} />
-        </g>
+      {(w === 'clear' || !w) && (
+        <circle cx="20" cy="20" r="10" fill="rgba(59,130,246,0.15)" stroke="#3B82F6" strokeWidth="1" />
       )}
     </svg>
   )
