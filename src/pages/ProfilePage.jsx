@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import useAuthStore from '../store/authStore.js'
 import Avatar from '../components/ui/Avatar.jsx'
 import { useToast } from '../components/ui/Toast.jsx'
+import LogoutConfirmModal from '../components/ui/LogoutConfirmModal.jsx'
 
 export default function ProfilePage() {
   const navigate = useNavigate()
   const toast = useToast()
   const { user, logout } = useAuthStore()
   const [form, setForm] = useState({ display_name: user?.display_name || '', email: user?.email || '' })
+  const [showLogout, setShowLogout] = useState(false)
 
   const inputStyle = {
     width: '100%', padding: '11px 14px', borderRadius: 8, marginTop: 6,
@@ -23,6 +25,12 @@ export default function ProfilePage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#0B1120', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+      {showLogout && (
+        <LogoutConfirmModal
+          onConfirm={logout}
+          onCancel={() => setShowLogout(false)}
+        />
+      )}
       <div style={{ width: '100%', maxWidth: 480 }}>
         <button onClick={() => navigate('/island')} style={{ background: 'none', border: 'none', color: '#3B82F6', cursor: 'pointer', fontSize: 14, padding: '0 0 20px 0' }}>
           ← Back to Island
@@ -53,7 +61,7 @@ export default function ProfilePage() {
               }}>
                 Save changes
               </button>
-              <button type="button" onClick={logout} style={{
+              <button type="button" onClick={() => setShowLogout(true)} style={{
                 height: 44, padding: '0 20px', borderRadius: 8, border: '1px solid rgba(239,68,68,0.3)',
                 background: 'transparent', color: '#EF4444', cursor: 'pointer', fontWeight: 600,
               }}>

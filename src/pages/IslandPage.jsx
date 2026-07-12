@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import IslandMap from '../components/island/IslandMap.jsx'
 import AddCampModal from '../components/island/AddCampModal.jsx'
+import LogoutConfirmModal from '../components/ui/LogoutConfirmModal.jsx'
 import Spinner from '../components/ui/Spinner.jsx'
 import useIslandStore from '../store/islandStore.js'
 import useAuthStore from '../store/authStore.js'
@@ -15,6 +16,7 @@ export default function IslandPage() {
   const [showAddModal, setShowAddModal] = useState(false)
   const [selectedZone, setSelectedZone] = useState(null)
   const [clickPos, setClickPos] = useState(null)
+  const [showLogout, setShowLogout] = useState(false)
 
   useClimateSync()
 
@@ -60,7 +62,7 @@ export default function IslandPage() {
           <NavBtn onClick={() => navigate('/members')}>Members</NavBtn>
           <NavBtn onClick={() => navigate('/profile')}>Profile</NavBtn>
           <NavBtn onClick={() => navigate('/subscription')}>⚙️</NavBtn>
-          <NavBtn onClick={logout} style={{ color: 'rgba(239,68,68,0.8)' }}>Logout</NavBtn>
+          <NavBtn onClick={() => setShowLogout(true)} style={{ color: 'rgba(239,68,68,0.8)' }}>Logout</NavBtn>
         </div>
       </div>
 
@@ -87,6 +89,13 @@ export default function IslandPage() {
       >
         +
       </button>
+
+      {showLogout && (
+        <LogoutConfirmModal
+          onConfirm={logout}
+          onCancel={() => setShowLogout(false)}
+        />
+      )}
 
       <AddCampModal
         open={showAddModal}

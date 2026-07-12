@@ -14,7 +14,7 @@ const useAuthStore = create((set) => ({
   logout: () => {
     localStorage.removeItem('token')
     set({ token: null, user: null, org: null, orgRole: null })
-    window.location.href = '/login'
+    window.location.href = '/'
   },
 
   setOrg: (org, role) => set({ org, orgRole: role }),
