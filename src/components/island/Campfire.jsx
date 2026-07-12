@@ -1,15 +1,14 @@
 import { useState } from 'react'
 import StakeholderTooltip from './StakeholderTooltip.jsx'
 
-const TEMP_FILL   = { cold: '#60A5FA', temperate: '#34D399', warm: '#FBBF24', hot: '#F87171' }
-const STATUS_CLR  = { favorable: '#22c55e', attention: '#f59e0b', critical: '#ef4444', unknown: '#6b7280' }
-const STORM_ICON  = { clear: '☀', cloudy: '☁', rainy: '🌧', stormy: '⚡' }
-const WIND_ICON   = { calm: '·', breeze: '〜', windy: '≋', gale: '⟫' }
-const TIDE_ICON   = { low: '↓', stable: '→', high: '↑', surge: '↕' }
-const TIDE_CLR    = { low: '#ef4444', stable: '#9ca3af', high: '#22c55e', surge: '#f59e0b' }
-const TEMP_LABEL  = { cold: '❄', temperate: '🌿', warm: '☀', hot: '🔥' }
+const STATUS_CLR = { favorable: '#22c55e', attention: '#f59e0b', critical: '#ef4444', unknown: '#6b7280' }
+const TEMP_FILL  = { cold: '#60A5FA', temperate: '#34D399', warm: '#FBBF24', hot: '#F87171' }
 
-// Regular hexagon, flat-top, radius r
+const STORM_EMOJI = { clear: '☀️', cloudy: '⛅', rainy: '🌧️', stormy: '⛈️' }
+const WIND_EMOJI  = { calm: '🌀', breeze: '🍃', windy: '💨', gale: '🌬️' }
+const TIDE_EMOJI  = { low: '⬇️', stable: '➡️', high: '⬆️', surge: '⚡' }
+const TEMP_EMOJI  = { cold: '❄️', temperate: '🌿', warm: '🌤️', hot: '🔥' }
+
 function hexPoints(r) {
   return [0, 1, 2, 3, 4, 5]
     .map((i) => {
@@ -19,21 +18,16 @@ function hexPoints(r) {
     .join(' ')
 }
 
-function Chip({ x, y, width = 34, height = 15, icon, label, labelColor = 'rgba(255,255,255,0.85)', borderColor = 'rgba(255,255,255,0.12)' }) {
+function EmojiChip({ x, y, emoji, borderColor = 'rgba(255,255,255,0.18)', r = 11 }) {
   return (
     <g transform={`translate(${x},${y})`} style={{ pointerEvents: 'none' }}>
-      <rect
-        x={-width / 2} y={-height / 2}
-        width={width} height={height} rx={height / 2}
-        fill="rgba(8,13,28,0.82)"
-        stroke={borderColor} strokeWidth="0.8"
-      />
+      <circle r={r} fill="rgba(6,10,22,0.78)" stroke={borderColor} strokeWidth="0.8" />
       <text
         textAnchor="middle" dominantBaseline="central"
-        fontSize="8.5" fill={labelColor}
-        style={{ userSelect: 'none', fontFamily: 'monospace', letterSpacing: '0.02em' }}
+        fontSize={r * 1.35}
+        style={{ userSelect: 'none' }}
       >
-        {icon}{icon ? ' ' : ''}{label}
+        {emoji}
       </text>
     </g>
   )
@@ -64,7 +58,8 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown }) {
     overall_status = 'unknown',
   } = climate
 
-  const fillColor   = TEMP_FILL[temperature]  || '#34D399'
+  const campEmoji   = stakeholder.emoji || '🏕️'
+  const fillColor   = TEMP_FILL[temperature]    || '#34D399'
   const statusColor = STATUS_CLR[overall_status] || '#6b7280'
   const isCritical  = overall_status === 'critical'
   const nameLen     = stakeholder.name?.length ?? 8
@@ -79,124 +74,61 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown }) {
       onMouseDown={(e) => { e.stopPropagation(); onMouseDown(e) }}
       onClick={(e) => e.stopPropagation()}
     >
-      {/* Invisible hit area */}
-      <circle r={28} fill="none" style={{ pointerEvents: 'all' }} />
+      <circle r={32} fill="none" style={{ pointerEvents: 'all' }} />
 
       <g style={{ pointerEvents: 'none' }}>
-        {/* Outer status glow ring */}
-        <circle
-          r="21" fill="none"
-          stroke={statusColor} strokeWidth="6" strokeOpacity="0.12"
-        />
+        {/* Soft status glow */}
+        <circle r="20" fill={statusColor} fillOpacity="0.08" />
 
-        {/* Rotating dashed scan ring */}
+        {/* Rotating scan ring */}
         <circle
-          r="21" fill="none"
+          r="20" fill="none"
           stroke={statusColor} strokeWidth="1"
-          strokeDasharray="5 31"
-          style={{
-            animation: 'spin 10s linear infinite',
-            transformOrigin: '0 0',
-            strokeOpacity: 0.6,
-          }}
+          strokeDasharray="5 25"
+          style={{ animation: 'spin 12s linear infinite', transformOrigin: '0 0', strokeOpacity: 0.55 }}
         />
 
-        {/* Critical pulse outer ring */}
         {isCritical && (
-          <circle
-            r="24" fill="none"
-            stroke="#ef4444" strokeWidth="1.5" strokeOpacity="0.4"
-            style={{ animation: 'pulse-slow 1.2s ease-in-out infinite' }}
-          />
+          <circle r="23" fill="none" stroke="#ef4444" strokeWidth="1.5" strokeOpacity="0.4"
+            style={{ animation: 'pulse-slow 1.2s ease-in-out infinite' }} />
         )}
 
-        {/* Hexagonal pin */}
-        <polygon
-          points={hexPoints(13)}
-          fill={fillColor}
-          fillOpacity="0.88"
-          stroke={statusColor}
-          strokeWidth="2"
-        />
+        {/* Hex pin */}
+        <polygon points={hexPoints(13)} fill={fillColor} fillOpacity="0.85" stroke={statusColor} strokeWidth="2" />
+        <polygon points={hexPoints(9)}  fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="0.7" />
 
-        {/* Inner hex ring */}
-        <polygon
-          points={hexPoints(10)}
-          fill="none"
-          stroke="rgba(255,255,255,0.20)"
-          strokeWidth="0.8"
-        />
-
-        {/* Camp emoji */}
-        <text
-          textAnchor="middle" dominantBaseline="central"
-          fontSize="11"
-          style={{ userSelect: 'none' }}
-        >
-          🏕️
+        {/* Camp emoji — user-chosen */}
+        <text textAnchor="middle" dominantBaseline="central" fontSize="13" style={{ userSelect: 'none' }}>
+          {campEmoji}
         </text>
 
-        {/* ── Floating data chips ─────────────────────── */}
-
+        {/* ── 4 floating emoji chips ─────────────────────── */}
         {/* Storm — top */}
-        <Chip
-          x={0} y={-32}
-          width={40} height={14}
-          icon={STORM_ICON[storm] || '☀'}
-          label={storm || 'clear'}
-          borderColor={statusColor}
-        />
+        <EmojiChip x={0}   y={-30} emoji={STORM_EMOJI[storm] || '☀️'} borderColor={statusColor} r={11} />
+        {/* Wind  — right */}
+        <EmojiChip x={28}  y={-14} emoji={WIND_EMOJI[wind]   || '🌀'} borderColor="#3b82f6" r={10} />
+        {/* Tide  — left */}
+        <EmojiChip x={-28} y={-14} emoji={TIDE_EMOJI[tide]   || '➡️'} borderColor="#14b8a6" r={10} />
+        {/* Temp  — bottom-right */}
+        <EmojiChip x={24}  y={16}  emoji={TEMP_EMOJI[temperature] || '🌿'} borderColor={fillColor} r={10} />
 
-        {/* Wind — top-right */}
-        <Chip
-          x={30} y={-16}
-          width={32} height={13}
-          icon={WIND_ICON[wind] || '·'}
-          label={wind || 'calm'}
-          labelColor="#93c5fd"
-          borderColor="#3b82f6"
-        />
-
-        {/* Tide — top-left */}
-        <Chip
-          x={-30} y={-16}
-          width={28} height={13}
-          icon={TIDE_ICON[tide] || '→'}
-          label={tide || 'stable'}
-          labelColor={TIDE_CLR[tide] || '#9ca3af'}
-          borderColor={TIDE_CLR[tide] || '#9ca3af'}
-        />
-
-        {/* Temperature — bottom-right */}
-        <Chip
-          x={28} y={16}
-          width={36} height={13}
-          icon={TEMP_LABEL[temperature] || '🌿'}
-          label={temperature || 'temperate'}
-          labelColor={fillColor}
-          borderColor={fillColor}
-        />
-
-        {/* Name label */}
+        {/* Name pill */}
         <g transform="translate(0, 30)">
           <rect
-            x={-nameW / 2} y="-7"
-            width={nameW} height="14" rx="7"
-            fill="rgba(8,13,28,0.88)"
-            stroke={statusColor} strokeWidth="0.8"
+            x={-nameW / 2} y="-7" width={nameW} height="14" rx="7"
+            fill="rgba(6,10,22,0.86)" stroke={statusColor} strokeWidth="0.8"
           />
           <text
             textAnchor="middle" dominantBaseline="central"
-            fontSize="9.5" fontWeight="700"
-            fill="rgba(255,255,255,0.92)"
-            style={{ userSelect: 'none', fontFamily: 'monospace', letterSpacing: '0.04em', textTransform: 'uppercase' }}
+            fontSize="9" fontWeight="700"
+            fill="rgba(255,255,255,0.90)"
+            style={{ userSelect: 'none', fontFamily: 'monospace', letterSpacing: '0.05em', textTransform: 'uppercase' }}
           >
             {stakeholder.name}
           </text>
         </g>
       </g>
 
-      {/* Hover tooltip */}
       {hovered && !isDragging && (
         <g style={{ pointerEvents: 'none' }}>
           <StakeholderTooltip stakeholder={{ ...stakeholder, climate }} />

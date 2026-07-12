@@ -18,6 +18,12 @@ const ZONES = [
 
 const CATEGORIES = ['Cliente', 'Proveedor', 'Partner', 'Regulador', 'Interno', 'Otro']
 
+const FLAG_EMOJIS = [
+  '🏕️','⛺','🚩','🔥','🏔️','🌴','🏖️','⚡','🌋','🏴',
+  '🎯','💎','⭐','🏰','🌺','🛡️','🦅','🗺️','🎪','🌊',
+  '🐉','🧭','⚓','🔭','🏹','🌀','💫','🎖️','🏆','🌐',
+]
+
 const ZONE_COLORS = {
   forest: '#166534', mountain: '#374151', beach: '#FCD34D', jungle: '#065F46',
   desert: '#D97706', river: '#1D4ED8', lake: '#0EA5E9', coast: '#BAE6FD', volcano: '#991B1B',
@@ -28,7 +34,7 @@ export default function AddCampModal({ open, onClose, defaultZone, defaultPositi
   const addStakeholder = useIslandStore((s) => s.addStakeholder)
   const [form, setForm] = useState({
     name: '', description: '', category: 'Cliente', zone: 'forest',
-    position_x: 50, position_y: 50,
+    position_x: 50, position_y: 50, emoji: '🏕️',
   })
   const [loading, setLoading] = useState(false)
 
@@ -59,7 +65,7 @@ export default function AddCampModal({ open, onClose, defaultZone, defaultPositi
       })
       toast('Camp planted! 🚩', 'success')
       onClose()
-      setForm({ name: '', description: '', category: 'Cliente', zone: 'forest', position_x: 50, position_y: 50 })
+      setForm({ name: '', description: '', category: 'Cliente', zone: 'forest', position_x: 50, position_y: 50, emoji: '🏕️' })
     } catch (err) {
       toast(err.response?.data?.message || 'Failed to create camp', 'error')
     } finally {
@@ -117,6 +123,30 @@ export default function AddCampModal({ open, onClose, defaultZone, defaultPositi
             </select>
           </div>
         </div>
+        {/* Emoji picker */}
+        <div>
+          <label style={{ display: 'block', marginBottom: 8, fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>
+            Camp flag  <span style={{ fontSize: 18 }}>{form.emoji}</span>
+          </label>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            {FLAG_EMOJIS.map((e) => (
+              <button
+                key={e}
+                type="button"
+                onClick={() => set('emoji', e)}
+                style={{
+                  width: 38, height: 38, borderRadius: 8, border: `2px solid ${form.emoji === e ? '#3B82F6' : 'rgba(255,255,255,0.10)'}`,
+                  background: form.emoji === e ? 'rgba(59,130,246,0.15)' : 'rgba(11,17,32,0.6)',
+                  fontSize: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'border-color 0.15s',
+                }}
+              >
+                {e}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* zone preview */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>
           <div style={{
