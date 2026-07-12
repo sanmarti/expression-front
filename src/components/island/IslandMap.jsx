@@ -1,7 +1,6 @@
 import { useRef, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Campfire from './Campfire.jsx'
-import PlaneIcon from './PlaneIcon.jsx'
 import { updateStakeholder } from '../../api/stakeholders.js'
 import useIslandStore from '../../store/islandStore.js'
 
@@ -209,9 +208,6 @@ export default function IslandMap({ onZoneClick }) {
           />
         )
       })}
-
-      {/* Animated plane */}
-      <PlaneIcon stakeholders={stakeholders} />
 
       {/* Weather legend — bottom-left */}
       <foreignObject x="12" y="620" width="200" height="80">
