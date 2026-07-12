@@ -16,6 +16,8 @@ import ProfilePage from './pages/ProfilePage.jsx'
 import SubscriptionPage from './pages/SubscriptionPage.jsx'
 import AdminPage from './pages/AdminPage.jsx'
 import AcceptInvitePage from './pages/AcceptInvitePage.jsx'
+import ChoosePilotPage from './pages/ChoosePilotPage.jsx'
+import CockpitPage from './pages/CockpitPage.jsx'
 
 function ProtectedRoute({ children, requireOrg = false, requireSuperAdmin = false }) {
   const { token, org, user } = useAuthStore()
@@ -35,7 +37,7 @@ export default function App() {
     if (!token || user) { setHydrating(false); return }
     getMe()
       .then(({ data }) => {
-        setUser({ id: data.id, email: data.email, display_name: data.display_name, role: data.role })
+        setUser({ id: data.id, email: data.email, display_name: data.display_name, avatar_url: data.avatar_url, selected_avatar: data.selected_avatar, role: data.role })
         if (data.org_id) setOrg({ id: data.org_id, name: data.org_name, slug: data.slug }, data.org_role)
       })
       .catch(() => logout())
@@ -58,6 +60,8 @@ export default function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/accept/:token" element={<AcceptInvitePage />} />
+          <Route path="/choose-pilot" element={<ProtectedRoute><ChoosePilotPage /></ProtectedRoute>} />
+          <Route path="/cockpit" element={<ProtectedRoute requireOrg><CockpitPage /></ProtectedRoute>} />
 
           <Route
             path="/create-org"

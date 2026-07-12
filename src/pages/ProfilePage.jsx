@@ -7,6 +7,7 @@ import ProgressBar from '../components/ui/ProgressBar.jsx'
 import LogoutConfirmModal from '../components/ui/LogoutConfirmModal.jsx'
 import { useToast } from '../components/ui/Toast.jsx'
 import { updateProfile, changePassword } from '../api/auth.js'
+import { AVATARS, getAvatar } from '../constants/avatars.js'
 
 const PLANS = [
   { id: 'free',       label: 'Free',       price: '$0',   members: 3,    stakeholders: 5,
@@ -59,6 +60,8 @@ export default function ProfilePage() {
   const { user, org, logout, setUser } = useAuthStore()
   const fileRef = useRef(null)
 
+  const [selectedPilot, setSelectedPilot] = useState(user?.selected_avatar || null)
+  const [savingPilot, setSavingPilot] = useState(false)
   const [displayName, setDisplayName] = useState(user?.display_name || '')
   const [avatarPreview, setAvatarPreview] = useState(user?.avatar_url || null)
   const [avatarData, setAvatarData] = useState(null)
@@ -79,6 +82,20 @@ export default function ProfilePage() {
     const b64 = await resizeToBase64(file)
     setAvatarPreview(b64)
     setAvatarData(b64)
+  }
+
+  const handleSavePilot = async () => {
+    if (!selectedPilot) return
+    setSavingPilot(true)
+    try {
+      const { data } = await updateProfile({ selected_avatar: selectedPilot })
+      setUser({ ...user, selected_avatar: selectedPilot, ...data })
+      toast('Pilot updated', 'success')
+    } catch {
+      toast('Failed to save pilot', 'error')
+    } finally {
+      setSavingPilot(false)
+    }
   }
 
   const handleSaveProfile = async () => {
@@ -129,6 +146,31 @@ export default function ProfilePage() {
         <button onClick={() => navigate('/island')} style={{ background: 'none', border: 'none', color: '#3B82F6', cursor: 'pointer', fontSize: 14, padding: '0 0 24px 0' }}>
           ← Back to Island
         </button>
+
+        {/* ── Your Pilot ── */}
+        <div style={card}>
+          <div style={sectionTitle}>Your Pilot</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
+            {AVATARS.map((av) => {
+              const sel = selectedPilot === av.id
+              return (
+                <PilotCard key={av.id} avatar={av} selected={sel} onSelect={() => setSelectedPilot(av.id)} />
+              )
+            })}
+          </div>
+          <button
+            onClick={handleSavePilot}
+            disabled={savingPilot || selectedPilot === user?.selected_avatar}
+            style={{
+              padding: '10px 24px', borderRadius: 8, border: 'none', cursor: 'pointer',
+              background: 'linear-gradient(135deg,#3B82F6,#14B8A6)',
+              color: 'white', fontWeight: 600, fontSize: 14,
+              opacity: (savingPilot || selectedPilot === user?.selected_avatar) ? 0.5 : 1,
+            }}
+          >
+            {savingPilot ? 'Saving…' : 'Save pilot'}
+          </button>
+        </div>
 
         {/* ── Profile ── */}
         <div style={card}>
@@ -291,5 +333,33 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
+  )
+}
+
+function PilotCard({ avatar, selected, onSelect }) {
+  const [imgSrc, setImgSrc] = useState(avatar.src)
+  return (
+    <button
+      onClick={onSelect}
+      style={{
+        background: selected ? `${avatar.color}18` : '#0B1120',
+        border: `2px solid ${selected ? avatar.color : '#1C2B45'}`,
+        borderRadius: 12, padding: '14px 8px 10px',
+        cursor: 'pointer', textAlign: 'center',
+        transform: selected ? 'scale(1.04)' : 'scale(1)',
+        boxShadow: selected ? `0 0 16px ${avatar.color}35` : 'none',
+        transition: 'all 0.15s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7,
+      }}
+    >
+      <img
+        src={imgSrc}
+        onError={() => setImgSrc(avatar.placeholder)}
+        alt={avatar.name}
+        style={{ width: 60, height: 60, borderRadius: '50%', objectFit: 'cover', border: `2px solid ${selected ? avatar.color : 'transparent'}` }}
+      />
+      <div style={{ fontSize: 12, fontWeight: 700, color: selected ? avatar.color : 'rgba(255,255,255,0.55)' }}>
+        {avatar.name}
+      </div>
+    </button>
   )
 }

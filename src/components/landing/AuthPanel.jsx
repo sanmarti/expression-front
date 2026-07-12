@@ -46,8 +46,9 @@ export default function AuthPanel() {
     setError('')
     setLoading(true)
     try {
-      await apiRegister(form.display_name, form.email, form.password)
-      navigate('/create-org')
+      const { data } = await apiRegister(form.display_name, form.email, form.password)
+      login(data.token, data.user)
+      navigate('/choose-pilot')
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed')
     } finally {

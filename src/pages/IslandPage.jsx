@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import IslandMap from '../components/island/IslandMap.jsx'
 import AddCampModal from '../components/island/AddCampModal.jsx'
 import LogoutConfirmModal from '../components/ui/LogoutConfirmModal.jsx'
+import CockpitWidget from '../components/island/CockpitWidget.jsx'
 import Spinner from '../components/ui/Spinner.jsx'
 import useIslandStore from '../store/islandStore.js'
 import useAuthStore from '../store/authStore.js'
@@ -99,6 +100,8 @@ export default function IslandPage() {
       >
         +
       </button>
+
+      <CockpitWidget />
 
       {showLogout && (
         <LogoutConfirmModal

@@ -47,7 +47,7 @@ export default function AcceptInvitePage() {
       // accept again now that we have an account
       const accept = await acceptInvite(token)
       if (accept.data.org) setOrg(accept.data.org, accept.data.orgRole)
-      navigate('/island')
+      navigate('/choose-pilot')
     } catch (err) {
       setErrMsg(err.response?.data?.message || 'Registration failed')
     } finally {

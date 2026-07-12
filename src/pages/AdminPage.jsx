@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { adminGetOrgs, adminGetUsers, adminUpdateSubscription, adminDeleteOrg, adminGetStats } from '../api/subscriptions.js'
+import { adminGetCockpitQuestions, adminCreateCockpitQuestion, adminUpdateCockpitQuestion, adminDeleteCockpitQuestion } from '../api/cockpit.js'
+import { INDICATORS } from '../constants/avatars.js'
 import Badge from '../components/ui/Badge.jsx'
 import Spinner from '../components/ui/Spinner.jsx'
 import { useToast } from '../components/ui/Toast.jsx'
@@ -60,6 +62,17 @@ export default function AdminPage() {
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [deletingId, setDeletingId] = useState(null)
+  const [questions, setQuestions] = useState([])
+  const [qLoading, setQLoading] = useState(false)
+  const [showNewQ, setShowNewQ] = useState(false)
+  const [newQ, setNewQ] = useState({ text: '', indicator: 'altitude', options: [
+    { key: 'A', text: '', score: 100 },
+    { key: 'B', text: '', score: 75 },
+    { key: 'C', text: '', score: 50 },
+    { key: 'D', text: '', score: 25 },
+    { key: 'E', text: '', score: 0 },
+  ]})
+  const [savingQ, setSavingQ] = useState(false)
 
   useEffect(() => {
     Promise.allSettled([
@@ -73,6 +86,9 @@ export default function AdminPage() {
       }),
       adminGetStats().then(({ data }) => setStats(data)).catch(() => {}),
     ]).finally(() => setLoading(false))
+
+    setQLoading(true)
+    adminGetCockpitQuestions().then(({ data }) => setQuestions(data)).catch(() => {}).finally(() => setQLoading(false))
   }, [])
 
   const handlePlanChange = async (orgId, plan) => {
@@ -99,6 +115,43 @@ export default function AdminPage() {
     }
   }
 
+  const handleCreateQuestion = async () => {
+    if (!newQ.text.trim()) { toast('Question text required', 'error'); return }
+    if (newQ.options.some((o) => !o.text.trim())) { toast('Fill all 5 option texts', 'error'); return }
+    setSavingQ(true)
+    try {
+      const { data } = await adminCreateCockpitQuestion({
+        text: newQ.text, indicator: newQ.indicator, sort_order: questions.length,
+        options: newQ.options.map((o) => ({ key: o.key, text: o.text, score: parseInt(o.score) })),
+      })
+      setQuestions((q) => [...q, data])
+      setNewQ({ text: '', indicator: 'altitude', options: [
+        { key: 'A', text: '', score: 100 }, { key: 'B', text: '', score: 75 },
+        { key: 'C', text: '', score: 50 },  { key: 'D', text: '', score: 25 },
+        { key: 'E', text: '', score: 0 },
+      ]})
+      setShowNewQ(false)
+      toast('Question created', 'success')
+    } catch { toast('Failed to create question', 'error') }
+    finally { setSavingQ(false) }
+  }
+
+  const handleToggleActive = async (q) => {
+    try {
+      await adminUpdateCockpitQuestion(q.id, { is_active: !q.is_active })
+      setQuestions((qs) => qs.map((x) => x.id === q.id ? { ...x, is_active: !q.is_active } : x))
+    } catch { toast('Failed to update', 'error') }
+  }
+
+  const handleDeleteQuestion = async (id) => {
+    if (!window.confirm("Delete this question? User answers will also be removed.")) return
+    try {
+      await adminDeleteCockpitQuestion(id)
+      setQuestions((qs) => qs.filter((q) => q.id !== id))
+      toast('Question deleted', 'success')
+    } catch { toast('Failed to delete', 'error') }
+  }
+
   const tabStyle = (t) => ({
     padding: '10px 20px', border: 'none', background: 'transparent', cursor: 'pointer',
     fontSize: 14, fontWeight: 600,
@@ -122,7 +175,7 @@ export default function AdminPage() {
         </div>
 
         <div style={{ borderBottom: '1px solid #1C2B45', marginBottom: 24, display: 'flex' }}>
-          {['dashboard', 'orgs', 'users'].map((t) => (
+          {['dashboard', 'orgs', 'users', 'questionnaire'].map((t) => (
             <button key={t} style={tabStyle(t)} onClick={() => setTab(t)}>
               {t === 'dashboard' ? 'Dashboard' : t.charAt(0).toUpperCase() + t.slice(1)}
             </button>
@@ -309,6 +362,118 @@ export default function AdminPage() {
                   </tbody>
                 </table>
               </>
+            )}
+
+            {/* ── QUESTIONNAIRE ─────────────────────────────────────── */}
+            {tab === 'questionnaire' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)' }}>{questions.length} questions</div>
+                  <button
+                    onClick={() => setShowNewQ((v) => !v)}
+                    style={{ padding: '8px 18px', borderRadius: 8, border: 'none', cursor: 'pointer', background: '#3B82F6', color: 'white', fontWeight: 600, fontSize: 13 }}
+                  >
+                    {showNewQ ? 'Cancel' : '+ New question'}
+                  </button>
+                </div>
+
+                {/* Create form */}
+                {showNewQ && (
+                  <div style={{ background: '#141E35', border: '1px solid #3B82F6', borderRadius: 12, padding: 24 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.92)', marginBottom: 16 }}>New Question</div>
+                    <div style={{ display: 'flex', gap: 12, marginBottom: 14 }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.40)', marginBottom: 6 }}>Question text</div>
+                        <input
+                          value={newQ.text}
+                          onChange={(e) => setNewQ((q) => ({ ...q, text: e.target.value }))}
+                          placeholder="How would you describe your current energy level?"
+                          style={{ width: '100%', padding: '9px 12px', borderRadius: 7, background: '#0B1120', border: '1px solid #1C2B45', color: 'rgba(255,255,255,0.90)', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
+                        />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.40)', marginBottom: 6 }}>Indicator</div>
+                        <select
+                          value={newQ.indicator}
+                          onChange={(e) => setNewQ((q) => ({ ...q, indicator: e.target.value }))}
+                          style={{ padding: '9px 12px', borderRadius: 7, background: '#0B1120', border: '1px solid #1C2B45', color: 'rgba(255,255,255,0.90)', fontSize: 13 }}
+                        >
+                          {INDICATORS.map((i) => <option key={i.id} value={i.id}>{i.icon} {i.label}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
+                      {newQ.options.map((opt, idx) => (
+                        <div key={opt.key} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                          <span style={{ width: 20, fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.40)', flexShrink: 0 }}>{opt.key}</span>
+                          <input
+                            value={opt.text}
+                            onChange={(e) => setNewQ((q) => ({ ...q, options: q.options.map((o, i) => i === idx ? { ...o, text: e.target.value } : o) }))}
+                            placeholder={`Option ${opt.key} text`}
+                            style={{ flex: 1, padding: '7px 10px', borderRadius: 6, background: '#0B1120', border: '1px solid #1C2B45', color: 'rgba(255,255,255,0.85)', fontSize: 13, outline: 'none' }}
+                          />
+                          <input
+                            type="number" min="0" max="100"
+                            value={opt.score}
+                            onChange={(e) => setNewQ((q) => ({ ...q, options: q.options.map((o, i) => i === idx ? { ...o, score: e.target.value } : o) }))}
+                            style={{ width: 60, padding: '7px 8px', borderRadius: 6, background: '#0B1120', border: '1px solid #1C2B45', color: 'rgba(255,255,255,0.70)', fontSize: 13, outline: 'none', textAlign: 'center' }}
+                          />
+                          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', flexShrink: 0 }}>pts</span>
+                        </div>
+                      ))}
+                    </div>
+                    <button
+                      onClick={handleCreateQuestion}
+                      disabled={savingQ}
+                      style={{ padding: '9px 22px', borderRadius: 8, border: 'none', cursor: 'pointer', background: 'linear-gradient(135deg,#3B82F6,#14B8A6)', color: 'white', fontWeight: 600, fontSize: 13, opacity: savingQ ? 0.6 : 1 }}
+                    >
+                      {savingQ ? 'Saving…' : 'Create question'}
+                    </button>
+                  </div>
+                )}
+
+                {/* Questions list */}
+                {qLoading ? (
+                  <div style={{ textAlign: 'center', padding: 32, color: 'rgba(255,255,255,0.30)' }}>Loading…</div>
+                ) : questions.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: 48, color: 'rgba(255,255,255,0.25)' }}>No questions yet. Create one above.</div>
+                ) : (
+                  questions.map((q) => {
+                    const ind = INDICATORS.find((i) => i.id === q.indicator)
+                    return (
+                      <div key={q.id} style={{ background: '#141E35', border: `1px solid ${q.is_active ? '#1C2B45' : 'rgba(239,68,68,0.20)'}`, borderRadius: 12, padding: '18px 20px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, marginBottom: 12 }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', marginBottom: 6, lineHeight: 1.5 }}>{q.text}</div>
+                            <span style={{ fontSize: 11, fontWeight: 700, color: ind?.color || '#3B82F6' }}>{ind?.icon} {ind?.label || q.indicator}</span>
+                          </div>
+                          <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+                            <button
+                              onClick={() => handleToggleActive(q)}
+                              style={{ padding: '4px 10px', borderRadius: 6, border: `1px solid ${q.is_active ? '#10B981' : '#EF4444'}`, background: 'transparent', color: q.is_active ? '#10B981' : '#EF4444', fontSize: 12, cursor: 'pointer' }}
+                            >
+                              {q.is_active ? 'Active' : 'Inactive'}
+                            </button>
+                            <button
+                              onClick={() => handleDeleteQuestion(q.id)}
+                              style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid rgba(239,68,68,0.30)', background: 'transparent', color: '#EF4444', fontSize: 12, cursor: 'pointer' }}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                          {(q.options || []).map((o) => (
+                            <div key={o.key} style={{ fontSize: 12, padding: '3px 10px', borderRadius: 6, background: '#0B1120', border: '1px solid #1C2B45', color: 'rgba(255,255,255,0.55)' }}>
+                              <strong style={{ color: ind?.color || '#3B82F6' }}>{o.key}</strong> {o.text} <span style={{ color: 'rgba(255,255,255,0.30)' }}>({o.score}pts)</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  })
+                )}
+              </div>
             )}
           </>
         )}
