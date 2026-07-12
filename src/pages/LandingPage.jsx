@@ -23,14 +23,21 @@ export default function LandingPage() {
       {/* Dark gradient overlay — lighter on left, darker on right for contrast */}
       <div style={{
         position: 'absolute', inset: 0,
-        background: 'linear-gradient(105deg, rgba(11,17,32,0.62) 0%, rgba(11,17,32,0.45) 50%, rgba(11,17,32,0.80) 100%)',
+        background: 'linear-gradient(105deg, rgba(11,17,32,0.55) 0%, rgba(11,17,32,0.30) 60%, rgba(11,17,32,0.20) 100%)',
         zIndex: 1,
       }} />
 
+      {/* Left: hero text */}
       <div style={{ flex: '0 0 55%', position: 'relative', zIndex: 2 }}>
         <HeroLeft />
       </div>
-      <div style={{ flex: '0 0 45%', position: 'relative', zIndex: 2 }}>
+
+      {/* Right: auth card centered in transparent column */}
+      <div style={{
+        flex: '0 0 45%', position: 'relative', zIndex: 2,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '40px 32px',
+      }}>
         <AuthPanel />
       </div>
 

@@ -73,12 +73,15 @@ export default function AuthPanel() {
 
   return (
     <div style={{
-      background: 'rgba(10,15,30,0.72)',
-      backdropFilter: 'blur(20px)',
-      WebkitBackdropFilter: 'blur(20px)',
-      borderLeft: '1px solid rgba(255,255,255,0.08)',
-      padding: '60px 40px', display: 'flex', flexDirection: 'column', justifyContent: 'center',
-      minHeight: '100vh',
+      width: '100%', maxWidth: 420,
+      background: 'rgba(10,15,30,0.78)',
+      backdropFilter: 'blur(24px)',
+      WebkitBackdropFilter: 'blur(24px)',
+      border: '1px solid rgba(255,255,255,0.10)',
+      borderRadius: 20,
+      boxShadow: '0 24px 64px rgba(0,0,0,0.55)',
+      padding: '44px 36px',
+      display: 'flex', flexDirection: 'column',
     }}>
       <h2 style={{ fontSize: 24, fontWeight: 700, color: 'rgba(255,255,255,0.92)', marginBottom: 24, marginTop: 0 }}>
         {tab === 'signin' ? 'Welcome back' : 'Get started'}
