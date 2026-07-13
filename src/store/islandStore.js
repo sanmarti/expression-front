@@ -23,6 +23,13 @@ const useIslandStore = create((set) => ({
       ),
     })),
 
+  updateStakeholder: (id, fields) =>
+    set((state) => ({
+      stakeholders: state.stakeholders.map((s) =>
+        s.id === id ? { ...s, ...fields } : s
+      ),
+    })),
+
   addStakeholder: (stakeholder) =>
     set((state) => ({ stakeholders: [...state.stakeholders, stakeholder] })),
 

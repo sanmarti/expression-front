@@ -45,6 +45,7 @@ export default function ProfilePage() {
   const [tab, setTab] = useState('profile')
 
   const [selectedPilot, setSelectedPilot] = useState(user?.selected_avatar || null)
+  const [pilotOpen, setPilotOpen] = useState(!user?.selected_avatar)
   const [displayName, setDisplayName] = useState(user?.display_name || '')
   const [saving, setSaving] = useState(false)
 
@@ -187,14 +188,39 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Pilot avatar grid */}
+          {/* Pilot avatar grid — collapsible when a pilot is already chosen */}
           <div style={{ marginBottom: 24 }}>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.50)', marginBottom: 14 }}>Select your avatar</div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 10 }}>
-              {AVATARS.map((av) => (
-                <PilotCard key={av.id} avatar={av} selected={selectedPilot === av.id} onSelect={() => handlePilotSelect(av.id)} />
-              ))}
-            </div>
+            <button
+              type="button"
+              onClick={() => setPilotOpen((o) => !o)}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                marginBottom: pilotOpen ? 14 : 0,
+              }}
+            >
+              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.50)' }}>Pilot avatar</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                {!pilotOpen && previewAvatar && (
+                  <span style={{ fontSize: 12, color: previewAvatar.color, fontWeight: 700, fontFamily: 'monospace', letterSpacing: '0.04em' }}>
+                    {previewAvatar.name.toUpperCase()}
+                  </span>
+                )}
+                <span style={{
+                  fontSize: 14, color: 'rgba(255,255,255,0.35)',
+                  display: 'inline-block',
+                  transform: pilotOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.2s',
+                }}>▾</span>
+              </div>
+            </button>
+            {pilotOpen && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 10 }}>
+                {AVATARS.map((av) => (
+                  <PilotCard key={av.id} avatar={av} selected={selectedPilot === av.id} onSelect={() => handlePilotSelect(av.id)} />
+                ))}
+              </div>
+            )}
           </div>
 
           <button onClick={handleSave} disabled={saving} style={{

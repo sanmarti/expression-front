@@ -26,6 +26,7 @@ export default function StakeholderPage() {
   const toast = useToast()
   const { isAdmin } = useOrganization()
   const removeStakeholder = useIslandStore((s) => s.removeStakeholder)
+  const updateStakeholderInStore = useIslandStore((s) => s.updateStakeholder)
   const [stakeholder, setStakeholder] = useState(null)
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState('climate')
@@ -56,6 +57,7 @@ export default function StakeholderPage() {
     try {
       const { data } = await updateStakeholder(id, infoForm)
       setStakeholder(data)
+      updateStakeholderInStore(id, { name: data.name, emoji: data.emoji })
       toast('Saved', 'success')
     } catch {
       toast('Failed to save', 'error')
@@ -152,10 +154,36 @@ export default function StakeholderPage() {
           {tab === 'history' && <ClimateHistory stakeholderId={id} />}
           {tab === 'info' && (
             <form onSubmit={handleSaveInfo} style={{ maxWidth: 500, display: 'flex', flexDirection: 'column', gap: 18 }}>
-              {[['name','Name'],['description','Description'],['category','Category'],['zone','Zone']].map(([field, label]) => (
+              {[['emoji','Emoji'],['name','Name'],['description','Description'],['category','Category'],['zone','Zone']].map(([field, label]) => (
                 <div key={field}>
                   <label style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>{label}</label>
-                  {field === 'description' ? (
+                  {field === 'emoji' ? (
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 6 }}>
+                        <span style={{ fontSize: 36, lineHeight: 1 }}>{infoForm.emoji || '🏕️'}</span>
+                        <input
+                          style={{ ...inputStyle, width: 80, fontSize: 20, textAlign: 'center', marginTop: 0 }}
+                          value={infoForm.emoji || ''}
+                          onChange={(e) => setInfoForm((f) => ({ ...f, emoji: e.target.value }))}
+                          maxLength={4}
+                          placeholder="🏕️"
+                        />
+                      </div>
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 10 }}>
+                        {['🏕️','⛺','🔥','🌊','🌴','⛰️','🌋','🏖️','🌲','🌿','🗺️','🧭','🌅','🏔️','🌺','🌾'].map((em) => (
+                          <button key={em} type="button"
+                            onClick={() => setInfoForm((f) => ({ ...f, emoji: em }))}
+                            style={{
+                              fontSize: 20, padding: '4px 7px', borderRadius: 6, cursor: 'pointer',
+                              background: infoForm.emoji === em ? 'rgba(59,130,246,0.20)' : 'rgba(255,255,255,0.05)',
+                              border: `1px solid ${infoForm.emoji === em ? '#3B82F6' : 'transparent'}`,
+                              transition: 'all 0.12s',
+                            }}
+                          >{em}</button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : field === 'description' ? (
                     <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 72 }}
                       value={infoForm[field] || ''} onChange={(e) => setInfoForm((f) => ({ ...f, [field]: e.target.value }))} />
                   ) : field === 'category' ? (
