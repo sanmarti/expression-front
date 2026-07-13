@@ -118,7 +118,7 @@ export default function ClimateCard({ stakeholder }) {
         display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px',
         borderRadius: 12, marginBottom: 20,
         background: banner.bg, border: `1px solid ${banner.border}`,
-        animation: banner.blink ? 'pulse-slow 2s ease-in-out infinite' : 'none',
+        animation: banner.blink ? 'pulse-subtle 3s ease-in-out infinite' : 'none',
       }}>
         <span style={{ fontSize: 20 }}>{banner.icon}</span>
         <span style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.92)' }}>{banner.text}</span>
