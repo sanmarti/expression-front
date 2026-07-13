@@ -92,6 +92,7 @@ export default function IslandMap({ onZoneClick }) {
   const { stakeholders, updateStakeholderPosition } = useIslandStore()
 
   const [drag, setDrag] = useState(null)
+  const [dragActive, setDragActive] = useState(false) // true only after meaningful movement
   const [hoveredId, setHoveredId] = useState(null)
   const dragMoved = useRef(false)
 
@@ -107,13 +108,17 @@ export default function IslandMap({ onZoneClick }) {
     e.preventDefault()
     dragMoved.current = false
     const pt = getSVGPoint(e)
-    setDrag({ id, svgX: pt.x, svgY: pt.y })
+    setDragActive(false)
+    setDrag({ id, svgX: pt.x, svgY: pt.y, startX: pt.x, startY: pt.y })
   }
 
   const handleSVGMouseMove = (e) => {
     if (!drag) return
-    dragMoved.current = true
     const pt = getSVGPoint(e)
+    const moved = Math.abs(pt.x - drag.startX) > 4 || Math.abs(pt.y - drag.startY) > 4
+    if (!moved) return
+    dragMoved.current = true
+    if (!dragActive) setDragActive(true)
     setDrag((prev) => ({ ...prev, svgX: pt.x, svgY: pt.y }))
   }
 
@@ -122,6 +127,7 @@ export default function IslandMap({ onZoneClick }) {
     const { id, svgX, svgY } = drag
     const wasDrag = dragMoved.current
     setDrag(null)
+    setDragActive(false)
     dragMoved.current = false
 
     if (!wasDrag) {
@@ -194,7 +200,7 @@ export default function IslandMap({ onZoneClick }) {
 
       {/* Campfire pins */}
       {stakeholders.map((s) => {
-        const isDragging = drag?.id === s.id
+        const isDragging = drag?.id === s.id && dragActive
         const displayed = isDragging
           ? { ...s, position_x: Math.round(drag.svgX / 10), position_y: Math.round(drag.svgY / 7) }
           : s
