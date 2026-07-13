@@ -1,3 +1,5 @@
+import { getClimateIcon } from '../../constants/climate.js'
+
 const STATUS_CLR = { favorable: '#22c55e', attention: '#f59e0b', critical: '#ef4444', unknown: '#6b7280' }
 const STATUS_LBL = { favorable: '● FAVORABLE', attention: '● ATTENTION', critical: '● CRITICAL', unknown: '○ UNKNOWN' }
 
@@ -80,7 +82,8 @@ export default function StakeholderTooltip({ stakeholder }) {
                 <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.08em' }}>
                   {row.label}
                 </div>
-                <div style={{ fontSize: 10, color, fontWeight: 600, letterSpacing: '0.03em' }}>
+                <div style={{ fontSize: 10, color, fontWeight: 600, letterSpacing: '0.03em', display: 'flex', alignItems: 'center', gap: 3 }}>
+                  <span style={{ fontSize: 11 }}>{getClimateIcon(row.key, val)}</span>
                   {label}
                 </div>
               </div>
