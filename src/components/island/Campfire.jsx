@@ -33,12 +33,14 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
 
   const vals = { storm, wind, temperature, visibility, tide, uv_index }
 
-  // Card geometry (SVG units)
-  const cardW = 152
-  const cardH = 66
-  const lineH = 28
-  const cx    = -cardW / 2
-  const cy    = -(cardH + lineH)
+  // Card geometry (SVG units) — foreignObject is taller than cardH to avoid
+  // clipping when SVG scales down on smaller screens (SVG units ≠ CSS px)
+  const cardW  = 152
+  const cardH  = 72   // geometry anchor (line endpoint)
+  const foH    = 120  // foreignObject height — generous to prevent clip
+  const lineH  = 28
+  const cx     = -cardW / 2
+  const cy     = -(cardH + lineH)
 
   return (
     <g
@@ -52,7 +54,7 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
       {/* Transparent hit area */}
       <rect
         x={cx - 4} y={cy - 4}
-        width={cardW + 8} height={cardH + lineH + 10}
+        width={cardW + 8} height={foH + lineH + 10}
         fill="transparent"
       />
 
@@ -72,11 +74,11 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
       />
 
       {/* Weather card */}
-      <foreignObject x={cx} y={cy} width={cardW} height={cardH} style={{ pointerEvents: 'none' }}>
+      <foreignObject x={cx} y={cy} width={cardW} height={foH} style={{ pointerEvents: 'none', overflow: 'visible' }}>
         <div
           xmlns="http://www.w3.org/1999/xhtml"
           style={{
-            width: cardW + 'px', height: cardH + 'px',
+            width: cardW + 'px',
             background: 'rgba(6,10,22,0.90)',
             backdropFilter: 'blur(14px)',
             border: `1.5px solid ${statusColor}`,

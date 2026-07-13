@@ -47,9 +47,8 @@ export default function StakeholderTooltip({ stakeholder }) {
   const status = c.overall_status || 'unknown'
   const statusColor = STATUS_CLR[status]
 
-  // 220px wide, ~170px tall card
   return (
-    <foreignObject x="82" y="-90" width="220" height="185" style={{ pointerEvents: 'none' }}>
+    <foreignObject x="82" y="-180" width="220" height="280" style={{ pointerEvents: 'none', overflow: 'visible' }}>
       <div style={{
         background: 'rgba(6,10,22,0.94)',
         border: `1px solid ${statusColor}`,
