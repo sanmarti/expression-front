@@ -11,3 +11,6 @@ export const getClimateHistory = (stakeholderId) =>
 
 export const getStatusRules = () => client.get('/admin/status-rules')
 export const updateStatusRules = (data) => client.put('/admin/status-rules', data)
+
+export const getComments = (stakeholderId) => client.get(`/stakeholders/${stakeholderId}/comments`)
+export const postComment = (stakeholderId, content) => client.post(`/stakeholders/${stakeholderId}/comments`, { content })
