@@ -46,15 +46,18 @@ export default function MembersPage() {
 
   const load = async () => {
     try {
-      const [m, i, sub] = await Promise.all([getMembers(), getInvitations(), getSubscription()])
+      const [m, i] = await Promise.all([getMembers(), getInvitations()])
       setMembers(m.data)
       setInvitations(i.data)
-      setPlanData(sub.data)
     } catch {
       toast('Failed to load members', 'error')
     } finally {
       setLoading(false)
     }
+    try {
+      const sub = await getSubscription()
+      setPlanData(sub.data)
+    } catch {}
   }
 
   useEffect(() => { load() }, [])
@@ -63,7 +66,7 @@ export default function MembersPage() {
     if (!confirm('Remove this member?')) return
     try {
       await removeMember(id)
-      setMembers((prev) => prev.filter((m) => m.id !== id))
+      await load()
       toast('Member removed', 'info')
     } catch {
       toast('Failed to remove', 'error')
