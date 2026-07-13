@@ -508,12 +508,12 @@ export default function AdminPage() {
 
                     {/* Indicator score cards */}
                     {[
-                      { indicator: 'storm',       label: 'Risk & Conflict',      values: ['clear','cloudy','rainy','stormy'],         icons: { clear:'☀️', cloudy:'⛅', rainy:'🌧️', stormy:'⛈️' } },
-                      { indicator: 'uv_index',    label: 'Alignment & Support',  values: ['optimal','favorable','neutral','blocked'],  icons: { optimal:'✨', favorable:'🌤️', neutral:'🌑', blocked:'🚫' } },
-                      { indicator: 'visibility',  label: 'Information Quality',  values: ['clear','partial','misty','foggy'],         icons: { clear:'🔭', partial:'🌤️', misty:'😶‍🌫️', foggy:'🌫️' } },
-                      { indicator: 'wind',        label: 'Influence & Power',    values: ['calm','breeze','windy','gale'],             icons: { calm:'🍃', breeze:'💨', windy:'🌬️', gale:'🌀' } },
-                      { indicator: 'temperature', label: 'Activity Level',       values: ['warm','temperate','hot','cold'],           icons: { warm:'☀️', temperate:'🌤️', hot:'🔥', cold:'❄️' } },
-                      { indicator: 'tide',        label: 'Trend & Momentum',     values: ['high','stable','surge','low'],             icons: { high:'📈', stable:'➡️', surge:'🌊', low:'📉' } },
+                      { indicator: 'storm',       label: 'Turbulence · Risk & Conflict',        values: ['clear','cloudy','rainy','stormy'],        icons: { clear:'🟢', cloudy:'🟡', rainy:'🟠', stormy:'🔴' } },
+                      { indicator: 'uv_index',    label: 'Sky Conditions · Alignment & Support', values: ['optimal','favorable','neutral','blocked'], icons: { optimal:'☀️', favorable:'🌤️', neutral:'☁️', blocked:'⛈️' } },
+                      { indicator: 'visibility',  label: 'Visibility · Information Quality',     values: ['clear','partial','misty','foggy'],        icons: { clear:'🧭', partial:'👀', misty:'🌁', foggy:'🌫️' } },
+                      { indicator: 'wind',        label: 'Wind Strength · Influence & Power',    values: ['calm','breeze','windy','gale'],            icons: { calm:'🌈', breeze:'🌬️', windy:'💨', gale:'🌪️' } },
+                      { indicator: 'temperature', label: 'Temperature · Activity Level',         values: ['warm','temperate','hot','cold'],           icons: { warm:'🌡️', temperate:'🍃', hot:'🔥', cold:'❄️' } },
+                      { indicator: 'tide',        label: 'Pressure Systems · Trend & Momentum',  values: ['high','stable','surge','low'],             icons: { high:'📈', stable:'➖', surge:'🌀', low:'📉' } },
                     ].map(({ indicator, label, values, icons }) => (
                       <div key={indicator} style={{ background: '#141E35', border: '1px solid #1C2B45', borderRadius: 12, padding: 20 }}>
                         <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.80)', marginBottom: 14, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</div>

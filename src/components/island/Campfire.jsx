@@ -94,18 +94,18 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
         </foreignObject>
 
         {/* ── 6 floating emoji chips (hexagonal layout) — one per climate indicator ── */}
-        {/* top        — Risk & Conflict (storm) */}
-        <EmojiChip x={0}   y={-34} emoji={getClimateIcon('storm',       storm)       || '☀️'} borderColor={statusColor} r={10} />
-        {/* top-right  — Influence & Power (wind) */}
-        <EmojiChip x={29}  y={-17} emoji={getClimateIcon('wind',        wind)        || '🍃'} borderColor="#3b82f6"     r={10} />
-        {/* bot-right  — Trend & Momentum (tide) */}
-        <EmojiChip x={29}  y={17}  emoji={getClimateIcon('tide',        tide)        || '➡️'} borderColor="#14b8a6"    r={10} />
-        {/* bottom     — Activity Level (temperature) */}
-        <EmojiChip x={0}   y={34}  emoji={getClimateIcon('temperature', temperature) || '🌤️'} borderColor={fillColor}  r={10} />
-        {/* bot-left   — Information Quality (visibility) */}
-        <EmojiChip x={-29} y={17}  emoji={getClimateIcon('visibility',  visibility)  || '🌤️'} borderColor="#8b5cf6"    r={10} />
-        {/* top-left   — Alignment & Support (uv_index) */}
-        <EmojiChip x={-29} y={-17} emoji={getClimateIcon('uv_index',    uv_index)    || '🌑'} borderColor="#ec4899"    r={10} />
+        {/* top        — Risk & Conflict / Turbulence */}
+        <EmojiChip x={0}   y={-34} emoji={getClimateIcon('storm',       storm)       || '🟢'} borderColor={statusColor} r={10} />
+        {/* top-right  — Influence & Power / Wind Strength */}
+        <EmojiChip x={29}  y={-17} emoji={getClimateIcon('wind',        wind)        || '🌈'} borderColor="#3b82f6"     r={10} />
+        {/* bot-right  — Trend & Momentum / Pressure Systems */}
+        <EmojiChip x={29}  y={17}  emoji={getClimateIcon('tide',        tide)        || '➖'} borderColor="#14b8a6"    r={10} />
+        {/* bottom     — Activity Level / Temperature */}
+        <EmojiChip x={0}   y={34}  emoji={getClimateIcon('temperature', temperature) || '🍃'} borderColor={fillColor}  r={10} />
+        {/* bot-left   — Information Quality / Visibility */}
+        <EmojiChip x={-29} y={17}  emoji={getClimateIcon('visibility',  visibility)  || '🧭'} borderColor="#8b5cf6"    r={10} />
+        {/* top-left   — Alignment & Support / Sky Conditions */}
+        <EmojiChip x={-29} y={-17} emoji={getClimateIcon('uv_index',    uv_index)    || '☁️'} borderColor="#ec4899"    r={10} />
 
         {/* Name pill — pushed below the bottom chip */}
         <g transform="translate(0, 50)">
