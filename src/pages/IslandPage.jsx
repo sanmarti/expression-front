@@ -19,7 +19,8 @@ export default function IslandPage() {
   useClimateSync()
 
   useEffect(() => {
-    setLoading(true)
+    const already = useIslandStore.getState().stakeholders
+    if (!already || already.length === 0) setLoading(true)
     getStakeholders()
       .then(({ data }) => setStakeholders(data))
       .catch(() => {})
