@@ -16,12 +16,15 @@ const ZONES = [
   { id: 'volcano', label: '🌋 Volcano' },
 ]
 
-const CATEGORIES = ['Cliente', 'Proveedor', 'Partner', 'Regulador', 'Interno', 'Otro']
+const CATEGORIES = ['Client', 'Supplier', 'Partner', 'Regulator', 'Internal', 'Other']
 
-const FLAG_EMOJIS = [
-  '🏕️','⛺','🚩','🔥','🏔️','🌴','🏖️','⚡','🌋','🏴',
-  '🎯','💎','⭐','🏰','🌺','🛡️','🦅','🗺️','🎪','🌊',
-  '🐉','🧭','⚓','🔭','🏹','🌀','💫','🎖️','🏆','🌐',
+const CAMP_EMOJIS = [
+  { em: '🏕️', label: 'Bush Camp' },
+  { em: '⛺',  label: 'Base Camp' },
+  { em: '🛖',  label: 'Shelter' },
+  { em: '🏠',  label: 'House' },
+  { em: '🏡',  label: 'Homestead' },
+  { em: '🏘️', label: 'Settlement' },
 ]
 
 const ZONE_COLORS = {
@@ -33,7 +36,7 @@ export default function AddCampModal({ open, onClose, defaultZone, defaultPositi
   const toast = useToast()
   const addStakeholder = useIslandStore((s) => s.addStakeholder)
   const [form, setForm] = useState({
-    name: '', description: '', category: 'Cliente', zone: 'forest',
+    name: '', description: '', category: 'Client', zone: 'forest',
     position_x: 50, position_y: 50, emoji: '🏕️',
   })
   const [loading, setLoading] = useState(false)
@@ -65,7 +68,7 @@ export default function AddCampModal({ open, onClose, defaultZone, defaultPositi
       })
       toast('Camp planted! 🚩', 'success')
       onClose()
-      setForm({ name: '', description: '', category: 'Cliente', zone: 'forest', position_x: 50, position_y: 50, emoji: '🏕️' })
+      setForm({ name: '', description: '', category: 'Client', zone: 'forest', position_x: 50, position_y: 50, emoji: '🏕️' })
     } catch (err) {
       toast(err.response?.data?.message || 'Failed to create camp', 'error')
     } finally {
@@ -80,7 +83,7 @@ export default function AddCampModal({ open, onClose, defaultZone, defaultPositi
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="Plant your flag 🚩">
+    <Modal open={open} onClose={onClose} title="Create new stakeholder">
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div>
           <label style={{ display: 'block', marginBottom: 6, fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>
@@ -126,24 +129,32 @@ export default function AddCampModal({ open, onClose, defaultZone, defaultPositi
         {/* Emoji picker */}
         <div>
           <label style={{ display: 'block', marginBottom: 8, fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>
-            Camp flag  <span style={{ fontSize: 18 }}>{form.emoji}</span>
+            Camp type
           </label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            {FLAG_EMOJIS.map((e) => (
-              <button
-                key={e}
-                type="button"
-                onClick={() => set('emoji', e)}
-                style={{
-                  width: 38, height: 38, borderRadius: 8, border: `2px solid ${form.emoji === e ? '#3B82F6' : 'rgba(255,255,255,0.10)'}`,
-                  background: form.emoji === e ? 'rgba(59,130,246,0.15)' : 'rgba(11,17,32,0.6)',
-                  fontSize: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  transition: 'border-color 0.15s',
-                }}
-              >
-                {e}
-              </button>
-            ))}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {CAMP_EMOJIS.map(({ em, label }) => {
+              const selected = form.emoji === em
+              return (
+                <button
+                  key={em}
+                  type="button"
+                  onClick={() => set('emoji', em)}
+                  style={{
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+                    padding: '10px 14px', borderRadius: 10, cursor: 'pointer',
+                    background: selected ? 'rgba(59,130,246,0.15)' : 'rgba(255,255,255,0.04)',
+                    border: `1.5px solid ${selected ? '#3B82F6' : 'rgba(255,255,255,0.10)'}`,
+                    boxShadow: selected ? '0 0 12px rgba(59,130,246,0.25)' : 'none',
+                    transition: 'all 0.12s',
+                  }}
+                >
+                  <span style={{ fontSize: 26, lineHeight: 1 }}>{em}</span>
+                  <span style={{ fontSize: 10, color: selected ? '#3B82F6' : 'rgba(255,255,255,0.40)', fontFamily: 'monospace', fontWeight: selected ? 700 : 400, letterSpacing: '0.04em' }}>
+                    {label.toUpperCase()}
+                  </span>
+                </button>
+              )
+            })}
           </div>
         </div>
 

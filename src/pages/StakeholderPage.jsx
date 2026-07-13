@@ -16,7 +16,7 @@ const ZONES = {
   forest:'🌲', mountain:'⛰️', beach:'🏖️', jungle:'🌴',
   desert:'🏜️', river:'🌊', lake:'💧', coast:'🌊', volcano:'🌋',
 }
-const CATEGORIES = ['Cliente','Proveedor','Partner','Regulador','Interno','Otro']
+const CATEGORIES = ['Client','Supplier','Partner','Regulator','Internal','Other']
 const sentimentVariant = { positive:'green', neutral:'gray', negative:'red', mixed:'amber', unknown:'gray' }
 const riskColor = (v) => v <= 3 ? '#10B981' : v <= 6 ? '#F59E0B' : '#EF4444'
 
