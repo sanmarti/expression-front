@@ -1,7 +1,8 @@
 import { getClimateIcon } from '../../constants/climate.js'
 
 const STATUS_CLR = { favorable: '#22c55e', attention: '#f59e0b', critical: '#ef4444', unknown: '#6b7280' }
-const TEMP_LBL   = { cold: 'Cold', temperate: 'Moderate', warm: 'Warm', hot: 'Hot' }
+
+const INDICATORS = ['storm', 'wind', 'temperature', 'visibility', 'tide', 'uv_index']
 
 export default function Campfire({ stakeholder, isDragging, onMouseDown, onHoverChange }) {
   const x = (stakeholder.position_x ?? 50) * 10
@@ -17,14 +18,24 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
     overall_status: stakeholder.overall_status,
   }
 
-  const { temperature = 'temperate', storm = 'clear', overall_status = 'unknown' } = climate
+  const {
+    temperature    = 'temperate',
+    wind           = 'calm',
+    storm          = 'clear',
+    visibility     = 'partial',
+    tide           = 'stable',
+    uv_index       = 'neutral',
+    overall_status = 'unknown',
+  } = climate
+
   const statusColor = STATUS_CLR[overall_status] || '#6b7280'
-  const stormEmoji  = getClimateIcon('storm', storm) || '☀️'
-  const tempLabel   = TEMP_LBL[temperature] || 'Moderate'
+  const campEmoji   = stakeholder.emoji || '🏕️'
+
+  const vals = { storm, wind, temperature, visibility, tide, uv_index }
 
   // Card geometry (SVG units)
-  const cardW = 148
-  const cardH = 56
+  const cardW = 152
+  const cardH = 66
   const lineH = 28
   const cx    = -cardW / 2
   const cy    = -(cardH + lineH)
@@ -38,7 +49,7 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
       onMouseDown={(e) => { e.stopPropagation(); onMouseDown(e) }}
       onClick={(e) => e.stopPropagation()}
     >
-      {/* Transparent hit area covering card + line + pin */}
+      {/* Transparent hit area */}
       <rect
         x={cx - 4} y={cy - 4}
         width={cardW + 8} height={cardH + lineH + 10}
@@ -48,14 +59,14 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
       {/* Connector line — pin to card bottom */}
       <line
         x1={0} y1={0} x2={0} y2={cy + cardH}
-        stroke="rgba(255,255,255,0.35)" strokeWidth="1"
+        stroke={statusColor} strokeWidth="1" strokeOpacity="0.5"
         style={{ pointerEvents: 'none' }}
       />
 
-      {/* Anchor dot */}
+      {/* Anchor dot — status colored */}
       <circle
         r={4}
-        fill="rgba(255,255,255,0.80)"
+        fill={statusColor}
         stroke="rgba(0,0,0,0.45)" strokeWidth="1"
         style={{ pointerEvents: 'none' }}
       />
@@ -66,11 +77,11 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
           xmlns="http://www.w3.org/1999/xhtml"
           style={{
             width: cardW + 'px', height: cardH + 'px',
-            background: 'rgba(6,10,22,0.88)',
+            background: 'rgba(6,10,22,0.90)',
             backdropFilter: 'blur(14px)',
-            border: `1px solid ${statusColor}44`,
+            border: `1.5px solid ${statusColor}`,
             borderRadius: 10,
-            padding: '8px 10px',
+            padding: '9px 11px',
             boxSizing: 'border-box',
             display: 'flex',
             flexDirection: 'column',
@@ -78,16 +89,20 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
             fontFamily: 'system-ui,-apple-system,sans-serif',
           }}
         >
-          {/* Row 1: status dot + camp name */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 5, overflow: 'hidden' }}>
+          {/* Row 1: camp emoji in circle + camp name */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, overflow: 'hidden' }}>
             <div style={{
-              width: 7, height: 7, borderRadius: '50%', flexShrink: 0,
-              background: statusColor,
-              boxShadow: `0 0 6px ${statusColor}cc`,
-            }} />
+              width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
+              background: 'rgba(255,255,255,0.08)',
+              border: '1px solid rgba(255,255,255,0.18)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 12, lineHeight: 1,
+            }}>
+              {campEmoji}
+            </div>
             <span style={{
               fontSize: 10, fontWeight: 700,
-              color: 'rgba(255,255,255,0.60)',
+              color: 'rgba(255,255,255,0.70)',
               letterSpacing: '0.07em', textTransform: 'uppercase',
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
             }}>
@@ -95,17 +110,18 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
             </span>
           </div>
 
-          {/* Row 2: temperature label + storm emoji */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{
-              fontSize: 18, fontWeight: 700, color: '#fff',
-              letterSpacing: '-0.01em', lineHeight: 1,
-            }}>
-              {tempLabel}
-            </span>
-            <span style={{ fontSize: 26, lineHeight: 1, userSelect: 'none' }}>
-              {stormEmoji}
-            </span>
+          {/* Row 2: 6 indicator emojis */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingTop: 2,
+          }}>
+            {INDICATORS.map((key) => (
+              <span key={key} style={{ fontSize: 15, lineHeight: 1, userSelect: 'none' }}>
+                {getClimateIcon(key, vals[key]) || '○'}
+              </span>
+            ))}
           </div>
         </div>
       </foreignObject>
