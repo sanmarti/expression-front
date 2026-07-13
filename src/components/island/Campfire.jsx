@@ -44,10 +44,10 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
 
   // Card geometry (SVG units) — foreignObject is taller than cardH to avoid
   // clipping when SVG scales down on smaller screens (SVG units ≠ CSS px)
-  const cardW = 152
-  const cardH = 72   // geometry anchor (line endpoint + glow rect)
-  const foH   = 120  // foreignObject height — generous to prevent clip
-  const lineH = 28
+  const cardW = 124
+  const cardH = 56   // geometry anchor (line endpoint + glow rect)
+  const foH   = 96   // foreignObject height — generous to prevent clip
+  const lineH = 22
   const cx    = -cardW / 2
   const cy    = -(cardH + lineH)
 
@@ -100,29 +100,29 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
             backdropFilter: 'blur(14px)',
             border: `1.5px solid ${statusColor}`,
             borderRadius: 10,
-            padding: '9px 11px',
+            padding: '7px 9px',
             boxSizing: 'border-box',
             display: 'flex',
             flexDirection: 'column',
-            gap: 8,
+            gap: 6,
             fontFamily: 'system-ui,-apple-system,sans-serif',
           }}
         >
           {/* Row 1: camp emoji in circle + camp name */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, overflow: 'hidden' }}>
             <div style={{
-              width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
+              width: 16, height: 16, borderRadius: '50%', flexShrink: 0,
               background: 'rgba(255,255,255,0.08)',
               border: '1px solid rgba(255,255,255,0.18)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 12, lineHeight: 1,
+              fontSize: 10, lineHeight: 1,
             }}>
               {campEmoji}
             </div>
             <span style={{
-              fontSize: 10, fontWeight: 700,
+              fontSize: 9, fontWeight: 700,
               color: 'rgba(255,255,255,0.70)',
-              letterSpacing: '0.07em', textTransform: 'uppercase',
+              letterSpacing: '0.06em', textTransform: 'uppercase',
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
             }}>
               {stakeholder.name}
@@ -132,7 +132,7 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
           {/* Row 2: 6 indicator emojis */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             {INDICATORS.map((key) => (
-              <span key={key} style={{ fontSize: 15, lineHeight: 1, userSelect: 'none' }}>
+              <span key={key} style={{ fontSize: 12, lineHeight: 1, userSelect: 'none' }}>
                 {getClimateIcon(key, vals[key]) || '○'}
               </span>
             ))}
