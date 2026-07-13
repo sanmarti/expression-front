@@ -40,6 +40,7 @@ export default function MembersPage() {
   const toast = useToast()
   const { isAdmin } = useOrganization()
   const org = useAuthStore((s) => s.org)
+  const user = useAuthStore((s) => s.user)
   const [members, setMembers] = useState([])
   const [invitations, setInvitations] = useState([])
   const [planData, setPlanData] = useState(null)
@@ -128,7 +129,7 @@ export default function MembersPage() {
                 <MemberCard
                   key={m.id}
                   member={m}
-                  canRemove={isAdmin}
+                  canRemove={isAdmin && m.user_id !== user?.id}
                   onRemove={handleRemove}
                 />
               ))}
