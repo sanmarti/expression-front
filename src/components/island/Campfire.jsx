@@ -55,12 +55,14 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
 
   const vals = { storm, wind, temperature, visibility, tide, uv_index }
 
-  // Card geometry (SVG units) — foreignObject is taller than cardH to avoid
-  // clipping when SVG scales down on smaller screens (SVG units ≠ CSS px)
+  // Card geometry — CSS px inside foreignObject equal SVG user units 1:1
+  // cardH must match actual div content height so the glow rect sits exactly on card edges
+  // With lastUpdate row:    7+16+6+12+6+10+7 = 64px
+  // Without lastUpdate row: 7+16+6+12+7      = 48px
   const cardW = 124
-  const cardH = 56   // geometry anchor (line endpoint + glow rect)
-  const foH   = 96   // foreignObject height — generous to prevent clip
-  const lineH = 22
+  const cardH = lastUpdate ? 64 : 48
+  const foH   = 96
+  const lineH = 38  // gap between anchor dot and card bottom
   const cx    = -cardW / 2
   const cy    = -(cardH + lineH)
 
