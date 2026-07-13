@@ -1,12 +1,8 @@
 import { useState } from 'react'
+import { getClimateIcon } from '../../constants/climate.js'
 
 const STATUS_CLR = { favorable: '#22c55e', attention: '#f59e0b', critical: '#ef4444', unknown: '#6b7280' }
 const TEMP_FILL  = { cold: '#60A5FA', temperate: '#34D399', warm: '#FBBF24', hot: '#F87171' }
-
-const STORM_EMOJI = { clear: '☀️', cloudy: '⛅', rainy: '🌧️', stormy: '⛈️' }
-const WIND_EMOJI  = { calm: '🌀', breeze: '🍃', windy: '💨', gale: '🌬️' }
-const TIDE_EMOJI  = { low: '⬇️', stable: '➡️', high: '⬆️', surge: '⚡' }
-const TEMP_EMOJI  = { cold: '❄️', temperate: '🌿', warm: '🌤️', hot: '🔥' }
 
 function EmojiChip({ x, y, emoji, borderColor = 'rgba(255,255,255,0.18)', r = 11 }) {
   return (
@@ -95,15 +91,11 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
           </div>
         </foreignObject>
 
-        {/* ── 4 floating emoji chips ─────────────────────── */}
-        {/* Storm — top */}
-        <EmojiChip x={0}   y={-30} emoji={STORM_EMOJI[storm] || '☀️'} borderColor={statusColor} r={11} />
-        {/* Wind  — right */}
-        <EmojiChip x={28}  y={-14} emoji={WIND_EMOJI[wind]   || '🌀'} borderColor="#3b82f6" r={10} />
-        {/* Tide  — left */}
-        <EmojiChip x={-28} y={-14} emoji={TIDE_EMOJI[tide]   || '➡️'} borderColor="#14b8a6" r={10} />
-        {/* Temp  — bottom-right */}
-        <EmojiChip x={24}  y={16}  emoji={TEMP_EMOJI[temperature] || '🌿'} borderColor={fillColor} r={10} />
+        {/* ── 4 floating emoji chips — emoji sourced from shared climate constants ── */}
+        <EmojiChip x={0}   y={-30} emoji={getClimateIcon('storm',       storm)       || '☀️'} borderColor={statusColor} r={11} />
+        <EmojiChip x={28}  y={-14} emoji={getClimateIcon('wind',        wind)        || '🍃'} borderColor="#3b82f6"     r={10} />
+        <EmojiChip x={-28} y={-14} emoji={getClimateIcon('tide',        tide)        || '➡️'} borderColor="#14b8a6"    r={10} />
+        <EmojiChip x={24}  y={16}  emoji={getClimateIcon('temperature', temperature) || '🌤️'} borderColor={fillColor}  r={10} />
 
         {/* Name pill */}
         <g transform="translate(0, 30)">
