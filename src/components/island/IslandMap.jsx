@@ -228,24 +228,7 @@ export default function IslandMap({ onZoneClick }) {
         )
       })()}
 
-      {/* Weather legend — bottom-left */}
-      <foreignObject x="12" y="620" width="200" height="80">
-        <div style={{
-          background: 'rgba(11,17,32,0.85)', backdropFilter: 'blur(8px)',
-          border: '1px solid rgba(255,255,255,0.10)', borderRadius: 10, padding: '8px 12px',
-        }}>
-          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.50)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 4 }}>
-            Weather Legend
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px 10px' }}>
-            {Object.entries(STATUS_CFG).map(([st, cfg]) => (
-              <div key={st} style={{ fontSize: 11, color: cfg.color, display: 'flex', gap: 4, alignItems: 'center' }}>
-                {cfg.icon} {cfg.label}
-              </div>
-            ))}
-          </div>
-        </div>
-      </foreignObject>
+
     </svg>
 
     {/* Conditions panel — HTML overlay, outside SVG */}
