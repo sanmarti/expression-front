@@ -50,6 +50,7 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false)
 
   const [pwForm, setPwForm] = useState({ current: '', next: '', confirm: '' })
+  const [showPw, setShowPw] = useState({ current: false, next: false, confirm: false })
   const [savingPw, setSavingPw] = useState(false)
 
   const [showLogout, setShowLogout] = useState(false)
@@ -201,11 +202,6 @@ export default function ProfilePage() {
             >
               <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.50)' }}>Pilot avatar</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                {!pilotOpen && previewAvatar && (
-                  <span style={{ fontSize: 12, color: previewAvatar.color, fontWeight: 700, fontFamily: 'monospace', letterSpacing: '0.04em' }}>
-                    {previewAvatar.name.toUpperCase()}
-                  </span>
-                )}
                 <span style={{
                   fontSize: 14, color: 'rgba(255,255,255,0.35)',
                   display: 'inline-block',
@@ -236,21 +232,34 @@ export default function ProfilePage() {
         <div style={card}>
           <div style={sectionTitle}>Change Password</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 400 }}>
-            <div>
-              <label style={lbl}>Current password</label>
-              <input type="password" style={input} value={pwForm.current}
-                onChange={(e) => setPwForm((f) => ({ ...f, current: e.target.value }))} />
-            </div>
-            <div>
-              <label style={lbl}>New password</label>
-              <input type="password" style={input} value={pwForm.next}
-                onChange={(e) => setPwForm((f) => ({ ...f, next: e.target.value }))} />
-            </div>
-            <div>
-              <label style={lbl}>Confirm new password</label>
-              <input type="password" style={input} value={pwForm.confirm}
-                onChange={(e) => setPwForm((f) => ({ ...f, confirm: e.target.value }))} />
-            </div>
+            {[
+              { key: 'current', label: 'Current password' },
+              { key: 'next',    label: 'New password' },
+              { key: 'confirm', label: 'Confirm new password' },
+            ].map(({ key, label }) => (
+              <div key={key}>
+                <label style={lbl}>{label}</label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showPw[key] ? 'text' : 'password'}
+                    style={{ ...input, paddingRight: 42 }}
+                    value={pwForm[key]}
+                    onChange={(e) => setPwForm((f) => ({ ...f, [key]: e.target.value }))}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPw((s) => ({ ...s, [key]: !s[key] }))}
+                    style={{
+                      position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
+                      background: 'none', border: 'none', cursor: 'pointer',
+                      color: 'rgba(255,255,255,0.35)', fontSize: 16, padding: 0, lineHeight: 1,
+                    }}
+                  >
+                    {showPw[key] ? '🙈' : '👁'}
+                  </button>
+                </div>
+              </div>
+            ))}
             <button onClick={handleChangePassword} disabled={savingPw} style={{
               alignSelf: 'flex-start', padding: '10px 24px', borderRadius: 8, border: 'none', cursor: 'pointer',
               background: '#1C2B45', color: 'rgba(255,255,255,0.85)', fontWeight: 600, fontSize: 14,
