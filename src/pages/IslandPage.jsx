@@ -48,8 +48,6 @@ export default function IslandPage() {
       >
         <source src="/bg.mp4" type="video/mp4" />
       </video>
-      {/* Dark overlay to keep UI readable */}
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(6,10,22,0.45)', zIndex: 1 }} />
       {/* TopBar */}
       <div style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
