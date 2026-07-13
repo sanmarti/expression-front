@@ -2,6 +2,14 @@ import { getClimateIcon } from '../../constants/climate.js'
 
 const STATUS_CLR = { favorable: '#22c55e', attention: '#f59e0b', critical: '#ef4444', unknown: '#6b7280' }
 
+// Animation speed by urgency — critical feels urgent, favorable feels calm
+const ANIM = {
+  favorable: { ping: '3.5s', glow: '3s',   flow: '2.5s' },
+  attention:  { ping: '2s',   glow: '2s',   flow: '1.4s' },
+  critical:   { ping: '1s',   glow: '0.9s', flow: '0.7s' },
+  unknown:    { ping: '6s',   glow: '5s',   flow: '4s'   },
+}
+
 const INDICATORS = ['storm', 'wind', 'temperature', 'visibility', 'tide', 'uv_index']
 
 export default function Campfire({ stakeholder, isDragging, onMouseDown, onHoverChange }) {
@@ -30,17 +38,18 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
 
   const statusColor = STATUS_CLR[overall_status] || '#6b7280'
   const campEmoji   = stakeholder.emoji || '🏕️'
+  const anim        = ANIM[overall_status] || ANIM.unknown
 
   const vals = { storm, wind, temperature, visibility, tide, uv_index }
 
   // Card geometry (SVG units) — foreignObject is taller than cardH to avoid
   // clipping when SVG scales down on smaller screens (SVG units ≠ CSS px)
-  const cardW  = 152
-  const cardH  = 72   // geometry anchor (line endpoint)
-  const foH    = 120  // foreignObject height — generous to prevent clip
-  const lineH  = 28
-  const cx     = -cardW / 2
-  const cy     = -(cardH + lineH)
+  const cardW = 152
+  const cardH = 72   // geometry anchor (line endpoint + glow rect)
+  const foH   = 120  // foreignObject height — generous to prevent clip
+  const lineH = 28
+  const cx    = -cardW / 2
+  const cy    = -(cardH + lineH)
 
   return (
     <g
@@ -58,19 +67,27 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
         fill="transparent"
       />
 
-      {/* Connector line — pin to card bottom */}
+      {/* Connector line — animated dashes flow upward toward the card */}
       <line
         x1={0} y1={0} x2={0} y2={cy + cardH}
-        stroke={statusColor} strokeWidth="1" strokeOpacity="0.5"
-        style={{ pointerEvents: 'none' }}
+        stroke={statusColor} strokeWidth="1" strokeOpacity="0.55"
+        strokeDasharray="4 3"
+        style={{ animation: `flow ${anim.flow} linear infinite`, pointerEvents: 'none' }}
       />
 
-      {/* Anchor dot — status colored */}
+      {/* Anchor dot */}
       <circle
         r={4}
         fill={statusColor}
         stroke="rgba(0,0,0,0.45)" strokeWidth="1"
         style={{ pointerEvents: 'none' }}
+      />
+
+      {/* Ping ring — expands outward from anchor like a radar blip */}
+      <circle
+        r={4} fill="none"
+        stroke={statusColor} strokeWidth="1.5"
+        style={{ transformOrigin: '0 0', animation: `ping ${anim.ping} ease-out infinite`, pointerEvents: 'none' }}
       />
 
       {/* Weather card */}
@@ -87,7 +104,7 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
             boxSizing: 'border-box',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'space-between',
+            gap: 8,
             fontFamily: 'system-ui,-apple-system,sans-serif',
           }}
         >
@@ -113,12 +130,7 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
           </div>
 
           {/* Row 2: 6 indicator emojis */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            paddingTop: 2,
-          }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             {INDICATORS.map((key) => (
               <span key={key} style={{ fontSize: 15, lineHeight: 1, userSelect: 'none' }}>
                 {getClimateIcon(key, vals[key]) || '○'}
@@ -127,6 +139,15 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
           </div>
         </div>
       </foreignObject>
+
+      {/* Pulsing glow border — rendered after foreignObject so it sits on top */}
+      <rect
+        x={cx} y={cy} width={cardW} height={cardH}
+        rx={10} ry={10}
+        fill="none"
+        stroke={statusColor} strokeWidth="2"
+        style={{ animation: `card-glow ${anim.glow} ease-in-out infinite`, pointerEvents: 'none' }}
+      />
     </g>
   )
 }
