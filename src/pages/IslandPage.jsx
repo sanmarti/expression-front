@@ -6,8 +6,6 @@ import CockpitWidget from '../components/island/CockpitWidget.jsx'
 import Spinner from '../components/ui/Spinner.jsx'
 import useIslandStore from '../store/islandStore.js'
 import useAuthStore from '../store/authStore.js'
-import Avatar from '../components/ui/Avatar.jsx'
-import { getAvatar } from '../constants/avatars.js'
 import { getStakeholders } from '../api/stakeholders.js'
 import { useClimateSync } from '../hooks/useClimateSync.js'
 
