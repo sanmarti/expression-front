@@ -4,10 +4,20 @@ import { getClimateIcon } from '../../constants/climate.js'
 const STATUS_CLR = { favorable: '#22c55e', attention: '#f59e0b', critical: '#ef4444', unknown: '#6b7280' }
 const TEMP_FILL  = { cold: '#60A5FA', temperate: '#34D399', warm: '#FBBF24', hot: '#F87171' }
 
+// Circle border color per indicator value: green=in favor, blue=neutral, orange=unfavorable, red=very unfavorable
+const VALUE_COLOR = {
+  storm:       { clear: '#22c55e', cloudy: '#3b82f6', rainy: '#f59e0b', stormy: '#ef4444' },
+  wind:        { calm:  '#22c55e', breeze: '#3b82f6', windy: '#f59e0b', gale:   '#ef4444' },
+  temperature: { warm:  '#22c55e', temperate: '#3b82f6', hot: '#f59e0b', cold:   '#ef4444' },
+  visibility:  { clear: '#22c55e', partial: '#3b82f6', misty: '#f59e0b', foggy:  '#ef4444' },
+  tide:        { high:  '#22c55e', stable:  '#3b82f6', surge: '#f59e0b', low:    '#ef4444' },
+  uv_index:    { optimal: '#22c55e', favorable: '#3b82f6', neutral: '#f59e0b', blocked: '#ef4444' },
+}
+
 function EmojiChip({ x, y, emoji, borderColor = 'rgba(255,255,255,0.18)', r = 11 }) {
   return (
     <g transform={`translate(${x},${y})`} style={{ pointerEvents: 'none' }}>
-      <circle r={r} fill="rgba(6,10,22,0.78)" stroke={borderColor} strokeWidth="0.8" />
+      <circle r={r} fill="rgba(6,10,22,0.78)" stroke={borderColor} strokeWidth="1.5" />
       <text
         textAnchor="middle" dominantBaseline="central"
         fontSize={r * 1.35}
@@ -93,19 +103,13 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
           </div>
         </foreignObject>
 
-        {/* ── 6 floating emoji chips (hexagonal layout) — one per climate indicator ── */}
-        {/* top        — Risk & Conflict / Turbulence */}
-        <EmojiChip x={0}   y={-34} emoji={getClimateIcon('storm',       storm)       || '🟢'} borderColor={statusColor} r={10} />
-        {/* top-right  — Influence & Power / Wind Strength */}
-        <EmojiChip x={29}  y={-17} emoji={getClimateIcon('wind',        wind)        || '🌈'} borderColor="#3b82f6"     r={10} />
-        {/* bot-right  — Trend & Momentum / Pressure Systems */}
-        <EmojiChip x={29}  y={17}  emoji={getClimateIcon('tide',        tide)        || '➖'} borderColor="#14b8a6"    r={10} />
-        {/* bottom     — Activity Level / Temperature */}
-        <EmojiChip x={0}   y={34}  emoji={getClimateIcon('temperature', temperature) || '🍃'} borderColor={fillColor}  r={10} />
-        {/* bot-left   — Information Quality / Visibility */}
-        <EmojiChip x={-29} y={17}  emoji={getClimateIcon('visibility',  visibility)  || '🧭'} borderColor="#8b5cf6"    r={10} />
-        {/* top-left   — Alignment & Support / Sky Conditions */}
-        <EmojiChip x={-29} y={-17} emoji={getClimateIcon('uv_index',    uv_index)    || '☁️'} borderColor="#ec4899"    r={10} />
+        {/* ── 6 floating emoji chips — border color = alignment level ── */}
+        <EmojiChip x={0}   y={-34} emoji={getClimateIcon('storm',       storm)       || '☀️'} borderColor={VALUE_COLOR.storm[storm]            || '#6b7280'} r={10} />
+        <EmojiChip x={29}  y={-17} emoji={getClimateIcon('wind',        wind)        || '🌀'} borderColor={VALUE_COLOR.wind[wind]              || '#6b7280'} r={10} />
+        <EmojiChip x={29}  y={17}  emoji={getClimateIcon('tide',        tide)        || '➡️'} borderColor={VALUE_COLOR.tide[tide]              || '#6b7280'} r={10} />
+        <EmojiChip x={0}   y={34}  emoji={getClimateIcon('temperature', temperature) || '🌿'} borderColor={VALUE_COLOR.temperature[temperature] || '#6b7280'} r={10} />
+        <EmojiChip x={-29} y={17}  emoji={getClimateIcon('visibility',  visibility)  || '🧭'} borderColor={VALUE_COLOR.visibility[visibility]   || '#6b7280'} r={10} />
+        <EmojiChip x={-29} y={-17} emoji={getClimateIcon('uv_index',    uv_index)    || '☁️'} borderColor={VALUE_COLOR.uv_index[uv_index]       || '#6b7280'} r={10} />
 
         {/* Name pill — pushed below the bottom chip */}
         <g transform="translate(0, 50)">

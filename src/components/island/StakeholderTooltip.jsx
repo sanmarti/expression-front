@@ -4,45 +4,39 @@ const STATUS_LBL = { favorable: '● FAVORABLE', attention: '● ATTENTION', cri
 const ROWS = [
   {
     key: 'temperature',
-    label: 'TEMP',
-    icon: '🌡️',
-    map: { cold: '❄️ Cold', temperate: '🍃 Moderate', warm: '🌡️ Warm', hot: '🔥 Hot' },
-    color: { cold: '#60A5FA', temperate: '#34D399', warm: '#FBBF24', hot: '#F87171' },
+    label: 'Temperature',
+    map: { cold: 'Cold', temperate: 'Moderate', warm: 'Warm', hot: 'Hot' },
+    color: { cold: '#ef4444', temperate: '#3b82f6', warm: '#22c55e', hot: '#f59e0b' },
   },
   {
     key: 'wind',
-    label: 'WIND',
-    icon: '🌪️',
-    map: { calm: '🌈 Calm', breeze: '🌬️ Breeze', windy: '💨 Windy', gale: '🌪️ Gale' },
-    color: { calm: '#9ca3af', breeze: '#93c5fd', windy: '#60A5FA', gale: '#3b82f6' },
+    label: 'Wind',
+    map: { calm: 'Calm', breeze: 'Breeze', windy: 'Windy', gale: 'Gale' },
+    color: { calm: '#22c55e', breeze: '#3b82f6', windy: '#f59e0b', gale: '#ef4444' },
   },
   {
     key: 'storm',
-    label: 'TURB',
-    icon: '✈️',
-    map: { clear: '🟢 Smooth', cloudy: '🟡 Light', rainy: '🟠 Moderate', stormy: '🔴 Severe' },
-    color: { clear: '#22c55e', cloudy: '#FCD34D', rainy: '#f59e0b', stormy: '#ef4444' },
+    label: 'Turbulence',
+    map: { clear: 'Smooth', cloudy: 'Light', rainy: 'Moderate', stormy: 'Severe' },
+    color: { clear: '#22c55e', cloudy: '#3b82f6', rainy: '#f59e0b', stormy: '#ef4444' },
   },
   {
     key: 'tide',
-    label: 'PRES',
-    icon: '📊',
-    map: { low: '📉 Low', stable: '➖ Stable', high: '📈 Rising', surge: '🌀 Accel' },
-    color: { low: '#ef4444', stable: '#9ca3af', high: '#22c55e', surge: '#f59e0b' },
+    label: 'Pressure',
+    map: { low: 'Low', stable: 'Stable', high: 'Rising', surge: 'Accelerating' },
+    color: { low: '#ef4444', stable: '#3b82f6', high: '#22c55e', surge: '#f59e0b' },
   },
   {
     key: 'visibility',
-    label: 'VIS',
-    icon: '🧭',
-    map: { foggy: '🌫️ Foggy', misty: '🌁 Misty', partial: '👀 Partial', clear: '🧭 Clear' },
-    color: { foggy: '#9ca3af', misty: '#93c5fd', partial: '#60A5FA', clear: '#22c55e' },
+    label: 'Visibility',
+    map: { foggy: 'Foggy', misty: 'Misty', partial: 'Partial', clear: 'Clear' },
+    color: { foggy: '#ef4444', misty: '#f59e0b', partial: '#3b82f6', clear: '#22c55e' },
   },
   {
     key: 'uv_index',
-    label: 'SKY',
-    icon: '☀️',
-    map: { blocked: '⛈️ Blocked', neutral: '☁️ Neutral', favorable: '🌤️ Favorable', optimal: '☀️ Optimal' },
-    color: { blocked: '#ef4444', neutral: '#9ca3af', favorable: '#60A5FA', optimal: '#FCD34D' },
+    label: 'Sky Conditions',
+    map: { blocked: 'Blocked', neutral: 'Neutral', favorable: 'Favorable', optimal: 'Optimal' },
+    color: { blocked: '#ef4444', neutral: '#f59e0b', favorable: '#3b82f6', optimal: '#22c55e' },
   },
 ]
 
@@ -84,7 +78,7 @@ export default function StakeholderTooltip({ stakeholder }) {
             return (
               <div key={row.key} style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                 <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.08em' }}>
-                  {row.icon} {row.label}
+                  {row.label}
                 </div>
                 <div style={{ fontSize: 10, color, fontWeight: 600, letterSpacing: '0.03em' }}>
                   {label}
