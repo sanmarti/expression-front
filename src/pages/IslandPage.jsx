@@ -11,8 +11,8 @@ import { useClimateSync } from '../hooks/useClimateSync.js'
 
 export default function IslandPage() {
   const navigate = useNavigate()
-  const { user, org } = useAuthStore()
-  const { setStakeholders, isLoading, setLoading } = useIslandStore()
+  const { user, org, orgRole } = useAuthStore()
+  const { setStakeholders, stakeholders, isLoading, setLoading } = useIslandStore()
   const [showAddModal, setShowAddModal] = useState(false)
   const [selectedZone, setSelectedZone] = useState(null)
   const [clickPos, setClickPos] = useState(null)
@@ -27,7 +27,18 @@ export default function IslandPage() {
       .finally(() => setLoading(false))
   }, [setStakeholders, setLoading])
 
+  const isViewer = orgRole === 'viewer'
+  const maxStakeholders = org?.subscription?.max_stakeholders ?? 5
+  const limitReached = stakeholders.length >= maxStakeholders
+
+  const openAddModal = () => {
+    if (isViewer) return
+    setSelectedZone(null)
+    setShowAddModal(true)
+  }
+
   const handleZoneClick = (zone, pos) => {
+    if (isViewer) return
     setSelectedZone(zone)
     setClickPos(pos ?? null)
     setShowAddModal(true)
@@ -84,20 +95,22 @@ export default function IslandPage() {
         <IslandMap onZoneClick={handleZoneClick} />
       )}
 
-      {/* FAB */}
-      <button
-        onClick={() => { setSelectedZone(null); setShowAddModal(true) }}
-        style={{
-          position: 'fixed', bottom: 28, right: 28, zIndex: 50,
-          width: 56, height: 56, borderRadius: '50%', border: 'none', cursor: 'pointer',
-          background: 'linear-gradient(135deg,#3B82F6,#14B8A6)',
-          color: 'white', fontSize: 28, fontWeight: 300,
-          boxShadow: '0 4px 24px rgba(59,130,246,0.4)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}
-      >
-        +
-      </button>
+      {/* FAB — hidden for viewers */}
+      {!isViewer && (
+        <button
+          onClick={openAddModal}
+          style={{
+            position: 'fixed', bottom: 28, right: 28, zIndex: 50,
+            width: 56, height: 56, borderRadius: '50%', border: 'none', cursor: 'pointer',
+            background: 'linear-gradient(135deg,#3B82F6,#14B8A6)',
+            color: 'white', fontSize: 28, fontWeight: 300,
+            boxShadow: '0 4px 24px rgba(59,130,246,0.4)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+        >
+          +
+        </button>
+      )}
 
       <CockpitWidget />
 
@@ -106,6 +119,10 @@ export default function IslandPage() {
         onClose={() => setShowAddModal(false)}
         defaultZone={selectedZone}
         defaultPosition={clickPos}
+        limitReached={limitReached}
+        maxStakeholders={maxStakeholders}
+        stakeholderCount={stakeholders.length}
+        orgRole={orgRole}
       />
     </div>
   )

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Modal from '../ui/Modal.jsx'
 import { createStakeholder } from '../../api/stakeholders.js'
 import useIslandStore from '../../store/islandStore.js'
@@ -32,7 +33,8 @@ const ZONE_COLORS = {
   desert: '#D97706', river: '#1D4ED8', lake: '#0EA5E9', coast: '#BAE6FD', volcano: '#991B1B',
 }
 
-export default function AddCampModal({ open, onClose, defaultZone, defaultPosition }) {
+export default function AddCampModal({ open, onClose, defaultZone, defaultPosition, limitReached, maxStakeholders, stakeholderCount, orgRole }) {
+  const navigate = useNavigate()
   const toast = useToast()
   const addStakeholder = useIslandStore((s) => s.addStakeholder)
   const [form, setForm] = useState({
@@ -80,6 +82,44 @@ export default function AddCampModal({ open, onClose, defaultZone, defaultPositi
     width: '100%', padding: '10px 14px', borderRadius: 8,
     background: '#0B1120', border: '1px solid #1C2B45',
     color: 'rgba(255,255,255,0.92)', fontSize: 14, outline: 'none',
+  }
+
+  if (limitReached) {
+    const isAdmin = orgRole === 'admin'
+    return (
+      <Modal open={open} onClose={onClose} title="Stakeholder limit reached">
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20, padding: '8px 0 4px', textAlign: 'center' }}>
+          <div style={{ fontSize: 48 }}>{isAdmin ? '🚀' : '🔒'}</div>
+          <div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: 'rgba(255,255,255,0.92)', marginBottom: 8 }}>
+              {isAdmin ? 'You\'ve reached your stakeholder limit' : 'Stakeholder limit reached'}
+            </div>
+            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.50)', lineHeight: 1.6 }}>
+              {isAdmin
+                ? `Your plan allows up to ${maxStakeholders} stakeholders (${stakeholderCount}/${maxStakeholders} used). Upgrade your plan to add more.`
+                : `Your organization has used all ${maxStakeholders} stakeholder slots. Ask your admin to upgrade the plan.`
+              }
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <button
+              onClick={onClose}
+              style={{ padding: '10px 20px', borderRadius: 8, border: '1px solid #1C2B45', background: 'transparent', color: 'rgba(255,255,255,0.55)', cursor: 'pointer', fontSize: 14 }}
+            >
+              Close
+            </button>
+            {isAdmin && (
+              <button
+                onClick={() => { onClose(); navigate('/profile?tab=plan') }}
+                style={{ padding: '10px 20px', borderRadius: 8, border: 'none', cursor: 'pointer', background: 'linear-gradient(135deg,#3B82F6,#14B8A6)', color: 'white', fontWeight: 600, fontSize: 14 }}
+              >
+                Upgrade plan →
+              </button>
+            )}
+          </div>
+        </div>
+      </Modal>
+    )
   }
 
   return (

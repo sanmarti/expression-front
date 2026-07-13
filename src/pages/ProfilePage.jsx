@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import useAuthStore from '../store/authStore.js'
 import Badge from '../components/ui/Badge.jsx'
 import ProgressBar from '../components/ui/ProgressBar.jsx'
@@ -40,10 +40,15 @@ const sectionTitle = { fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0
 
 export default function ProfilePage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const toast = useToast()
   const { user, org, orgRole, logout, setUser } = useAuthStore()
   const isAdmin = orgRole === 'admin'
-  const [tab, setTab] = useState('profile')
+  const [tab, setTab] = useState(() => {
+    const t = searchParams.get('tab')
+    const role = useAuthStore.getState().orgRole
+    return (t === 'plan' && role === 'admin') ? 'plan' : (t || 'profile')
+  })
 
   const [selectedPilot, setSelectedPilot] = useState(user?.selected_avatar || null)
   const [pilotOpen, setPilotOpen] = useState(!user?.selected_avatar)
