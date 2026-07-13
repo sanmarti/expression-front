@@ -52,8 +52,8 @@ export const AVATARS = [
 export const getAvatar = (id) => AVATARS.find((a) => a.id === id) || null
 
 export const INDICATORS = [
-  { id: 'altitude',   label: 'Altitude',   description: 'Vision & ambition',   color: '#3B82F6', icon: '🔭' },
-  { id: 'fuel',       label: 'Fuel',       description: 'Energy & motivation',  color: '#F59E0B', icon: '⚡' },
-  { id: 'visibility', label: 'Visibility', description: 'Strategic clarity',    color: '#14B8A6', icon: '🎯' },
-  { id: 'speed',      label: 'Speed',      description: 'Execution pace',       color: '#10B981', icon: '🚀' },
+  { id: 'altitude',   label: 'Altitude',   description: 'Vision & ambition',   color: '#3B82F6', icon: '🏔️' },
+  { id: 'fuel',       label: 'Fuel',       description: 'Energy & motivation',  color: '#F59E0B', icon: '⛽' },
+  { id: 'visibility', label: 'Visibility', description: 'Strategic clarity',    color: '#14B8A6', icon: '🔭' },
+  { id: 'speed',      label: 'Speed',      description: 'Execution pace',       color: '#10B981', icon: '⚡' },
 ]
