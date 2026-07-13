@@ -11,9 +11,10 @@ import { updateOrg } from '../api/organizations.js'
 import { AVATARS, getAvatar } from '../constants/avatars.js'
 
 const TABS = [
-  { id: 'profile', label: 'Profile' },
-  { id: 'plan',    label: 'Plan & Billing' },
-  { id: 'account', label: 'Account' },
+  { id: 'profile',  label: 'Profile' },
+  { id: 'plan',     label: 'Plan & Billing' },
+  { id: 'account',  label: 'Account' },
+  { id: 'password', label: 'Password' },
 ]
 
 const PLANS = [
@@ -271,48 +272,6 @@ export default function ProfilePage() {
           </button>
         </div>
 
-        {/* ── Change Password ── */}
-        <div style={card}>
-          <div style={sectionTitle}>Change Password</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 400 }}>
-            {[
-              { key: 'current', label: 'Current password' },
-              { key: 'next',    label: 'New password' },
-              { key: 'confirm', label: 'Confirm new password' },
-            ].map(({ key, label }) => (
-              <div key={key}>
-                <label style={lbl}>{label}</label>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    type={showPw[key] ? 'text' : 'password'}
-                    style={{ ...input, paddingRight: 42 }}
-                    value={pwForm[key]}
-                    onChange={(e) => setPwForm((f) => ({ ...f, [key]: e.target.value }))}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPw((s) => ({ ...s, [key]: !s[key] }))}
-                    style={{
-                      position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
-                      background: 'none', border: 'none', cursor: 'pointer',
-                      color: 'rgba(255,255,255,0.35)', fontSize: 16, padding: 0, lineHeight: 1,
-                    }}
-                  >
-                    {showPw[key] ? '🙈' : '👁'}
-                  </button>
-                </div>
-              </div>
-            ))}
-            <button onClick={handleChangePassword} disabled={savingPw} style={{
-              alignSelf: 'flex-start', padding: '10px 24px', borderRadius: 8, border: 'none', cursor: 'pointer',
-              background: '#1C2B45', color: 'rgba(255,255,255,0.85)', fontWeight: 600, fontSize: 14,
-              opacity: savingPw ? 0.6 : 1,
-            }}>
-              {savingPw ? 'Updating…' : 'Update password'}
-            </button>
-          </div>
-        </div>
-
         </> /* end profile tab */}
 
         {tab === 'plan' && <>
@@ -474,6 +433,50 @@ export default function ProfilePage() {
         </div>
 
         </> /* end account tab */}
+
+        {tab === 'password' && (
+          <div style={card}>
+            <div style={sectionTitle}>Change Password</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 400 }}>
+              {[
+                { key: 'current', label: 'Current password' },
+                { key: 'next',    label: 'New password' },
+                { key: 'confirm', label: 'Confirm new password' },
+              ].map(({ key, label }) => (
+                <div key={key}>
+                  <label style={lbl}>{label}</label>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type={showPw[key] ? 'text' : 'password'}
+                      style={{ ...input, paddingRight: 42 }}
+                      value={pwForm[key]}
+                      onChange={(e) => setPwForm((f) => ({ ...f, [key]: e.target.value }))}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPw((s) => ({ ...s, [key]: !s[key] }))}
+                      style={{
+                        position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        color: 'rgba(255,255,255,0.35)', fontSize: 16, padding: 0, lineHeight: 1,
+                      }}
+                    >
+                      {showPw[key] ? '🙈' : '👁'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+              <button onClick={handleChangePassword} disabled={savingPw} style={{
+                alignSelf: 'flex-start', padding: '10px 24px', borderRadius: 8, border: 'none', cursor: 'pointer',
+                background: '#1C2B45', color: 'rgba(255,255,255,0.85)', fontWeight: 600, fontSize: 14,
+                opacity: savingPw ? 0.6 : 1,
+              }}>
+                {savingPw ? 'Updating…' : 'Update password'}
+              </button>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   )
