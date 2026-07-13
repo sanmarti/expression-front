@@ -75,8 +75,7 @@ const STATUS_BANNER = {
   unknown:    { bg: 'rgba(107,114,128,0.15)',border: '#6b7280', icon: '⚫', text: 'Unknown — Insufficient data available' },
 }
 
-function IndicatorCard({ indicator, value, onChange }) {
-  const [open, setOpen] = useState(false)
+function IndicatorCard({ indicator, value, onChange, isOpen, onToggle }) {
   const current = indicator.options.find((o) => o.value === value) || indicator.options[0]
 
   return (
@@ -87,7 +86,7 @@ function IndicatorCard({ indicator, value, onChange }) {
 
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={onToggle}
         style={{
           width: '100%', textAlign: 'left', background: 'none', border: '1px solid #1C2B45',
           borderRadius: 8, padding: '8px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10,
@@ -98,10 +97,10 @@ function IndicatorCard({ indicator, value, onChange }) {
           <div style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.92)' }}>{current.label}</div>
           <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 1 }}>{current.desc}</div>
         </div>
-        <span style={{ marginLeft: 'auto', color: 'rgba(255,255,255,0.40)', fontSize: 12 }}>{open ? '▲' : '▼'}</span>
+        <span style={{ marginLeft: 'auto', color: 'rgba(255,255,255,0.40)', fontSize: 12 }}>{isOpen ? '▲' : '▼'}</span>
       </button>
 
-      {open && (
+      {isOpen && (
         <div style={{
           position: 'absolute', left: 0, right: 0, zIndex: 20,
           background: '#141E35', border: '1px solid #1C2B45', borderRadius: 10,
@@ -112,7 +111,7 @@ function IndicatorCard({ indicator, value, onChange }) {
             <button
               key={opt.value}
               type="button"
-              onClick={() => { onChange(indicator.key, opt.value); setOpen(false) }}
+              onClick={() => { onChange(indicator.key, opt.value); onToggle() }}
               style={{
                 width: '100%', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 10,
                 padding: '10px 14px', cursor: 'pointer', border: 'none',
@@ -153,8 +152,10 @@ export default function ClimateCard({ stakeholder }) {
 
   const [form, setForm] = useState(initClimate)
   const [saving, setSaving] = useState(false)
+  const [openKey, setOpenKey] = useState(null)
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
+  const toggleDropdown = (key) => setOpenKey((prev) => (prev === key ? null : key))
 
   const handleSave = async () => {
     setSaving(true)
@@ -196,6 +197,8 @@ export default function ClimateCard({ stakeholder }) {
             indicator={ind}
             value={form[ind.key]}
             onChange={set}
+            isOpen={openKey === ind.key}
+            onToggle={() => toggleDropdown(ind.key)}
           />
         ))}
       </div>
