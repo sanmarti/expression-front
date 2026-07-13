@@ -7,6 +7,7 @@ import LogoutConfirmModal from '../components/ui/LogoutConfirmModal.jsx'
 import { useToast } from '../components/ui/Toast.jsx'
 import { updateProfile, changePassword } from '../api/auth.js'
 import { getSubscription } from '../api/subscriptions.js'
+import { updateOrg } from '../api/organizations.js'
 import { AVATARS, getAvatar } from '../constants/avatars.js'
 
 const TABS = [
@@ -55,6 +56,20 @@ export default function ProfilePage() {
 
   const [showLogout, setShowLogout] = useState(false)
   const [planData, setPlanData] = useState(null)
+
+  const [orgForm, setOrgForm] = useState({
+    name:                org?.name                || '',
+    description:         org?.description         || '',
+    billing_name:        org?.billing_name        || '',
+    billing_email:       org?.billing_email       || '',
+    billing_tax_id:      org?.billing_tax_id      || '',
+    billing_address:     org?.billing_address     || '',
+    billing_city:        org?.billing_city        || '',
+    billing_country:     org?.billing_country     || '',
+    billing_postal_code: org?.billing_postal_code || '',
+  })
+  const [savingOrg, setSavingOrg] = useState(false)
+  const { setOrg } = useAuthStore()
 
   useEffect(() => {
     if (isAdmin) getSubscription().then((r) => setPlanData(r.data)).catch(() => {})
@@ -114,6 +129,20 @@ export default function ProfilePage() {
     const tgt = PLANS.findIndex((p) => p.id === planId)
     if (tgt > cur) toast('Upgrade coming soon!', 'info')
     else toast('Contact us to downgrade: hello@expression.app', 'info')
+  }
+
+  const handleSaveOrg = async () => {
+    if (!org?.id) return
+    setSavingOrg(true)
+    try {
+      const { data } = await updateOrg(org.id, orgForm)
+      setOrg({ ...org, ...data }, orgRole)
+      toast('Organization saved', 'success')
+    } catch (e) {
+      toast(e.response?.data?.message || 'Failed to save', 'error')
+    } finally {
+      setSavingOrg(false)
+    }
   }
 
   return (
@@ -326,29 +355,93 @@ export default function ProfilePage() {
         {tab === 'account' && <>
 
         <div style={card}>
-          <div style={sectionTitle}>Organization</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-            {[
-              { label: 'Name',  value: org?.name },
-              { label: 'Email', value: user?.email },
-            ].map(({ label: l, value }) => (
-              <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', width: 80, flexShrink: 0 }}>{l}</span>
-                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', fontWeight: 600 }}>{value || '—'}</span>
-              </div>
-            ))}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', width: 80, flexShrink: 0 }}>Role</span>
-              <span style={{
-                fontSize: 12, fontWeight: 700, padding: '3px 10px', borderRadius: 20, textTransform: 'capitalize',
-                background: isAdmin ? 'rgba(59,130,246,0.15)' : 'rgba(107,114,128,0.15)',
-                color: isAdmin ? '#3B82F6' : '#9ca3af',
-                border: `1px solid ${isAdmin ? 'rgba(59,130,246,0.30)' : 'rgba(107,114,128,0.30)'}`,
-              }}>
-                {orgRole || '—'}
-              </span>
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+            <div style={sectionTitle}>Organization</div>
+            <span style={{
+              fontSize: 12, fontWeight: 700, padding: '3px 10px', borderRadius: 20, textTransform: 'capitalize',
+              background: isAdmin ? 'rgba(59,130,246,0.15)' : 'rgba(107,114,128,0.15)',
+              color: isAdmin ? '#3B82F6' : '#9ca3af',
+              border: `1px solid ${isAdmin ? 'rgba(59,130,246,0.30)' : 'rgba(107,114,128,0.30)'}`,
+            }}>
+              {orgRole || '—'}
+            </span>
           </div>
+
+          {isAdmin ? (
+            <>
+              {/* Editable org fields */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                <div>
+                  <label style={lbl}>Organization name</label>
+                  <input style={input} value={orgForm.name} onChange={(e) => setOrgForm((f) => ({ ...f, name: e.target.value }))} />
+                </div>
+                <div>
+                  <label style={lbl}>Description</label>
+                  <input style={input} value={orgForm.description} onChange={(e) => setOrgForm((f) => ({ ...f, description: e.target.value }))} placeholder="Optional" />
+                </div>
+              </div>
+
+              {/* Billing info */}
+              <div style={{ borderTop: '1px solid #1C2B45', paddingTop: 20, marginTop: 4, marginBottom: 20 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.55)', marginBottom: 14, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Billing Information <span style={{ fontSize: 11, fontWeight: 400, textTransform: 'none', color: 'rgba(255,255,255,0.30)' }}>— optional</span>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                  <div>
+                    <label style={lbl}>Legal / billing name</label>
+                    <input style={input} value={orgForm.billing_name} onChange={(e) => setOrgForm((f) => ({ ...f, billing_name: e.target.value }))} placeholder="Acme Corp S.L." />
+                  </div>
+                  <div>
+                    <label style={lbl}>Billing email</label>
+                    <input style={input} type="email" value={orgForm.billing_email} onChange={(e) => setOrgForm((f) => ({ ...f, billing_email: e.target.value }))} placeholder="billing@company.com" />
+                  </div>
+                  <div>
+                    <label style={lbl}>Tax / VAT ID</label>
+                    <input style={input} value={orgForm.billing_tax_id} onChange={(e) => setOrgForm((f) => ({ ...f, billing_tax_id: e.target.value }))} placeholder="ESB12345678" />
+                  </div>
+                  <div>
+                    <label style={lbl}>Address</label>
+                    <input style={input} value={orgForm.billing_address} onChange={(e) => setOrgForm((f) => ({ ...f, billing_address: e.target.value }))} placeholder="Calle Mayor 1" />
+                  </div>
+                  <div>
+                    <label style={lbl}>City</label>
+                    <input style={input} value={orgForm.billing_city} onChange={(e) => setOrgForm((f) => ({ ...f, billing_city: e.target.value }))} placeholder="Barcelona" />
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                    <div>
+                      <label style={lbl}>Postal code</label>
+                      <input style={input} value={orgForm.billing_postal_code} onChange={(e) => setOrgForm((f) => ({ ...f, billing_postal_code: e.target.value }))} placeholder="08001" />
+                    </div>
+                    <div>
+                      <label style={lbl}>Country</label>
+                      <input style={input} value={orgForm.billing_country} onChange={(e) => setOrgForm((f) => ({ ...f, billing_country: e.target.value }))} placeholder="Spain" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button onClick={handleSaveOrg} disabled={savingOrg} style={{
+                padding: '10px 28px', borderRadius: 8, border: 'none', cursor: 'pointer',
+                background: 'linear-gradient(135deg,#3B82F6,#14B8A6)',
+                color: 'white', fontWeight: 600, fontSize: 14, opacity: savingOrg ? 0.6 : 1,
+              }}>
+                {savingOrg ? 'Saving…' : 'Save organization'}
+              </button>
+            </>
+          ) : (
+            // Non-admin: read-only display
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+              {[
+                { label: 'Name',  value: org?.name },
+                { label: 'Email', value: user?.email },
+              ].map(({ label: l, value }) => (
+                <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                  <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', width: 80, flexShrink: 0 }}>{l}</span>
+                  <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', fontWeight: 600 }}>{value || '—'}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div style={{ ...card, border: '1px solid rgba(239,68,68,0.20)', marginBottom: 0 }}>
