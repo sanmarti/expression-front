@@ -53,6 +53,7 @@ export default function ProfilePage() {
   const [selectedPilot, setSelectedPilot] = useState(user?.selected_avatar || null)
   const [pilotOpen, setPilotOpen] = useState(!user?.selected_avatar)
   const [displayName, setDisplayName] = useState(user?.display_name || '')
+  const [jobTitle, setJobTitle] = useState(user?.job_title || '')
   const [saving, setSaving] = useState(false)
 
   const [pwForm, setPwForm] = useState({ current: '', next: '', confirm: '' })
@@ -102,9 +103,10 @@ export default function ProfilePage() {
       const payload = {}
       if (displayName !== user?.display_name) payload.display_name = displayName
       if (selectedPilot !== user?.selected_avatar) payload.selected_avatar = selectedPilot
+      if (jobTitle !== (user?.job_title || '')) payload.job_title = jobTitle
       if (Object.keys(payload).length === 0) { toast('Nothing changed', 'info'); return }
       const { data } = await updateProfile(payload)
-      setUser({ ...user, ...data, selected_avatar: selectedPilot, display_name: displayName })
+      setUser({ ...user, ...data, selected_avatar: selectedPilot, display_name: displayName, job_title: jobTitle })
       toast('Profile saved', 'success')
     } catch (e) {
       toast(e.response?.data?.message || 'Failed to save', 'error')
@@ -212,7 +214,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Name + Email fields */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 28 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
             <div>
               <label style={lbl}>Display name</label>
               <input style={input} value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
@@ -221,6 +223,10 @@ export default function ProfilePage() {
               <label style={lbl}>Email</label>
               <input style={{ ...input, opacity: 0.5, cursor: 'not-allowed' }} value={user?.email || ''} readOnly />
             </div>
+          </div>
+          <div style={{ marginBottom: 28 }}>
+            <label style={lbl}>Job title</label>
+            <input style={input} value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} placeholder="e.g. Head of Strategy" />
           </div>
 
           {/* Pilot avatar grid — collapsible when a pilot is already chosen */}

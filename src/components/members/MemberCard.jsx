@@ -111,10 +111,15 @@ export default function MemberCard({ member, canRemove, onRemove }) {
       <div style={{ textAlign: 'center', marginTop: 18, marginBottom: 14 }}>
         {hasProfile ? (
           <>
-            <div style={{ fontSize: 19, fontWeight: 700, color: 'rgba(255,255,255,0.92)', marginBottom: 5 }}>
+            <div style={{ fontSize: 19, fontWeight: 700, color: 'rgba(255,255,255,0.92)', marginBottom: 4 }}>
               {member.display_name}
             </div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.38)' }}>{member.email}</div>
+            {member.job_title && (
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.55)', marginBottom: 4, letterSpacing: '0.02em' }}>
+                {member.job_title}
+              </div>
+            )}
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.30)' }}>{member.email}</div>
           </>
         ) : (
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.50)' }}>{member.email}</div>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getMembers, getInvitations, removeMember } from '../api/members.js'
+import { getMembers, removeMember } from '../api/members.js'
 import { getSubscription } from '../api/subscriptions.js'
 import MemberCard from '../components/members/MemberCard.jsx'
 import InviteModal from '../components/members/InviteModal.jsx'
@@ -11,25 +11,27 @@ import { useOrganization } from '../hooks/useOrganization.js'
 import useAuthStore from '../store/authStore.js'
 import { useNavigate } from 'react-router-dom'
 
-// Placeholder members shown until real users are invited
+// Placeholder members shown until the org has 3+ real members
 const DEMO_MEMBERS = [
   {
     id: 'demo-1',
     display_name: 'Carlos Mendez',
     email: 'carlos.mendez@cocacola.com',
+    job_title: 'Head of Partnerships',
     role: 'member',
     selected_avatar: 'pilot_5',
     joined_at: '2025-03-10',
-    cockpit: { altitude: 82, fuel: 74, visibility: 88, speed: 65 },
+    cockpit: { altitude: 82, fuel: 74, navigation: 88, speed: 65 },
   },
   {
     id: 'demo-2',
     display_name: 'Sofia Ruiz',
     email: 'sofia.ruiz@cocacola.com',
+    job_title: 'Operations Manager',
     role: 'viewer',
     selected_avatar: 'pilot_18',
     joined_at: '2025-04-22',
-    cockpit: { altitude: 55, fuel: 48, visibility: 70, speed: 60 },
+    cockpit: { altitude: 55, fuel: 48, navigation: 70, speed: 60 },
   },
 ]
 
@@ -46,9 +48,9 @@ export default function MembersPage() {
 
   const load = async () => {
     try {
-      const [m, i] = await Promise.all([getMembers(), getInvitations()])
-      setMembers(m.data)
-      setInvitations(i.data)
+      const { data } = await getMembers()
+      setMembers(data.members || [])
+      setInvitations(data.pendingInvitations || [])
     } catch {
       toast('Failed to load members', 'error')
     } finally {
@@ -79,11 +81,9 @@ export default function MembersPage() {
   const currentStakeholders = planData?.usage?.stakeholders ?? 0
   const limitReached = currentMembers >= maxMembers
 
-  // Merge real members with demo placeholders (demo shown only when fewer than 2 real members)
-  const displayMembers = [
-    ...members,
-    ...(members.length < 2 ? DEMO_MEMBERS.slice(0, 2 - members.length) : []),
-  ]
+  // Show up to 2 demo members alongside real ones until org has 3+ real members
+  const demosToShow = members.length < 3 ? DEMO_MEMBERS.slice(0, Math.min(2, 3 - members.length)) : []
+  const displayMembers = [...members, ...demosToShow]
 
   return (
     <div style={{ minHeight: '100vh', background: '#0B1120', padding: '24px 32px' }}>
