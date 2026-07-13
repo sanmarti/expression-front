@@ -459,9 +459,7 @@ export default function ProfilePage() {
         </div>
 
         <div style={{ ...card, border: '1px solid rgba(239,68,68,0.20)', marginBottom: 0 }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: '#ef4444', marginBottom: 4 }}>Danger Zone</div>
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 20 }}>These actions cannot be undone.</div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 0', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0' }}>
             <div>
               <div style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.85)', marginBottom: 3 }}>Log out</div>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>End your session and return to the landing page.</div>
