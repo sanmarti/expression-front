@@ -1,37 +1,9 @@
-import { useState } from 'react'
 import { getClimateIcon } from '../../constants/climate.js'
 
 const STATUS_CLR = { favorable: '#22c55e', attention: '#f59e0b', critical: '#ef4444', unknown: '#6b7280' }
-const TEMP_FILL  = { cold: '#60A5FA', temperate: '#34D399', warm: '#FBBF24', hot: '#F87171' }
-
-// Circle border color per indicator value: green=in favor, blue=neutral, orange=unfavorable, red=very unfavorable
-const VALUE_COLOR = {
-  storm:       { clear: '#22c55e', cloudy: '#3b82f6', rainy: '#f59e0b', stormy: '#ef4444' },
-  wind:        { calm:  '#22c55e', breeze: '#3b82f6', windy: '#f59e0b', gale:   '#ef4444' },
-  temperature: { warm:  '#22c55e', temperate: '#3b82f6', hot: '#f59e0b', cold:   '#ef4444' },
-  visibility:  { clear: '#22c55e', partial: '#3b82f6', misty: '#f59e0b', foggy:  '#ef4444' },
-  tide:        { high:  '#22c55e', stable:  '#3b82f6', surge: '#f59e0b', low:    '#ef4444' },
-  uv_index:    { optimal: '#22c55e', favorable: '#3b82f6', neutral: '#f59e0b', blocked: '#ef4444' },
-}
-
-function EmojiChip({ x, y, emoji, borderColor = 'rgba(255,255,255,0.18)', r = 11 }) {
-  return (
-    <g transform={`translate(${x},${y})`} style={{ pointerEvents: 'none' }}>
-      <circle r={r} fill="rgba(6,10,22,0.78)" stroke={borderColor} strokeWidth="1.5" />
-      <text
-        textAnchor="middle" dominantBaseline="central"
-        fontSize={r * 1.35}
-        style={{ userSelect: 'none' }}
-      >
-        {emoji}
-      </text>
-    </g>
-  )
-}
+const TEMP_LBL   = { cold: 'Cold', temperate: 'Moderate', warm: 'Warm', hot: 'Hot' }
 
 export default function Campfire({ stakeholder, isDragging, onMouseDown, onHoverChange }) {
-  const [hovered, setHovered] = useState(false)
-
   const x = (stakeholder.position_x ?? 50) * 10
   const y = (stakeholder.position_y ?? 50) * 7
 
@@ -43,91 +15,100 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
     tide:           stakeholder.tide,
     uv_index:       stakeholder.uv_index,
     overall_status: stakeholder.overall_status,
-    weather_type:   stakeholder.weather_type,
   }
 
-  const {
-    temperature    = 'temperate',
-    wind           = 'calm',
-    storm          = 'clear',
-    visibility     = 'partial',
-    tide           = 'stable',
-    uv_index       = 'neutral',
-    overall_status = 'unknown',
-  } = climate
-
-  const campEmoji   = stakeholder.emoji || '🏕️'
-  const fillColor   = TEMP_FILL[temperature]    || '#34D399'
+  const { temperature = 'temperate', storm = 'clear', overall_status = 'unknown' } = climate
   const statusColor = STATUS_CLR[overall_status] || '#6b7280'
-  const isCritical  = overall_status === 'critical'
-  const nameLen     = stakeholder.name?.length ?? 8
-  const nameW       = Math.max(52, nameLen * 6.2 + 16)
+  const stormEmoji  = getClimateIcon('storm', storm) || '☀️'
+  const tempLabel   = TEMP_LBL[temperature] || 'Moderate'
+
+  // Card geometry (SVG units)
+  const cardW = 148
+  const cardH = 56
+  const lineH = 28
+  const cx    = -cardW / 2
+  const cy    = -(cardH + lineH)
 
   return (
     <g
       transform={`translate(${x}, ${y})`}
       style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
-      onMouseEnter={() => { setHovered(true); onHoverChange?.(stakeholder.id, true) }}
-      onMouseLeave={() => { setHovered(false); onHoverChange?.(stakeholder.id, false) }}
+      onMouseEnter={() => onHoverChange?.(stakeholder.id, true)}
+      onMouseLeave={() => onHoverChange?.(stakeholder.id, false)}
       onMouseDown={(e) => { e.stopPropagation(); onMouseDown(e) }}
       onClick={(e) => e.stopPropagation()}
     >
-      <circle r={44} fill="none" style={{ pointerEvents: 'all' }} />
+      {/* Transparent hit area covering card + line + pin */}
+      <rect
+        x={cx - 4} y={cy - 4}
+        width={cardW + 8} height={cardH + lineH + 10}
+        fill="transparent"
+      />
 
-      <g style={{ pointerEvents: 'none' }}>
-        {/* Soft status glow */}
-        <circle r="20" fill={statusColor} fillOpacity="0.08" />
+      {/* Connector line — pin to card bottom */}
+      <line
+        x1={0} y1={0} x2={0} y2={cy + cardH}
+        stroke="rgba(255,255,255,0.35)" strokeWidth="1"
+        style={{ pointerEvents: 'none' }}
+      />
 
-        {/* Rotating scan ring */}
-        <circle
-          r="20" fill="none"
-          stroke={statusColor} strokeWidth="1"
-          strokeDasharray="5 25"
-          style={{ animation: 'spin 12s linear infinite', transformOrigin: '0 0', strokeOpacity: 0.55 }}
-        />
+      {/* Anchor dot */}
+      <circle
+        r={4}
+        fill="rgba(255,255,255,0.80)"
+        stroke="rgba(0,0,0,0.45)" strokeWidth="1"
+        style={{ pointerEvents: 'none' }}
+      />
 
-        {isCritical && (
-          <circle r="23" fill="none" stroke="#ef4444" strokeWidth="1.5" strokeOpacity="0.4"
-            style={{ animation: 'pulse-slow 1.2s ease-in-out infinite' }} />
-        )}
-
-        {/* Camp emoji — foreignObject keeps all emojis the same visual size */}
-        <foreignObject x="-18" y="-18" width="36" height="36">
-          <div xmlns="http://www.w3.org/1999/xhtml" style={{
-            width: 36, height: 36,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 26, lineHeight: 1,
-            userSelect: 'none',
-          }}>
-            {campEmoji}
+      {/* Weather card */}
+      <foreignObject x={cx} y={cy} width={cardW} height={cardH} style={{ pointerEvents: 'none' }}>
+        <div
+          xmlns="http://www.w3.org/1999/xhtml"
+          style={{
+            width: cardW + 'px', height: cardH + 'px',
+            background: 'rgba(6,10,22,0.88)',
+            backdropFilter: 'blur(14px)',
+            border: `1px solid ${statusColor}44`,
+            borderRadius: 10,
+            padding: '8px 10px',
+            boxSizing: 'border-box',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            fontFamily: 'system-ui,-apple-system,sans-serif',
+          }}
+        >
+          {/* Row 1: status dot + camp name */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5, overflow: 'hidden' }}>
+            <div style={{
+              width: 7, height: 7, borderRadius: '50%', flexShrink: 0,
+              background: statusColor,
+              boxShadow: `0 0 6px ${statusColor}cc`,
+            }} />
+            <span style={{
+              fontSize: 10, fontWeight: 700,
+              color: 'rgba(255,255,255,0.60)',
+              letterSpacing: '0.07em', textTransform: 'uppercase',
+              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            }}>
+              {stakeholder.name}
+            </span>
           </div>
-        </foreignObject>
 
-        {/* ── 6 floating emoji chips — border color = alignment level ── */}
-        <EmojiChip x={0}   y={-34} emoji={getClimateIcon('storm',       storm)       || '☀️'} borderColor={VALUE_COLOR.storm[storm]            || '#6b7280'} r={10} />
-        <EmojiChip x={29}  y={-17} emoji={getClimateIcon('wind',        wind)        || '🌀'} borderColor={VALUE_COLOR.wind[wind]              || '#6b7280'} r={10} />
-        <EmojiChip x={29}  y={17}  emoji={getClimateIcon('tide',        tide)        || '➡️'} borderColor={VALUE_COLOR.tide[tide]              || '#6b7280'} r={10} />
-        <EmojiChip x={0}   y={34}  emoji={getClimateIcon('temperature', temperature) || '🌿'} borderColor={VALUE_COLOR.temperature[temperature] || '#6b7280'} r={10} />
-        <EmojiChip x={-29} y={17}  emoji={getClimateIcon('visibility',  visibility)  || '🧭'} borderColor={VALUE_COLOR.visibility[visibility]   || '#6b7280'} r={10} />
-        <EmojiChip x={-29} y={-17} emoji={getClimateIcon('uv_index',    uv_index)    || '☁️'} borderColor={VALUE_COLOR.uv_index[uv_index]       || '#6b7280'} r={10} />
-
-        {/* Name pill — pushed below the bottom chip */}
-        <g transform="translate(0, 50)">
-          <rect
-            x={-nameW / 2} y="-7" width={nameW} height="14" rx="7"
-            fill="rgba(6,10,22,0.86)" stroke={statusColor} strokeWidth="0.8"
-          />
-          <text
-            textAnchor="middle" dominantBaseline="central"
-            fontSize="9" fontWeight="700"
-            fill="rgba(255,255,255,0.90)"
-            style={{ userSelect: 'none', fontFamily: 'monospace', letterSpacing: '0.05em', textTransform: 'uppercase' }}
-          >
-            {stakeholder.name}
-          </text>
-        </g>
-      </g>
-
+          {/* Row 2: temperature label + storm emoji */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{
+              fontSize: 18, fontWeight: 700, color: '#fff',
+              letterSpacing: '-0.01em', lineHeight: 1,
+            }}>
+              {tempLabel}
+            </span>
+            <span style={{ fontSize: 26, lineHeight: 1, userSelect: 'none' }}>
+              {stormEmoji}
+            </span>
+          </div>
+        </div>
+      </foreignObject>
     </g>
   )
 }

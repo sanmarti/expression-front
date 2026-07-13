@@ -47,7 +47,7 @@ export default function StakeholderTooltip({ stakeholder }) {
 
   // 220px wide, ~170px tall card
   return (
-    <foreignObject x="24" y="-90" width="220" height="185" style={{ pointerEvents: 'none' }}>
+    <foreignObject x="82" y="-90" width="220" height="185" style={{ pointerEvents: 'none' }}>
       <div style={{
         background: 'rgba(6,10,22,0.94)',
         border: `1px solid ${statusColor}`,
