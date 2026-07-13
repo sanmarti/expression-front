@@ -12,7 +12,20 @@ const useIslandStore = create((set) => ({
   updateStakeholderClimate: (id, climate) =>
     set((state) => ({
       stakeholders: state.stakeholders.map((s) =>
-        s.id === id ? { ...s, climate: { ...s.climate, ...climate } } : s
+        s.id === id
+          ? {
+              ...s,
+              // Keep flat fields in sync (ConditionsPanel reads s.overall_status directly)
+              overall_status: climate.overall_status ?? s.overall_status,
+              temperature:    climate.temperature    ?? s.temperature,
+              wind:           climate.wind           ?? s.wind,
+              storm:          climate.storm          ?? s.storm,
+              visibility:     climate.visibility     ?? s.visibility,
+              tide:           climate.tide           ?? s.tide,
+              uv_index:       climate.uv_index       ?? s.uv_index,
+              climate: { ...s.climate, ...climate },
+            }
+          : s
       ),
     })),
 

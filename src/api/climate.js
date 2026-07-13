@@ -8,3 +8,6 @@ export const updateClimate = (stakeholderId, data) =>
 
 export const getClimateHistory = (stakeholderId) =>
   client.get(`/stakeholders/${stakeholderId}/climate/history`)
+
+export const getStatusRules = () => client.get('/admin/status-rules')
+export const updateStatusRules = (data) => client.put('/admin/status-rules', data)

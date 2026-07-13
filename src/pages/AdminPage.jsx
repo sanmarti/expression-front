@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { adminGetOrgs, adminGetUsers, adminUpdateSubscription, adminDeleteOrg, adminGetStats } from '../api/subscriptions.js'
 import { adminGetCockpitQuestions, adminCreateCockpitQuestion, adminUpdateCockpitQuestion, adminDeleteCockpitQuestion } from '../api/cockpit.js'
+import { getStatusRules, updateStatusRules } from '../api/climate.js'
 import { INDICATORS } from '../constants/avatars.js'
 import Badge from '../components/ui/Badge.jsx'
 import Spinner from '../components/ui/Spinner.jsx'
@@ -76,6 +77,11 @@ export default function AdminPage() {
   ]})
   const [savingQ, setSavingQ] = useState(false)
 
+  const [statusRules, setStatusRules] = useState([])
+  const [statusThresholds, setStatusThresholds] = useState({ favorable_min: 70, attention_min: 40 })
+  const [rulesLoading, setRulesLoading] = useState(false)
+  const [savingRules, setSavingRules] = useState(false)
+
   useEffect(() => {
     Promise.allSettled([
       adminGetOrgs().then(({ data }) => {
@@ -92,6 +98,33 @@ export default function AdminPage() {
     setQLoading(true)
     adminGetCockpitQuestions().then(({ data }) => setQuestions(data)).catch(() => {}).finally(() => setQLoading(false))
   }, [])
+
+  const loadStatusRules = () => {
+    if (statusRules.length > 0) return
+    setRulesLoading(true)
+    getStatusRules()
+      .then(({ data }) => { setStatusRules(data.rules || []); setStatusThresholds(data.thresholds || { favorable_min: 70, attention_min: 40 }) })
+      .catch(() => toast('Failed to load status rules', 'error'))
+      .finally(() => setRulesLoading(false))
+  }
+
+  const handleSaveRules = async () => {
+    setSavingRules(true)
+    try {
+      await updateStatusRules({ rules: statusRules, thresholds: statusThresholds })
+      toast('Status rules saved', 'success')
+    } catch {
+      toast('Failed to save rules', 'error')
+    } finally {
+      setSavingRules(false)
+    }
+  }
+
+  const setRuleScore = (indicator, value, score) => {
+    setStatusRules((prev) => prev.map((r) =>
+      r.indicator === indicator && r.value === value ? { ...r, score: parseInt(score, 10) } : r
+    ))
+  }
 
   const handlePlanChange = async (orgId, plan) => {
     try {
@@ -183,9 +216,15 @@ export default function AdminPage() {
         </div>
 
         <div style={{ borderBottom: '1px solid #1C2B45', marginBottom: 24, display: 'flex' }}>
-          {['dashboard', 'orgs', 'users', 'questionnaire'].map((t) => (
-            <button key={t} style={tabStyle(t)} onClick={() => setTab(t)}>
-              {t === 'dashboard' ? 'Dashboard' : t.charAt(0).toUpperCase() + t.slice(1)}
+          {[
+            ['dashboard', 'Dashboard'],
+            ['orgs', 'Orgs'],
+            ['users', 'Users'],
+            ['questionnaire', 'Questionnaire'],
+            ['status-rules', 'Status Rules'],
+          ].map(([t, label]) => (
+            <button key={t} style={tabStyle(t)} onClick={() => { setTab(t); if (t === 'status-rules') loadStatusRules() }}>
+              {label}
             </button>
           ))}
         </div>
@@ -370,6 +409,103 @@ export default function AdminPage() {
                   </tbody>
                 </table>
               </>
+            )}
+
+            {/* ── STATUS RULES ──────────────────────────────────────── */}
+            {tab === 'status-rules' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.40)', lineHeight: 1.6 }}>
+                  Each indicator value gets a score from 0 (worst) to 100 (best). The average of all 6 scores
+                  determines the overall status. Set the thresholds below to control when a camp becomes
+                  Favorable, Attention, or Critical.
+                </div>
+
+                {rulesLoading ? (
+                  <div style={{ textAlign: 'center', padding: 32 }}><Spinner size={32} /></div>
+                ) : (
+                  <>
+                    {/* Thresholds */}
+                    <div style={{ background: '#141E35', border: '1px solid #1C2B45', borderRadius: 12, padding: 24 }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.85)', marginBottom: 16 }}>Score Thresholds</div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                        {[
+                          { key: 'favorable_min', label: 'Favorable when score ≥', color: '#22c55e' },
+                          { key: 'attention_min',  label: 'Attention when score ≥', color: '#f59e0b' },
+                        ].map(({ key, label, color }) => (
+                          <div key={key}>
+                            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.40)', marginBottom: 6 }}>{label}</div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                              <input
+                                type="range" min="0" max="100"
+                                value={statusThresholds[key]}
+                                onChange={(e) => setStatusThresholds((t) => ({ ...t, [key]: parseInt(e.target.value, 10) }))}
+                                style={{ flex: 1, accentColor: color }}
+                              />
+                              <span style={{ fontSize: 16, fontWeight: 700, color, minWidth: 36, textAlign: 'right' }}>
+                                {statusThresholds[key]}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div style={{ marginTop: 12, fontSize: 12, color: 'rgba(255,255,255,0.30)' }}>
+                        Critical when score &lt; {statusThresholds.attention_min} · Attention {statusThresholds.attention_min}–{statusThresholds.favorable_min - 1} · Favorable ≥ {statusThresholds.favorable_min}
+                      </div>
+                    </div>
+
+                    {/* Indicator score cards */}
+                    {[
+                      { indicator: 'storm',       label: 'Risk & Conflict',      values: ['clear','cloudy','rainy','stormy'],         icons: { clear:'☀️', cloudy:'⛅', rainy:'🌧️', stormy:'⛈️' } },
+                      { indicator: 'uv_index',    label: 'Alignment & Support',  values: ['optimal','favorable','neutral','blocked'],  icons: { optimal:'✨', favorable:'🌤️', neutral:'🌑', blocked:'🚫' } },
+                      { indicator: 'visibility',  label: 'Information Quality',  values: ['clear','partial','misty','foggy'],         icons: { clear:'🔭', partial:'🌤️', misty:'😶‍🌫️', foggy:'🌫️' } },
+                      { indicator: 'wind',        label: 'Influence & Power',    values: ['calm','breeze','windy','gale'],             icons: { calm:'🍃', breeze:'💨', windy:'🌬️', gale:'🌀' } },
+                      { indicator: 'temperature', label: 'Activity Level',       values: ['warm','temperate','hot','cold'],           icons: { warm:'☀️', temperate:'🌤️', hot:'🔥', cold:'❄️' } },
+                      { indicator: 'tide',        label: 'Trend & Momentum',     values: ['high','stable','surge','low'],             icons: { high:'📈', stable:'➡️', surge:'🌊', low:'📉' } },
+                    ].map(({ indicator, label, values, icons }) => (
+                      <div key={indicator} style={{ background: '#141E35', border: '1px solid #1C2B45', borderRadius: 12, padding: 20 }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.80)', marginBottom: 14, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+                          {values.map((val) => {
+                            const rule = statusRules.find((r) => r.indicator === indicator && r.value === val)
+                            const score = rule?.score ?? 50
+                            const statusColor = score >= statusThresholds.favorable_min ? '#22c55e' : score >= statusThresholds.attention_min ? '#f59e0b' : '#ef4444'
+                            return (
+                              <div key={val} style={{ background: '#0B1120', borderRadius: 10, padding: '12px 14px', border: `1px solid ${statusColor}33` }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                                  <span style={{ fontSize: 18 }}>{icons[val]}</span>
+                                  <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.75)', textTransform: 'capitalize' }}>{val.replace('_', ' ')}</span>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                  <input
+                                    type="range" min="0" max="100"
+                                    value={score}
+                                    onChange={(e) => setRuleScore(indicator, val, e.target.value)}
+                                    style={{ flex: 1, accentColor: statusColor }}
+                                  />
+                                  <span style={{ fontSize: 14, fontWeight: 700, color: statusColor, minWidth: 28, textAlign: 'right' }}>{score}</span>
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    ))}
+
+                    <button
+                      onClick={handleSaveRules}
+                      disabled={savingRules}
+                      style={{
+                        alignSelf: 'flex-start', padding: '11px 28px', borderRadius: 8, border: 'none',
+                        background: 'linear-gradient(135deg,#3B82F6,#14B8A6)',
+                        color: 'white', fontWeight: 700, fontSize: 14, cursor: 'pointer',
+                        opacity: savingRules ? 0.6 : 1,
+                      }}
+                    >
+                      {savingRules ? 'Saving…' : 'Save Rules'}
+                    </button>
+                  </>
+                )}
+              </div>
             )}
 
             {/* ── QUESTIONNAIRE ─────────────────────────────────────── */}
