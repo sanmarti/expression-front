@@ -150,7 +150,7 @@ export default function MemberCard({ member, canRemove, onRemove }) {
           ))
         ) : (
           <div style={{ textAlign: 'center', padding: '8px 0 4px' }}>
-            <div style={{ fontSize: 22, marginBottom: 6 }}>⚡</div>
+            <div style={{ fontSize: 22, marginBottom: 6 }}>✈️</div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)' }}>
               {hasProfile ? 'Cockpit not filled yet' : 'Profile not completed'}
             </div>

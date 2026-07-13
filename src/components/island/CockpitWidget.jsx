@@ -112,7 +112,7 @@ export default function CockpitWidget() {
                 style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: '50% 20%', display: 'block' }}
               />
             ) : (
-              <div style={{ width: '100%', height: '100%', background: '#1C2B45', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32 }}>⚡</div>
+              <div style={{ width: '100%', height: '100%', background: '#1C2B45', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32 }}>✈️</div>
             )}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -121,7 +121,7 @@ export default function CockpitWidget() {
               {user?.display_name || (avatar ? 'Pilot' : 'Choose pilot')}
             </div>
           </div>
-          <div style={{ fontSize: 24, opacity: 0.20, flexShrink: 0 }}>⚡</div>
+          <div style={{ fontSize: 24, opacity: 0.20, flexShrink: 0 }}>✈️</div>
         </div>
 
         {/* Divider */}
