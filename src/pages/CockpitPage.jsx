@@ -121,7 +121,7 @@ export default function CockpitPage() {
                   style={{ width: 96, height: 96, borderRadius: '50%', objectFit: 'cover', objectPosition: '50% 20%', border: `3px solid ${avatar.color}`, marginBottom: 8, boxShadow: `0 0 18px ${avatar.color}55` }}
                 />
               ) : (
-                <div style={{ width: 96, height: 96, borderRadius: '50%', background: '#1C2B45', marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36 }}>✈</div>
+                <div style={{ width: 96, height: 96, borderRadius: '50%', background: '#1C2B45', marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36 }}>⚡</div>
               )}
               <div style={{ fontSize: 14, fontWeight: 700, color: avatar?.color || 'rgba(255,255,255,0.7)' }}>
                 {user?.display_name || 'No pilot'}
