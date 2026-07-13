@@ -58,7 +58,7 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
   // Card geometry (SVG units) — foreignObject is taller than cardH to avoid
   // clipping when SVG scales down on smaller screens (SVG units ≠ CSS px)
   const cardW = 124
-  const cardH = 70   // geometry anchor (line endpoint + glow rect) — covers full card content
+  const cardH = 56   // geometry anchor (line endpoint + glow rect)
   const foH   = 96   // foreignObject height — generous to prevent clip
   const lineH = 22
   const cx    = -cardW / 2
@@ -155,8 +155,6 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
             <div style={{
               fontSize: 8, color: 'rgba(255,255,255,0.28)',
               letterSpacing: '0.05em', textTransform: 'uppercase',
-              borderTop: '1px solid rgba(255,255,255,0.07)',
-              paddingTop: 4,
             }}>
               Updated {lastUpdate}
             </div>
