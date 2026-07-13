@@ -4,6 +4,7 @@ import { getStakeholder, updateStakeholder, deleteStakeholder } from '../api/sta
 import WeatherEffect from '../components/island/WeatherEffect.jsx'
 import ClimateCard from '../components/stakeholder/ClimateCard.jsx'
 import ClimateHistory from '../components/stakeholder/ClimateHistory.jsx'
+import CommentsSection from '../components/stakeholder/CommentsSection.jsx'
 import Badge from '../components/ui/Badge.jsx'
 import ProgressBar from '../components/ui/ProgressBar.jsx'
 import TrendIndicator from '../components/stakeholder/TrendIndicator.jsx'
@@ -142,15 +143,16 @@ export default function StakeholderPage() {
       {/* Main area */}
       <div style={{ flex: 1, overflow: 'auto' }}>
         <div style={{ borderBottom: '1px solid #1C2B45', display: 'flex' }}>
-          {['climate','history','info'].map((t) => (
+          {[['climate','Climate'],['notes','Notes'],['history','History'],['info','Info']].map(([t, label]) => (
             <button key={t} style={tabStyle(t)} onClick={() => setTab(t)}>
-              {t.charAt(0).toUpperCase() + t.slice(1)}
+              {label}
             </button>
           ))}
         </div>
 
         <div style={{ padding: 28 }}>
           {tab === 'climate' && <ClimateCard stakeholder={stakeholder} />}
+          {tab === 'notes'   && <CommentsSection stakeholderId={id} />}
           {tab === 'history' && <ClimateHistory stakeholderId={id} />}
           {tab === 'info' && (
             <form onSubmit={handleSaveInfo} style={{ maxWidth: 500, display: 'flex', flexDirection: 'column', gap: 18 }}>

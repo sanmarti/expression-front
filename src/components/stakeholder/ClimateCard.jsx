@@ -4,7 +4,6 @@ import { updateClimate } from '../../api/climate.js'
 import useIslandStore from '../../store/islandStore.js'
 import { useToast } from '../ui/Toast.jsx'
 import { CLIMATE_INDICATORS as INDICATORS } from '../../constants/climate.js'
-import CommentsSection from './CommentsSection.jsx'
 
 const STATUS_BANNER = {
   favorable: { bg: 'rgba(34,197,94,0.15)',  border: '#22c55e', icon: '🟢', text: 'Favorable — This stakeholder is well managed' },
@@ -153,10 +152,6 @@ export default function ClimateCard({ stakeholder }) {
         {saving ? 'Saving…' : 'Update Climate'}
       </button>
 
-      {/* Comments */}
-      <div style={{ marginTop: 28, borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: 24 }}>
-        <CommentsSection stakeholderId={stakeholder.id} />
-      </div>
     </div>
   )
 }
