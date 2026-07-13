@@ -59,7 +59,7 @@ export default function ProfilePage() {
     if (isAdmin) getSubscription().then((r) => setPlanData(r.data)).catch(() => {})
   }, [isAdmin])
 
-  const currentPlan     = planData?.plan     ?? org?.subscription?.plan     ?? 'free'
+  const currentPlan     = planData?.plan?.name ?? org?.subscription?.plan ?? 'free'
   const maxMembers      = planData?.limits?.max_members      ?? org?.subscription?.max_members      ?? 3
   const maxStakeholders = planData?.limits?.max_stakeholders ?? org?.subscription?.max_stakeholders ?? 5
   const usedMembers      = planData?.usage?.members      ?? org?.member_count      ?? 0
