@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import IslandMap from '../components/island/IslandMap.jsx'
 import AddCampModal from '../components/island/AddCampModal.jsx'
-import LogoutConfirmModal from '../components/ui/LogoutConfirmModal.jsx'
 import CockpitWidget from '../components/island/CockpitWidget.jsx'
 import Spinner from '../components/ui/Spinner.jsx'
 import useIslandStore from '../store/islandStore.js'
@@ -14,13 +13,11 @@ import { useClimateSync } from '../hooks/useClimateSync.js'
 
 export default function IslandPage() {
   const navigate = useNavigate()
-  const { user, org, logout } = useAuthStore()
+  const { user, org } = useAuthStore()
   const { setStakeholders, isLoading, setLoading } = useIslandStore()
   const [showAddModal, setShowAddModal] = useState(false)
   const [selectedZone, setSelectedZone] = useState(null)
   const [clickPos, setClickPos] = useState(null)
-  const [showLogout, setShowLogout] = useState(false)
-
   useClimateSync()
 
   useEffect(() => {
@@ -46,7 +43,7 @@ export default function IslandPage() {
           position: 'absolute', inset: 0,
           width: '100%', height: '100%',
           objectFit: 'cover', objectPosition: 'center',
-          zIndex: 0, opacity: 0.75,
+          zIndex: 0,
         }}
       >
         <source src="/bg.mp4" type="video/mp4" />
@@ -77,7 +74,6 @@ export default function IslandPage() {
 
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginLeft: 'auto' }}>
           <NavBtn onClick={() => navigate('/members')}>Members</NavBtn>
-          <NavBtn onClick={() => setShowLogout(true)} style={{ color: 'rgba(239,68,68,0.8)' }}>Logout</NavBtn>
           <button
             onClick={() => navigate('/profile')}
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginLeft: 4, display: 'flex' }}
@@ -117,13 +113,6 @@ export default function IslandPage() {
       </button>
 
       <CockpitWidget />
-
-      {showLogout && (
-        <LogoutConfirmModal
-          onConfirm={logout}
-          onCancel={() => setShowLogout(false)}
-        />
-      )}
 
       <AddCampModal
         open={showAddModal}
