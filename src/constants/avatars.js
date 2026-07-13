@@ -51,6 +51,13 @@ export const AVATARS = [
 
 export const getAvatar = (id) => AVATARS.find((a) => a.id === id) || null
 
+// Unified score-to-color rule used across all cockpit score bars and numbers
+export const scoreColor = (score) =>
+  score == null ? 'rgba(255,255,255,0.20)'
+  : score >= 70  ? '#10B981'
+  : score >= 40  ? '#F59E0B'
+  :                '#EF4444'
+
 export const INDICATORS = [
   { id: 'altitude',   label: 'ALTITUDE',   sublabel: 'Vision & Ambition',   description: 'Long-term vision and ambition',  color: '#3B82F6', icon: '🏔️' },
   { id: 'fuel',       label: 'FUEL',       sublabel: 'Energy & Motivation',  description: 'Energy levels and motivation',   color: '#F59E0B', icon: '⛽' },

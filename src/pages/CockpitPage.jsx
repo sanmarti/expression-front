@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import useAuthStore from '../store/authStore.js'
 import { getCockpitQuestions, submitCockpitAnswers } from '../api/cockpit.js'
 import { useToast } from '../components/ui/Toast.jsx'
-import { AVATARS, INDICATORS, getAvatar } from '../constants/avatars.js'
+import { AVATARS, INDICATORS, getAvatar, scoreColor } from '../constants/avatars.js'
 
 function fmtDate(d) {
   if (!d) return null
@@ -146,19 +146,20 @@ export default function CockpitPage() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 {INDICATORS.map((ind) => {
                   const val = scores[ind.id] ?? null
+                  const sc = scoreColor(val)
                   return (
                     <div key={ind.id} style={{ background: 'rgba(0,0,0,0.40)', borderRadius: 10, padding: '12px 14px', border: '1px solid rgba(255,255,255,0.07)' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                         <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                          <span style={{ fontSize: 14 }}>{ind.icon}</span>
+                          <span style={{ fontSize: 14, color: ind.color }}>{ind.icon}</span>
                           <span style={{ fontSize: 12, fontWeight: 700, color: ind.color }}>{ind.label}</span>
                         </div>
-                        <span style={{ fontSize: 18, fontWeight: 800, color: val !== null ? ind.color : 'rgba(255,255,255,0.20)' }}>
+                        <span style={{ fontSize: 18, fontWeight: 800, color: sc }}>
                           {val !== null ? val : '—'}
                         </span>
                       </div>
                       <div style={{ height: 5, background: 'rgba(255,255,255,0.10)', borderRadius: 3, overflow: 'hidden' }}>
-                        <div style={{ height: '100%', width: `${val ?? 0}%`, background: ind.color, borderRadius: 3, transition: 'width 0.6s ease', boxShadow: `0 0 6px ${ind.color}88` }} />
+                        <div style={{ height: '100%', width: `${val ?? 0}%`, background: sc, borderRadius: 3, transition: 'width 0.6s ease', boxShadow: `0 0 6px ${sc}88` }} />
                       </div>
                       <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.30)', marginTop: 4 }}>{ind.sublabel}</div>
                     </div>

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { INDICATORS, getAvatar } from '../../constants/avatars.js'
+import { INDICATORS, getAvatar, scoreColor } from '../../constants/avatars.js'
 
 const ROLE_CFG = {
   admin:  { label: 'Admin',     bg: 'rgba(59,130,246,0.15)',  border: 'rgba(59,130,246,0.35)',  color: '#3B82F6' },
@@ -43,20 +43,20 @@ function AvatarDisplay({ member, size = 120 }) {
 
 function ScoreBar({ indicator, value }) {
   const pct = Math.round(Math.max(0, Math.min(100, value ?? 0)))
-  const scoreColor = pct >= 80 ? '#10B981' : pct >= 55 ? '#F59E0B' : '#EF4444'
+  const sc = scoreColor(pct)
   return (
     <div style={{ marginBottom: 10 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontSize: 13 }}>{indicator.icon}</span>
+          <span style={{ fontSize: 13, color: indicator.color }}>{indicator.icon}</span>
           <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', fontWeight: 500 }}>{indicator.label}</span>
         </div>
-        <span style={{ fontSize: 13, fontWeight: 700, color: scoreColor }}>{pct}</span>
+        <span style={{ fontSize: 13, fontWeight: 700, color: sc }}>{pct}</span>
       </div>
       <div style={{ height: 5, background: 'rgba(255,255,255,0.06)', borderRadius: 4, overflow: 'hidden' }}>
         <div style={{
           height: '100%', width: `${pct}%`, borderRadius: 4,
-          background: `linear-gradient(90deg, ${indicator.color}88, ${scoreColor})`,
+          background: sc,
           transition: 'width 0.6s ease',
         }} />
       </div>

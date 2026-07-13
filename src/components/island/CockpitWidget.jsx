@@ -1,26 +1,27 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useAuthStore from '../../store/authStore.js'
-import { getAvatar, INDICATORS } from '../../constants/avatars.js'
+import { getAvatar, INDICATORS, scoreColor } from '../../constants/avatars.js'
 import { getCockpitScore } from '../../api/cockpit.js'
 
 function ScoreBar({ label, sublabel, icon, color, score }) {
   const pct = score ?? 0
+  const sc = scoreColor(score)
   return (
     <div style={{ marginBottom: 10 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
         <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', fontFamily: 'monospace', letterSpacing: '0.05em' }}>
-          {icon} {label}{sublabel && <span style={{ color: 'rgba(255,255,255,0.30)', fontWeight: 400 }}>: {sublabel}</span>}
+          <span style={{ color }}>{icon}</span> {label}{sublabel && <span style={{ color: 'rgba(255,255,255,0.30)', fontWeight: 400 }}>: {sublabel}</span>}
         </span>
-        <span style={{ fontSize: 12, color, fontWeight: 700, fontFamily: 'monospace' }}>
+        <span style={{ fontSize: 12, color: sc, fontWeight: 700, fontFamily: 'monospace' }}>
           {score != null ? `${score}%` : '—'}
         </span>
       </div>
       <div style={{ height: 6, background: 'rgba(255,255,255,0.08)', borderRadius: 3, overflow: 'hidden' }}>
         <div style={{
-          height: '100%', width: `${pct}%`, background: color,
+          height: '100%', width: `${pct}%`, background: sc,
           borderRadius: 3, transition: 'width 0.6s ease',
-          boxShadow: `0 0 8px ${color}88`,
+          boxShadow: `0 0 8px ${sc}88`,
         }} />
       </div>
     </div>
