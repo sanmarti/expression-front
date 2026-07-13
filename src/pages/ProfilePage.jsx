@@ -235,7 +235,10 @@ export default function ProfilePage() {
               }}
             >
               <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.50)' }}>Pilot avatar</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>
+                  {pilotOpen ? 'Hide avatars' : 'See more avatars'}
+                </span>
                 <span style={{
                   fontSize: 14, color: 'rgba(255,255,255,0.35)',
                   display: 'inline-block',
