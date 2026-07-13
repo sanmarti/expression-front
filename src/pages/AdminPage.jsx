@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { adminGetOrgs, adminGetUsers, adminUpdateSubscription, adminDeleteOrg, adminGetStats } from '../api/subscriptions.js'
-import { adminGetCockpitQuestions, adminCreateCockpitQuestion, adminUpdateCockpitQuestion, adminDeleteCockpitQuestion } from '../api/cockpit.js'
+import { adminGetGroups, adminCreateGroup, adminUpdateGroup, adminDeleteGroup, adminAddQuestionToGroup, adminUpdateCockpitQuestion, adminDeleteCockpitQuestion } from '../api/cockpit.js'
 import { getStatusRules, updateStatusRules } from '../api/climate.js'
 import { INDICATORS } from '../constants/avatars.js'
 import Badge from '../components/ui/Badge.jsx'
@@ -65,9 +65,13 @@ export default function AdminPage() {
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [deletingId, setDeletingId] = useState(null)
-  const [questions, setQuestions] = useState([])
-  const [qLoading, setQLoading] = useState(false)
-  const [showNewQ, setShowNewQ] = useState(false)
+  const [groups, setGroups] = useState([])
+  const [gLoading, setGLoading] = useState(false)
+  const [expandedGroup, setExpandedGroup] = useState(null)
+  const [newGroupTitle, setNewGroupTitle] = useState('')
+  const [showNewGroup, setShowNewGroup] = useState(false)
+  const [savingGroup, setSavingGroup] = useState(false)
+  const [addingQToGroup, setAddingQToGroup] = useState(null)
   const [newQ, setNewQ] = useState({ text: '', indicator: 'altitude', options: [
     { key: 'A', text: '', score: 100 },
     { key: 'B', text: '', score: 75 },
@@ -76,6 +80,7 @@ export default function AdminPage() {
     { key: 'E', text: '', score: 0 },
   ]})
   const [savingQ, setSavingQ] = useState(false)
+  const [editingQ, setEditingQ] = useState(null)
 
   const [statusRules, setStatusRules] = useState([])
   const [statusThresholds, setStatusThresholds] = useState({ favorable_min: 70, attention_min: 40 })
@@ -95,8 +100,8 @@ export default function AdminPage() {
       adminGetStats().then(({ data }) => setStats(data)).catch(() => {}),
     ]).finally(() => setLoading(false))
 
-    setQLoading(true)
-    adminGetCockpitQuestions().then(({ data }) => setQuestions(data)).catch(() => {}).finally(() => setQLoading(false))
+    setGLoading(true)
+    adminGetGroups().then(({ data }) => setGroups(data)).catch(() => {}).finally(() => setGLoading(false))
   }, [])
 
   const loadStatusRules = () => {
@@ -150,39 +155,87 @@ export default function AdminPage() {
     }
   }
 
-  const handleCreateQuestion = async () => {
+  const blankQ = () => ({
+    text: '', indicator: 'altitude', options: [
+      { key: 'A', text: '', score: 100 }, { key: 'B', text: '', score: 75 },
+      { key: 'C', text: '', score: 50 },  { key: 'D', text: '', score: 25 },
+      { key: 'E', text: '', score: 0 },
+    ]
+  })
+
+  const handleCreateGroup = async () => {
+    if (!newGroupTitle.trim()) { toast('Group title required', 'error'); return }
+    setSavingGroup(true)
+    try {
+      const { data } = await adminCreateGroup({ title: newGroupTitle.trim() })
+      setGroups((g) => [...g, data])
+      setNewGroupTitle('')
+      setShowNewGroup(false)
+      toast('Group created', 'success')
+    } catch { toast('Failed to create group', 'error') }
+    finally { setSavingGroup(false) }
+  }
+
+  const handleToggleGroupStatus = async (group) => {
+    const newStatus = group.status === 'published' ? 'draft' : 'published'
+    try {
+      await adminUpdateGroup(group.id, { status: newStatus })
+      setGroups((gs) => gs.map((g) => g.id === group.id ? { ...g, status: newStatus } : g))
+      toast(`Group ${newStatus}`, 'success')
+    } catch { toast('Failed to update group', 'error') }
+  }
+
+  const handleDeleteGroup = async (group) => {
+    if (!window.confirm(`Delete "${group.title}"? All questions inside will be removed.`)) return
+    try {
+      await adminDeleteGroup(group.id)
+      setGroups((gs) => gs.filter((g) => g.id !== group.id))
+      toast('Group deleted', 'success')
+    } catch { toast('Failed to delete group', 'error') }
+  }
+
+  const handleAddQuestion = async (groupId) => {
     if (!newQ.text.trim()) { toast('Question text required', 'error'); return }
     if (newQ.options.some((o) => !o.text.trim())) { toast('Fill all 5 option texts', 'error'); return }
     setSavingQ(true)
     try {
-      const { data } = await adminCreateCockpitQuestion({
-        text: newQ.text, indicator: newQ.indicator, sort_order: questions.length,
+      const group = groups.find((g) => g.id === groupId)
+      const { data } = await adminAddQuestionToGroup(groupId, {
+        text: newQ.text, indicator: newQ.indicator,
+        sort_order: group?.questions?.length ?? 0,
         options: newQ.options.map((o) => ({ key: o.key, text: o.text, score: parseInt(o.score) })),
       })
-      setQuestions((q) => [...q, data])
-      setNewQ({ text: '', indicator: 'altitude', options: [
-        { key: 'A', text: '', score: 100 }, { key: 'B', text: '', score: 75 },
-        { key: 'C', text: '', score: 50 },  { key: 'D', text: '', score: 25 },
-        { key: 'E', text: '', score: 0 },
-      ]})
-      setShowNewQ(false)
-      toast('Question created', 'success')
-    } catch { toast('Failed to create question', 'error') }
+      setGroups((gs) => gs.map((g) => g.id === groupId ? { ...g, questions: [...g.questions, data] } : g))
+      setNewQ(blankQ())
+      setAddingQToGroup(null)
+      toast('Question added', 'success')
+    } catch { toast('Failed to add question', 'error') }
     finally { setSavingQ(false) }
   }
 
-  const handleToggleActive = async (q) => {
+  const handleSaveQuestion = async (groupId, q) => {
     try {
-      await adminUpdateCockpitQuestion(q.id, { is_active: !q.is_active })
-      setQuestions((qs) => qs.map((x) => x.id === q.id ? { ...x, is_active: !q.is_active } : x))
-    } catch { toast('Failed to update', 'error') }
+      const { data } = await adminUpdateCockpitQuestion(q.id, {
+        text: q.text, indicator: q.indicator,
+        options: q.options.map((o) => ({ id: o.id, text: o.text, score: parseInt(o.score) })),
+      })
+      setGroups((gs) => gs.map((g) => g.id === groupId
+        ? { ...g, questions: g.questions.map((x) => x.id === q.id ? { ...data, options: data.options?.map((o) => ({ id: o.option_id ?? o.id, key: o.option_key ?? o.key, text: o.option_text ?? o.text, score: o.score })) ?? q.options } : x) }
+        : g
+      ))
+      setEditingQ(null)
+      toast('Question saved', 'success')
+    } catch { toast('Failed to save question', 'error') }
   }
 
-  const handleDeleteQuestion = async (id) => {
-    if (!window.confirm("Delete this question? User answers will also be removed.")) return
+  const handleDeleteQuestion = async (groupId, questionId) => {
+    if (!window.confirm('Delete this question?')) return
     try {
-      await adminDeleteCockpitQuestion(id)
-      setQuestions((qs) => qs.filter((q) => q.id !== id))
+      await adminDeleteCockpitQuestion(questionId)
+      setGroups((gs) => gs.map((g) => g.id === groupId
+        ? { ...g, questions: g.questions.filter((q) => q.id !== questionId) }
+        : g
+      ))
       toast('Question deleted', 'success')
     } catch { toast('Failed to delete', 'error') }
   }
@@ -511,112 +564,224 @@ export default function AdminPage() {
             {/* ── QUESTIONNAIRE ─────────────────────────────────────── */}
             {tab === 'questionnaire' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+                {/* Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)' }}>{questions.length} questions</div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.40)' }}>
+                    {groups.length} group{groups.length !== 1 ? 's' : ''} · {groups.reduce((s, g) => s + g.questions.length, 0)} questions
+                  </div>
                   <button
-                    onClick={() => setShowNewQ((v) => !v)}
+                    onClick={() => { setShowNewGroup((v) => !v); setNewGroupTitle('') }}
                     style={{ padding: '8px 18px', borderRadius: 8, border: 'none', cursor: 'pointer', background: '#3B82F6', color: 'white', fontWeight: 600, fontSize: 13 }}
                   >
-                    {showNewQ ? 'Cancel' : '+ New question'}
+                    {showNewGroup ? 'Cancel' : '+ New Group'}
                   </button>
                 </div>
 
-                {/* Create form */}
-                {showNewQ && (
-                  <div style={{ background: '#141E35', border: '1px solid #3B82F6', borderRadius: 12, padding: 24 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.92)', marginBottom: 16 }}>New Question</div>
-                    <div style={{ display: 'flex', gap: 12, marginBottom: 14 }}>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.40)', marginBottom: 6 }}>Question text</div>
-                        <input
-                          value={newQ.text}
-                          onChange={(e) => setNewQ((q) => ({ ...q, text: e.target.value }))}
-                          placeholder="How would you describe your current energy level?"
-                          style={{ width: '100%', padding: '9px 12px', borderRadius: 7, background: '#0B1120', border: '1px solid #1C2B45', color: 'rgba(255,255,255,0.90)', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
-                        />
-                      </div>
-                      <div>
-                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.40)', marginBottom: 6 }}>Indicator</div>
-                        <select
-                          value={newQ.indicator}
-                          onChange={(e) => setNewQ((q) => ({ ...q, indicator: e.target.value }))}
-                          style={{ padding: '9px 12px', borderRadius: 7, background: '#0B1120', border: '1px solid #1C2B45', color: 'rgba(255,255,255,0.90)', fontSize: 13 }}
-                        >
-                          {INDICATORS.map((i) => <option key={i.id} value={i.id}>{i.icon} {i.label}</option>)}
-                        </select>
-                      </div>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
-                      {newQ.options.map((opt, idx) => (
-                        <div key={opt.key} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                          <span style={{ width: 20, fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.40)', flexShrink: 0 }}>{opt.key}</span>
-                          <input
-                            value={opt.text}
-                            onChange={(e) => setNewQ((q) => ({ ...q, options: q.options.map((o, i) => i === idx ? { ...o, text: e.target.value } : o) }))}
-                            placeholder={`Option ${opt.key} text`}
-                            style={{ flex: 1, padding: '7px 10px', borderRadius: 6, background: '#0B1120', border: '1px solid #1C2B45', color: 'rgba(255,255,255,0.85)', fontSize: 13, outline: 'none' }}
-                          />
-                          <input
-                            type="number" min="0" max="100"
-                            value={opt.score}
-                            onChange={(e) => setNewQ((q) => ({ ...q, options: q.options.map((o, i) => i === idx ? { ...o, score: e.target.value } : o) }))}
-                            style={{ width: 60, padding: '7px 8px', borderRadius: 6, background: '#0B1120', border: '1px solid #1C2B45', color: 'rgba(255,255,255,0.70)', fontSize: 13, outline: 'none', textAlign: 'center' }}
-                          />
-                          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', flexShrink: 0 }}>pts</span>
-                        </div>
-                      ))}
+                {/* New group form */}
+                {showNewGroup && (
+                  <div style={{ background: '#141E35', border: '1px solid #3B82F6', borderRadius: 12, padding: 20, display: 'flex', gap: 12, alignItems: 'flex-end' }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.40)', marginBottom: 6 }}>Group title</div>
+                      <input
+                        value={newGroupTitle}
+                        onChange={(e) => setNewGroupTitle(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleCreateGroup()}
+                        placeholder="e.g. Onboarding, Monthly Check-in…"
+                        style={{ width: '100%', padding: '9px 12px', borderRadius: 7, background: '#0B1120', border: '1px solid #1C2B45', color: 'rgba(255,255,255,0.90)', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
+                      />
                     </div>
                     <button
-                      onClick={handleCreateQuestion}
-                      disabled={savingQ}
-                      style={{ padding: '9px 22px', borderRadius: 8, border: 'none', cursor: 'pointer', background: 'linear-gradient(135deg,#3B82F6,#14B8A6)', color: 'white', fontWeight: 600, fontSize: 13, opacity: savingQ ? 0.6 : 1 }}
+                      onClick={handleCreateGroup} disabled={savingGroup}
+                      style={{ padding: '9px 22px', borderRadius: 8, border: 'none', cursor: 'pointer', background: 'linear-gradient(135deg,#3B82F6,#14B8A6)', color: 'white', fontWeight: 600, fontSize: 13, opacity: savingGroup ? 0.6 : 1, whiteSpace: 'nowrap' }}
                     >
-                      {savingQ ? 'Saving…' : 'Create question'}
+                      {savingGroup ? 'Creating…' : 'Create Group'}
                     </button>
                   </div>
                 )}
 
-                {/* Questions list */}
-                {qLoading ? (
-                  <div style={{ textAlign: 'center', padding: 32, color: 'rgba(255,255,255,0.30)' }}>Loading…</div>
-                ) : questions.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: 48, color: 'rgba(255,255,255,0.25)' }}>No questions yet. Create one above.</div>
-                ) : (
-                  questions.map((q) => {
-                    const ind = INDICATORS.find((i) => i.id === q.indicator)
-                    return (
-                      <div key={q.id} style={{ background: '#141E35', border: `1px solid ${q.is_active ? '#1C2B45' : 'rgba(239,68,68,0.20)'}`, borderRadius: 12, padding: '18px 20px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, marginBottom: 12 }}>
-                          <div style={{ flex: 1 }}>
-                            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', marginBottom: 6, lineHeight: 1.5 }}>{q.text}</div>
-                            <span style={{ fontSize: 11, fontWeight: 700, color: ind?.color || '#3B82F6' }}>{ind?.icon} {ind?.label || q.indicator}</span>
-                          </div>
-                          <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-                            <button
-                              onClick={() => handleToggleActive(q)}
-                              style={{ padding: '4px 10px', borderRadius: 6, border: `1px solid ${q.is_active ? '#10B981' : '#EF4444'}`, background: 'transparent', color: q.is_active ? '#10B981' : '#EF4444', fontSize: 12, cursor: 'pointer' }}
-                            >
-                              {q.is_active ? 'Active' : 'Inactive'}
-                            </button>
-                            <button
-                              onClick={() => handleDeleteQuestion(q.id)}
-                              style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid rgba(239,68,68,0.30)', background: 'transparent', color: '#EF4444', fontSize: 12, cursor: 'pointer' }}
-                            >
-                              Delete
-                            </button>
-                          </div>
+                {/* Groups list */}
+                {gLoading ? (
+                  <div style={{ textAlign: 'center', padding: 48 }}><Spinner size={32} /></div>
+                ) : groups.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: 48, color: 'rgba(255,255,255,0.25)' }}>No groups yet. Create one above.</div>
+                ) : groups.map((group) => {
+                  const isExpanded = expandedGroup === group.id
+                  const isPublished = group.status === 'published'
+                  return (
+                    <div key={group.id} style={{ background: '#141E35', border: `1px solid ${isPublished ? 'rgba(16,185,129,0.30)' : '#1C2B45'}`, borderRadius: 14 }}>
+
+                      {/* Group header */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '16px 20px', cursor: 'pointer' }} onClick={() => setExpandedGroup(isExpanded ? null : group.id)}>
+                        <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.30)', userSelect: 'none', transition: 'transform 0.15s', display: 'inline-block', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>▶</span>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.92)' }}>{group.title}</div>
+                          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{group.questions.length} question{group.questions.length !== 1 ? 's' : ''}</div>
                         </div>
-                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                          {(q.options || []).map((o) => (
-                            <div key={o.key} style={{ fontSize: 12, padding: '3px 10px', borderRadius: 6, background: '#0B1120', border: '1px solid #1C2B45', color: 'rgba(255,255,255,0.55)' }}>
-                              <strong style={{ color: ind?.color || '#3B82F6' }}>{o.key}</strong> {o.text} <span style={{ color: 'rgba(255,255,255,0.30)' }}>({o.score}pts)</span>
-                            </div>
-                          ))}
+                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }} onClick={(e) => e.stopPropagation()}>
+                          <button
+                            onClick={() => handleToggleGroupStatus(group)}
+                            style={{
+                              padding: '5px 14px', borderRadius: 20, border: `1px solid ${isPublished ? '#10B981' : 'rgba(255,255,255,0.20)'}`,
+                              background: isPublished ? 'rgba(16,185,129,0.12)' : 'transparent',
+                              color: isPublished ? '#10B981' : 'rgba(255,255,255,0.45)',
+                              fontSize: 12, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.04em',
+                            }}
+                          >
+                            {isPublished ? '● PUBLISHED' : '○ DRAFT'}
+                          </button>
+                          <button
+                            onClick={() => handleDeleteGroup(group)}
+                            style={{ padding: '5px 10px', borderRadius: 6, border: '1px solid rgba(239,68,68,0.30)', background: 'transparent', color: '#EF4444', fontSize: 12, cursor: 'pointer' }}
+                          >
+                            Delete
+                          </button>
                         </div>
                       </div>
-                    )
-                  })
-                )}
+
+                      {/* Group body — questions */}
+                      {isExpanded && (
+                        <div style={{ borderTop: '1px solid #1C2B45', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                          {group.questions.length === 0 && (
+                            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)', textAlign: 'center', padding: '12px 0' }}>No questions yet.</div>
+                          )}
+
+                          {group.questions.map((q) => {
+                            const ind = INDICATORS.find((i) => i.id === q.indicator)
+                            const isEditing = editingQ?.id === q.id
+                            const eq = isEditing ? editingQ : q
+                            return (
+                              <div key={q.id} style={{ background: '#0D1528', border: `1px solid ${isEditing ? '#3B82F6' : '#1C2B45'}`, borderRadius: 10, padding: '14px 16px' }}>
+                                <div style={{ display: 'flex', gap: 12, marginBottom: isEditing ? 12 : 8 }}>
+                                  <div style={{ flex: 1 }}>
+                                    {isEditing ? (
+                                      <input
+                                        value={eq.text}
+                                        onChange={(e) => setEditingQ((x) => ({ ...x, text: e.target.value }))}
+                                        style={{ width: '100%', padding: '8px 10px', borderRadius: 6, background: '#060a16', border: '1px solid #3B82F6', color: 'rgba(255,255,255,0.90)', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
+                                      />
+                                    ) : (
+                                      <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', lineHeight: 1.5 }}>{q.text}</div>
+                                    )}
+                                  </div>
+                                  {isEditing ? (
+                                    <select
+                                      value={eq.indicator}
+                                      onChange={(e) => setEditingQ((x) => ({ ...x, indicator: e.target.value }))}
+                                      style={{ padding: '6px 10px', borderRadius: 6, background: '#060a16', border: '1px solid #3B82F6', color: 'rgba(255,255,255,0.90)', fontSize: 12 }}
+                                    >
+                                      {INDICATORS.map((i) => <option key={i.id} value={i.id}>{i.icon} {i.label}</option>)}
+                                    </select>
+                                  ) : (
+                                    <span style={{ fontSize: 11, fontWeight: 700, color: ind?.color || '#3B82F6', whiteSpace: 'nowrap', alignSelf: 'center' }}>{ind?.icon} {ind?.label}</span>
+                                  )}
+                                  <div style={{ display: 'flex', gap: 6, flexShrink: 0, alignSelf: 'flex-start' }}>
+                                    {isEditing ? (
+                                      <>
+                                        <button onClick={() => handleSaveQuestion(group.id, eq)} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: '#3B82F6', color: 'white', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>Save</button>
+                                        <button onClick={() => setEditingQ(null)} style={{ padding: '5px 10px', borderRadius: 6, border: '1px solid #1C2B45', background: 'transparent', color: 'rgba(255,255,255,0.50)', fontSize: 12, cursor: 'pointer' }}>Cancel</button>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <button onClick={() => setEditingQ({ ...q, options: q.options.map((o) => ({ ...o })) })} style={{ padding: '5px 10px', borderRadius: 6, border: '1px solid #1C2B45', background: 'transparent', color: 'rgba(255,255,255,0.55)', fontSize: 12, cursor: 'pointer' }}>Edit</button>
+                                        <button onClick={() => handleDeleteQuestion(group.id, q.id)} style={{ padding: '5px 10px', borderRadius: 6, border: '1px solid rgba(239,68,68,0.30)', background: 'transparent', color: '#EF4444', fontSize: 12, cursor: 'pointer' }}>Delete</button>
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Options */}
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                  {eq.options.map((opt, idx) => (
+                                    <div key={opt.key ?? idx} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                      <span style={{ width: 18, fontSize: 12, fontWeight: 700, color: ind?.color || '#3B82F6', flexShrink: 0 }}>{opt.key}</span>
+                                      {isEditing ? (
+                                        <>
+                                          <input
+                                            value={opt.text}
+                                            onChange={(e) => setEditingQ((x) => ({ ...x, options: x.options.map((o, i) => i === idx ? { ...o, text: e.target.value } : o) }))}
+                                            style={{ flex: 1, padding: '5px 8px', borderRadius: 5, background: '#060a16', border: '1px solid #1C2B45', color: 'rgba(255,255,255,0.85)', fontSize: 12, outline: 'none' }}
+                                          />
+                                          <input
+                                            type="number" min="0" max="100"
+                                            value={opt.score}
+                                            onChange={(e) => setEditingQ((x) => ({ ...x, options: x.options.map((o, i) => i === idx ? { ...o, score: e.target.value } : o) }))}
+                                            style={{ width: 52, padding: '5px 6px', borderRadius: 5, background: '#060a16', border: '1px solid #1C2B45', color: '#F59E0B', fontSize: 12, outline: 'none', textAlign: 'center' }}
+                                          />
+                                          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', flexShrink: 0 }}>pts</span>
+                                        </>
+                                      ) : (
+                                        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', flex: 1 }}>
+                                          {opt.text} <span style={{ color: '#F59E0B', fontWeight: 700 }}>({opt.score}pts)</span>
+                                        </span>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )
+                          })}
+
+                          {/* Add question to group */}
+                          {addingQToGroup === group.id ? (
+                            <div style={{ background: '#0D1528', border: '1px solid #3B82F6', borderRadius: 10, padding: 16 }}>
+                              <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
+                                <input
+                                  value={newQ.text}
+                                  onChange={(e) => setNewQ((q) => ({ ...q, text: e.target.value }))}
+                                  placeholder="Question text…"
+                                  style={{ flex: 1, padding: '8px 10px', borderRadius: 6, background: '#060a16', border: '1px solid #1C2B45', color: 'rgba(255,255,255,0.90)', fontSize: 13, outline: 'none' }}
+                                />
+                                <select
+                                  value={newQ.indicator}
+                                  onChange={(e) => setNewQ((q) => ({ ...q, indicator: e.target.value }))}
+                                  style={{ padding: '8px 10px', borderRadius: 6, background: '#060a16', border: '1px solid #1C2B45', color: 'rgba(255,255,255,0.90)', fontSize: 12 }}
+                                >
+                                  {INDICATORS.map((i) => <option key={i.id} value={i.id}>{i.icon} {i.label}</option>)}
+                                </select>
+                              </div>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
+                                {newQ.options.map((opt, idx) => (
+                                  <div key={opt.key} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                    <span style={{ width: 18, fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.40)', flexShrink: 0 }}>{opt.key}</span>
+                                    <input
+                                      value={opt.text}
+                                      onChange={(e) => setNewQ((q) => ({ ...q, options: q.options.map((o, i) => i === idx ? { ...o, text: e.target.value } : o) }))}
+                                      placeholder={`Option ${opt.key}`}
+                                      style={{ flex: 1, padding: '5px 8px', borderRadius: 5, background: '#060a16', border: '1px solid #1C2B45', color: 'rgba(255,255,255,0.85)', fontSize: 12, outline: 'none' }}
+                                    />
+                                    <input
+                                      type="number" min="0" max="100"
+                                      value={opt.score}
+                                      onChange={(e) => setNewQ((q) => ({ ...q, options: q.options.map((o, i) => i === idx ? { ...o, score: e.target.value } : o) }))}
+                                      style={{ width: 52, padding: '5px 6px', borderRadius: 5, background: '#060a16', border: '1px solid #1C2B45', color: '#F59E0B', fontSize: 12, outline: 'none', textAlign: 'center' }}
+                                    />
+                                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', flexShrink: 0 }}>pts</span>
+                                  </div>
+                                ))}
+                              </div>
+                              <div style={{ display: 'flex', gap: 8 }}>
+                                <button onClick={() => handleAddQuestion(group.id)} disabled={savingQ} style={{ padding: '7px 18px', borderRadius: 7, border: 'none', background: 'linear-gradient(135deg,#3B82F6,#14B8A6)', color: 'white', fontWeight: 600, fontSize: 12, cursor: 'pointer', opacity: savingQ ? 0.6 : 1 }}>
+                                  {savingQ ? 'Adding…' : 'Add Question'}
+                                </button>
+                                <button onClick={() => { setAddingQToGroup(null); setNewQ(blankQ()) }} style={{ padding: '7px 14px', borderRadius: 7, border: '1px solid #1C2B45', background: 'transparent', color: 'rgba(255,255,255,0.50)', fontSize: 12, cursor: 'pointer' }}>
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => { setAddingQToGroup(group.id); setNewQ(blankQ()) }}
+                              style={{ alignSelf: 'flex-start', padding: '7px 16px', borderRadius: 8, border: '1px dashed rgba(59,130,246,0.40)', background: 'transparent', color: '#3B82F6', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+                            >
+                              + Add question
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
             )}
           </>
