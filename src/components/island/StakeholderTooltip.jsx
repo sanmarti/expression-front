@@ -48,41 +48,41 @@ export default function StakeholderTooltip({ stakeholder }) {
   const statusColor = STATUS_CLR[status]
 
   return (
-    <foreignObject x="82" y="-180" width="220" height="280" style={{ pointerEvents: 'none', overflow: 'visible' }}>
+    <foreignObject x="70" y="-150" width="180" height="210" style={{ pointerEvents: 'none', overflow: 'visible' }}>
       <div style={{
         background: 'rgba(6,10,22,0.94)',
         border: `1px solid ${statusColor}`,
-        borderRadius: 10,
-        padding: '10px 12px',
-        boxShadow: `0 0 20px ${statusColor}33, 0 12px 40px rgba(0,0,0,0.7)`,
+        borderRadius: 8,
+        padding: '7px 9px',
+        boxShadow: `0 0 14px ${statusColor}33, 0 8px 24px rgba(0,0,0,0.7)`,
         fontFamily: 'monospace',
       }}>
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#fff', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
+          <div style={{ fontSize: 9, fontWeight: 700, color: '#fff', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
             {stakeholder.name}
           </div>
-          <div style={{ fontSize: 9, fontWeight: 700, color: statusColor, letterSpacing: '0.08em' }}>
+          <div style={{ fontSize: 7, fontWeight: 700, color: statusColor, letterSpacing: '0.06em' }}>
             {STATUS_LBL[status]}
           </div>
         </div>
 
         {/* Divider */}
-        <div style={{ height: 1, background: `linear-gradient(90deg, ${statusColor}88 0%, transparent 100%)`, marginBottom: 8 }} />
+        <div style={{ height: 1, background: `linear-gradient(90deg, ${statusColor}88 0%, transparent 100%)`, marginBottom: 6 }} />
 
         {/* Indicator grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px 10px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 8px' }}>
           {ROWS.map((row) => {
             const val = c[row.key]
             const label = row.map[val] || val || '—'
             const color = row.color[val] || 'rgba(255,255,255,0.50)'
             return (
               <div key={row.key} style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.08em' }}>
+                <div style={{ fontSize: 6, color: 'rgba(255,255,255,0.30)', letterSpacing: '0.06em' }}>
                   {row.label}
                 </div>
-                <div style={{ fontSize: 10, color, fontWeight: 600, letterSpacing: '0.03em', display: 'flex', alignItems: 'center', gap: 3 }}>
-                  <span style={{ fontSize: 11 }}>{getClimateIcon(row.key, val)}</span>
+                <div style={{ fontSize: 8, color, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <span style={{ fontSize: 9 }}>{getClimateIcon(row.key, val)}</span>
                   {label}
                 </div>
               </div>
@@ -91,8 +91,8 @@ export default function StakeholderTooltip({ stakeholder }) {
         </div>
 
         {/* Bottom scan line */}
-        <div style={{ marginTop: 8, height: 1, background: `linear-gradient(90deg, transparent 0%, ${statusColor}55 50%, transparent 100%)` }} />
-        <div style={{ marginTop: 4, fontSize: 8, color: 'rgba(255,255,255,0.20)', textAlign: 'right', letterSpacing: '0.1em' }}>
+        <div style={{ marginTop: 6, height: 1, background: `linear-gradient(90deg, transparent 0%, ${statusColor}55 50%, transparent 100%)` }} />
+        <div style={{ marginTop: 3, fontSize: 6, color: 'rgba(255,255,255,0.18)', textAlign: 'right', letterSpacing: '0.08em' }}>
           CLICK TO ENTER CAMP
         </div>
       </div>
