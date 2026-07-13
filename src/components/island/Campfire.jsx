@@ -9,15 +9,6 @@ const WIND_EMOJI  = { calm: '🌀', breeze: '🍃', windy: '💨', gale: '🌬�
 const TIDE_EMOJI  = { low: '⬇️', stable: '➡️', high: '⬆️', surge: '⚡' }
 const TEMP_EMOJI  = { cold: '❄️', temperate: '🌿', warm: '🌤️', hot: '🔥' }
 
-function hexPoints(r) {
-  return [0, 1, 2, 3, 4, 5]
-    .map((i) => {
-      const a = (Math.PI / 3) * i - Math.PI / 2
-      return `${(r * Math.cos(a)).toFixed(1)},${(r * Math.sin(a)).toFixed(1)}`
-    })
-    .join(' ')
-}
-
 function EmojiChip({ x, y, emoji, borderColor = 'rgba(255,255,255,0.18)', r = 11 }) {
   return (
     <g transform={`translate(${x},${y})`} style={{ pointerEvents: 'none' }}>
@@ -74,7 +65,7 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown }) {
       onMouseDown={(e) => { e.stopPropagation(); onMouseDown(e) }}
       onClick={(e) => e.stopPropagation()}
     >
-      <circle r={32} fill="none" style={{ pointerEvents: 'all' }} />
+      <circle r={36} fill="none" style={{ pointerEvents: 'all' }} />
 
       <g style={{ pointerEvents: 'none' }}>
         {/* Soft status glow */}
@@ -93,12 +84,8 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown }) {
             style={{ animation: 'pulse-slow 1.2s ease-in-out infinite' }} />
         )}
 
-        {/* Hex pin */}
-        <polygon points={hexPoints(13)} fill={fillColor} fillOpacity="0.85" stroke={statusColor} strokeWidth="2" />
-        <polygon points={hexPoints(9)}  fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="0.7" />
-
         {/* Camp emoji — user-chosen */}
-        <text textAnchor="middle" dominantBaseline="central" fontSize="13" style={{ userSelect: 'none' }}>
+        <text textAnchor="middle" dominantBaseline="central" fontSize="32" style={{ userSelect: 'none' }}>
           {campEmoji}
         </text>
 
