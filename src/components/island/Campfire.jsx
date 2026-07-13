@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import StakeholderTooltip from './StakeholderTooltip.jsx'
 
 const STATUS_CLR = { favorable: '#22c55e', attention: '#f59e0b', critical: '#ef4444', unknown: '#6b7280' }
 const TEMP_FILL  = { cold: '#60A5FA', temperate: '#34D399', warm: '#FBBF24', hot: '#F87171' }
@@ -24,7 +23,7 @@ function EmojiChip({ x, y, emoji, borderColor = 'rgba(255,255,255,0.18)', r = 11
   )
 }
 
-export default function Campfire({ stakeholder, isDragging, onMouseDown }) {
+export default function Campfire({ stakeholder, isDragging, onMouseDown, onHoverChange }) {
   const [hovered, setHovered] = useState(false)
 
   const x = (stakeholder.position_x ?? 50) * 10
@@ -60,8 +59,8 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown }) {
     <g
       transform={`translate(${x}, ${y})`}
       style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onMouseEnter={() => { setHovered(true); onHoverChange?.(stakeholder.id, true) }}
+      onMouseLeave={() => { setHovered(false); onHoverChange?.(stakeholder.id, false) }}
       onMouseDown={(e) => { e.stopPropagation(); onMouseDown(e) }}
       onClick={(e) => e.stopPropagation()}
     >
@@ -116,11 +115,6 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown }) {
         </g>
       </g>
 
-      {hovered && !isDragging && (
-        <g style={{ pointerEvents: 'none' }}>
-          <StakeholderTooltip stakeholder={{ ...stakeholder, climate }} />
-        </g>
-      )}
     </g>
   )
 }

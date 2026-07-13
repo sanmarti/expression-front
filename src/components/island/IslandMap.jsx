@@ -1,6 +1,7 @@
 import { useRef, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Campfire from './Campfire.jsx'
+import StakeholderTooltip from './StakeholderTooltip.jsx'
 import { updateStakeholder } from '../../api/stakeholders.js'
 import useIslandStore from '../../store/islandStore.js'
 
@@ -90,9 +91,8 @@ export default function IslandMap({ onZoneClick }) {
   const svgRef = useRef(null)
   const { stakeholders, updateStakeholderPosition } = useIslandStore()
 
-  // drag state: { id, svgX, svgY } while dragging, null otherwise
   const [drag, setDrag] = useState(null)
-  // track whether the pointer moved enough to be a drag vs a click
+  const [hoveredId, setHoveredId] = useState(null)
   const dragMoved = useRef(false)
 
   const getSVGPoint = (e) => {
@@ -205,9 +205,28 @@ export default function IslandMap({ onZoneClick }) {
             stakeholder={displayed}
             isDragging={isDragging}
             onMouseDown={(e) => handleCampMouseDown(e, s.id)}
+            onHoverChange={(id, on) => setHoveredId(on ? id : null)}
           />
         )
       })}
+
+      {/* Tooltip rendered last so it's always on top of every campfire */}
+      {(() => {
+        const s = stakeholders.find((st) => st.id === hoveredId)
+        if (!s || drag) return null
+        const x = (s.position_x ?? 50) * 10
+        const y = (s.position_y ?? 50) * 7
+        const climate = s.climate ?? {
+          temperature: s.temperature, wind: s.wind, storm: s.storm,
+          visibility: s.visibility, tide: s.tide, uv_index: s.uv_index,
+          overall_status: s.overall_status,
+        }
+        return (
+          <g transform={`translate(${x}, ${y})`} style={{ pointerEvents: 'none' }}>
+            <StakeholderTooltip stakeholder={{ ...s, climate }} />
+          </g>
+        )
+      })()}
 
       {/* Weather legend — bottom-left */}
       <foreignObject x="12" y="620" width="200" height="80">
