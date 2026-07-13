@@ -508,7 +508,7 @@ export default function AdminPage() {
 
                     {/* Indicator score cards */}
                     {[
-                      { indicator: 'storm',       label: 'Turbulence · Risk & Conflict',        values: ['clear','cloudy','rainy','stormy'],        icons: { clear:'🟢', cloudy:'🟡', rainy:'🟠', stormy:'🔴' } },
+                      { indicator: 'storm',       label: 'Nature Force · Risk & Conflict',      values: ['stable','variable','unsettled','hazardous'], icons: { stable:'🌱', variable:'🌿', unsettled:'🌊', hazardous:'🌋' } },
                       { indicator: 'uv_index',    label: 'Sky Conditions · Alignment & Support', values: ['optimal','favorable','neutral','blocked'], icons: { optimal:'☀️', favorable:'🌤️', neutral:'☁️', blocked:'⛈️' } },
                       { indicator: 'visibility',  label: 'Visibility · Information Quality',     values: ['clear','partial','misty','foggy'],        icons: { clear:'🧭', partial:'👀', misty:'🌁', foggy:'🌫️' } },
                       { indicator: 'wind',        label: 'Wind Strength · Influence & Power',    values: ['calm','breeze','windy','gale'],            icons: { calm:'🌈', breeze:'🌬️', windy:'💨', gale:'🌪️' } },

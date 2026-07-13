@@ -38,18 +38,18 @@ function WindLines({ wind }) {
 }
 
 function StormIcon({ storm }) {
-  if (storm === 'clear') return (
+  if (storm === 'stable') return (
     <g transform="translate(0,-36)">
       <circle r="5" fill="#FCD34D" style={{ animation: 'pulse-slow 2s ease-in-out infinite' }} />
     </g>
   )
-  if (storm === 'cloudy') return (
+  if (storm === 'variable') return (
     <g transform="translate(0,-38)" style={{ animation: 'float 3s ease-in-out infinite' }}>
       <ellipse cx="0" cy="0" rx="9" ry="5" fill="#9ca3af" />
       <ellipse cx="5" cy="-3" rx="6" ry="4" fill="#d1d5db" />
     </g>
   )
-  if (storm === 'rainy') return (
+  if (storm === 'unsettled') return (
     <g transform="translate(0,-38)" className="weather-rain">
       <ellipse cx="0" cy="0" rx="9" ry="5" fill="#6b7280" />
       <line x1="-5" y1="6" x2="-6" y2="13" stroke="#60A5FA" strokeWidth="1.5" strokeLinecap="round" />
@@ -57,7 +57,7 @@ function StormIcon({ storm }) {
       <line x1="5"  y1="6" x2="4"  y2="13" stroke="#60A5FA" strokeWidth="1.5" strokeLinecap="round" />
     </g>
   )
-  if (storm === 'stormy') return (
+  if (storm === 'hazardous') return (
     <g transform="translate(0,-38)">
       <ellipse cx="0" cy="0" rx="10" ry="6" fill="#374151" />
       <polyline points="3,6 -1,13 3,13 -2,20" fill="none" stroke="#FCD34D" strokeWidth="2" strokeLinejoin="round" />
@@ -86,7 +86,7 @@ export default function WeatherEffect({ climate = {}, size = 'small' }) {
   const {
     temperature = 'temperate',
     wind = 'calm',
-    storm = 'clear',
+    storm = 'stable',
     visibility = 'clear',
     tide = 'stable',
     uv_index = 'neutral',

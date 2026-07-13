@@ -21,7 +21,7 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
   const {
     temperature    = 'temperate',
     wind           = 'calm',
-    storm          = 'clear',
+    storm          = 'stable',
     visibility     = 'partial',
     tide           = 'stable',
     uv_index       = 'neutral',

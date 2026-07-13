@@ -79,7 +79,7 @@ export default function ClimateCard({ stakeholder }) {
   const initClimate = {
     temperature:    c.temperature    ?? flat.temperature    ?? 'temperate',
     wind:           c.wind           ?? flat.wind           ?? 'calm',
-    storm:          c.storm          ?? flat.storm          ?? 'clear',
+    storm:          c.storm          ?? flat.storm          ?? 'stable',
     visibility:     c.visibility     ?? flat.visibility     ?? 'clear',
     tide:           c.tide           ?? flat.tide           ?? 'stable',
     uv_index:       c.uv_index       ?? flat.uv_index       ?? 'neutral',

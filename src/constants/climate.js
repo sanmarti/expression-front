@@ -23,13 +23,13 @@ export const CLIMATE_INDICATORS = [
   },
   {
     key: 'storm',
-    label: 'Risk & Conflict',
-    phenomenon: 'Turbulence',
+    label: 'Nature Force',
+    phenomenon: 'Nature Force',
     options: [
-      { value: 'clear',  icon: '🟢', label: 'Smooth Air',          desc: 'No risk — stable relationship' },
-      { value: 'cloudy', icon: '🟡', label: 'Light Turbulence',    desc: 'Minor concerns — monitor' },
-      { value: 'rainy',  icon: '🟠', label: 'Moderate Turbulence', desc: 'Active issues — needs attention' },
-      { value: 'stormy', icon: '🔴', label: 'Severe Turbulence',   desc: 'High conflict — critical situation' },
+      { value: 'stable',    icon: '🌱', label: 'Stable',    desc: 'No risk — stable environment' },
+      { value: 'variable',  icon: '🌿', label: 'Variable',  desc: 'Minor tensions — monitor' },
+      { value: 'unsettled', icon: '🌊', label: 'Unsettled', desc: 'Active issues — needs attention' },
+      { value: 'hazardous', icon: '🌋', label: 'Hazardous', desc: 'High conflict — critical situation' },
     ],
   },
   {

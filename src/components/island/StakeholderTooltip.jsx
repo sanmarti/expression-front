@@ -16,9 +16,9 @@ const ROWS = [
   },
   {
     key: 'storm',
-    label: 'Turbulence',
-    map: { clear: 'Smooth', cloudy: 'Light', rainy: 'Moderate', stormy: 'Severe' },
-    color: { clear: '#22c55e', cloudy: '#3b82f6', rainy: '#f59e0b', stormy: '#ef4444' },
+    label: 'Nature Force',
+    map: { stable: 'Stable', variable: 'Variable', unsettled: 'Unsettled', hazardous: 'Hazardous' },
+    color: { stable: '#22c55e', variable: '#3b82f6', unsettled: '#f59e0b', hazardous: '#ef4444' },
   },
   {
     key: 'tide',
