@@ -92,7 +92,7 @@ export default function StakeholderPage() {
         </button>
 
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <WeatherEffect weather_type={c.weather_type} size="large" />
+          <WeatherEffect climate={c} size="large" emoji={stakeholder.emoji || '🏕️'} />
         </div>
 
         <div>

@@ -4,6 +4,7 @@ import { updateClimate } from '../../api/climate.js'
 import useIslandStore from '../../store/islandStore.js'
 import { useToast } from '../ui/Toast.jsx'
 import { CLIMATE_INDICATORS as INDICATORS } from '../../constants/climate.js'
+import CommentsSection from './CommentsSection.jsx'
 
 const STATUS_BANNER = {
   favorable: { bg: 'rgba(34,197,94,0.15)',  border: '#22c55e', icon: '🟢', text: 'Favorable — This stakeholder is well managed' },
@@ -122,7 +123,7 @@ export default function ClimateCard({ stakeholder }) {
         <span style={{ fontSize: 20 }}>{banner.icon}</span>
         <span style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.92)' }}>{banner.text}</span>
         <div style={{ marginLeft: 'auto' }}>
-          <WeatherEffect climate={form} size="medium" />
+          <WeatherEffect climate={form} size="medium" emoji={stakeholder.emoji || '🏕️'} />
         </div>
       </div>
 
@@ -140,22 +141,6 @@ export default function ClimateCard({ stakeholder }) {
         ))}
       </div>
 
-      {/* Notes */}
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.40)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Notes</div>
-        <textarea
-          value={form.notes || ''}
-          onChange={(e) => set('notes', e.target.value)}
-          rows={3}
-          placeholder="Add notes about this stakeholder…"
-          style={{
-            width: '100%', padding: '10px 14px', borderRadius: 8,
-            background: '#0B1120', border: '1px solid #1C2B45',
-            color: 'rgba(255,255,255,0.92)', fontSize: 14, resize: 'vertical', outline: 'none',
-          }}
-        />
-      </div>
-
       <button
         onClick={handleSave}
         disabled={saving}
@@ -167,6 +152,11 @@ export default function ClimateCard({ stakeholder }) {
       >
         {saving ? 'Saving…' : 'Update Climate'}
       </button>
+
+      {/* Comments */}
+      <div style={{ marginTop: 28, borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: 24 }}>
+        <CommentsSection stakeholderId={stakeholder.id} />
+      </div>
     </div>
   )
 }

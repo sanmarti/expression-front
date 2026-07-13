@@ -79,7 +79,7 @@ function UVGlow({ uv_index, r }) {
   )
 }
 
-export default function WeatherEffect({ climate = {}, size = 'small' }) {
+export default function WeatherEffect({ climate = {}, size = 'small', emoji = '🏕️' }) {
   const r = size === 'large' ? 28 : size === 'medium' ? 20 : 14
   const dim = r * 3.5
 
@@ -142,7 +142,7 @@ export default function WeatherEffect({ climate = {}, size = 'small' }) {
           fontSize={r * 1.1}
           style={{ userSelect: 'none', pointerEvents: 'none' }}
         >
-          🏕️
+          {emoji}
         </text>
 
         {/* Wind lines */}
