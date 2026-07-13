@@ -158,30 +158,35 @@ export default function StakeholderPage() {
                 <div key={field}>
                   <label style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>{label}</label>
                   {field === 'emoji' ? (
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 6 }}>
-                        <span style={{ fontSize: 36, lineHeight: 1 }}>{infoForm.emoji || '🏕️'}</span>
-                        <input
-                          style={{ ...inputStyle, width: 80, fontSize: 20, textAlign: 'center', marginTop: 0 }}
-                          value={infoForm.emoji || ''}
-                          onChange={(e) => setInfoForm((f) => ({ ...f, emoji: e.target.value }))}
-                          maxLength={4}
-                          placeholder="🏕️"
-                        />
-                      </div>
-                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 10 }}>
-                        {['🏕️','⛺','🔥','🌊','🌴','⛰️','🌋','🏖️','🌲','🌿','🗺️','🧭','🌅','🏔️','🌺','🌾'].map((em) => (
+                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 8 }}>
+                      {[
+                        { em: '🏕️', label: 'Bush Camp' },
+                        { em: '⛺',  label: 'Base Camp' },
+                        { em: '🛖',  label: 'Shelter' },
+                        { em: '🏠',  label: 'House' },
+                        { em: '🏡',  label: 'Homestead' },
+                        { em: '🏘️', label: 'Settlement' },
+                      ].map(({ em, label }) => {
+                        const selected = (infoForm.emoji || '🏕️') === em
+                        return (
                           <button key={em} type="button"
                             onClick={() => setInfoForm((f) => ({ ...f, emoji: em }))}
                             style={{
-                              fontSize: 20, padding: '4px 7px', borderRadius: 6, cursor: 'pointer',
-                              background: infoForm.emoji === em ? 'rgba(59,130,246,0.20)' : 'rgba(255,255,255,0.05)',
-                              border: `1px solid ${infoForm.emoji === em ? '#3B82F6' : 'transparent'}`,
+                              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+                              padding: '10px 14px', borderRadius: 10, cursor: 'pointer',
+                              background: selected ? 'rgba(59,130,246,0.15)' : 'rgba(255,255,255,0.04)',
+                              border: `1.5px solid ${selected ? '#3B82F6' : 'rgba(255,255,255,0.10)'}`,
+                              boxShadow: selected ? '0 0 12px rgba(59,130,246,0.25)' : 'none',
                               transition: 'all 0.12s',
                             }}
-                          >{em}</button>
-                        ))}
-                      </div>
+                          >
+                            <span style={{ fontSize: 28, lineHeight: 1 }}>{em}</span>
+                            <span style={{ fontSize: 10, color: selected ? '#3B82F6' : 'rgba(255,255,255,0.40)', fontFamily: 'monospace', fontWeight: selected ? 700 : 400, letterSpacing: '0.04em' }}>
+                              {label.toUpperCase()}
+                            </span>
+                          </button>
+                        )
+                      })}
                     </div>
                   ) : field === 'description' ? (
                     <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 72 }}
