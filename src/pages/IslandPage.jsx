@@ -43,7 +43,7 @@ export default function IslandPage() {
           position: 'absolute', inset: 0,
           width: '100%', height: '100%',
           objectFit: 'cover', objectPosition: 'center',
-          zIndex: 0,
+          zIndex: 0, pointerEvents: 'none',
         }}
       >
         <source src="/bg.mp4" type="video/mp4" />
@@ -72,17 +72,7 @@ export default function IslandPage() {
 
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginLeft: 'auto' }}>
           <NavBtn onClick={() => navigate('/members')}>Members</NavBtn>
-          <button
-            onClick={() => navigate('/profile')}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginLeft: 4, display: 'flex' }}
-            title="Profile"
-          >
-            <Avatar
-              name={user?.display_name || user?.email || '?'}
-              size={34}
-              src={getAvatar(user?.selected_avatar)?.src || null}
-            />
-          </button>
+          <NavBtn onClick={() => navigate('/profile')}>Settings</NavBtn>
         </div>
       </div>
 
