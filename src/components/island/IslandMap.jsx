@@ -205,7 +205,7 @@ export default function IslandMap({ onZoneClick }) {
             stakeholder={displayed}
             isDragging={isDragging}
             onMouseDown={(e) => handleCampMouseDown(e, s.id)}
-            onHoverChange={(id, on) => setHoveredId(on ? id : null)}
+            onHoverChange={(id, on) => setHoveredId((prev) => on ? id : (prev === id ? null : prev))}
           />
         )
       })}
