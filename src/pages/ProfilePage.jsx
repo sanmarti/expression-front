@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useAuthStore from '../store/authStore.js'
 import Badge from '../components/ui/Badge.jsx'
@@ -6,6 +6,7 @@ import ProgressBar from '../components/ui/ProgressBar.jsx'
 import LogoutConfirmModal from '../components/ui/LogoutConfirmModal.jsx'
 import { useToast } from '../components/ui/Toast.jsx'
 import { updateProfile, changePassword } from '../api/auth.js'
+import { getSubscription } from '../api/subscriptions.js'
 import { AVATARS, getAvatar } from '../constants/avatars.js'
 
 const TABS = [
@@ -51,10 +52,17 @@ export default function ProfilePage() {
   const [savingPw, setSavingPw] = useState(false)
 
   const [showLogout, setShowLogout] = useState(false)
+  const [planData, setPlanData] = useState(null)
 
-  const currentPlan = org?.subscription?.plan || 'free'
-  const maxMembers = org?.subscription?.max_members || 3
-  const maxStakeholders = org?.subscription?.max_stakeholders || 5
+  useEffect(() => {
+    if (isAdmin) getSubscription().then((r) => setPlanData(r.data)).catch(() => {})
+  }, [isAdmin])
+
+  const currentPlan     = planData?.plan     ?? org?.subscription?.plan     ?? 'free'
+  const maxMembers      = planData?.limits?.max_members      ?? org?.subscription?.max_members      ?? 3
+  const maxStakeholders = planData?.limits?.max_stakeholders ?? org?.subscription?.max_stakeholders ?? 5
+  const usedMembers      = planData?.usage?.members      ?? org?.member_count      ?? 0
+  const usedStakeholders = planData?.usage?.stakeholders ?? org?.stakeholder_count ?? 0
 
   // Live preview: the currently selected pilot avatar
   const previewAvatar = getAvatar(selectedPilot)
@@ -237,8 +245,8 @@ export default function ProfilePage() {
             <Badge variant="teal" style={{ textTransform: 'capitalize', marginBottom: 20 }}>{currentPlan}</Badge>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            <ProgressBar value={org?.member_count || 0} max={maxMembers} label="Members" color="#3B82F6" />
-            <ProgressBar value={org?.stakeholder_count || 0} max={maxStakeholders} label="Stakeholders" color="#14B8A6" />
+            <ProgressBar value={usedMembers} max={maxMembers} label="Members" color="#3B82F6" />
+            <ProgressBar value={usedStakeholders} max={maxStakeholders} label="Stakeholders" color="#14B8A6" />
           </div>
         </div>
 
