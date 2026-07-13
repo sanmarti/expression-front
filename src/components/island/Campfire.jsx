@@ -83,10 +83,17 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
             style={{ animation: 'pulse-slow 1.2s ease-in-out infinite' }} />
         )}
 
-        {/* Camp emoji — user-chosen */}
-        <text textAnchor="middle" dominantBaseline="central" fontSize="32" style={{ userSelect: 'none' }}>
-          {campEmoji}
-        </text>
+        {/* Camp emoji — foreignObject keeps all emojis the same visual size */}
+        <foreignObject x="-18" y="-18" width="36" height="36">
+          <div xmlns="http://www.w3.org/1999/xhtml" style={{
+            width: 36, height: 36,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 26, lineHeight: 1,
+            userSelect: 'none',
+          }}>
+            {campEmoji}
+          </div>
+        </foreignObject>
 
         {/* ── 4 floating emoji chips ─────────────────────── */}
         {/* Storm — top */}
