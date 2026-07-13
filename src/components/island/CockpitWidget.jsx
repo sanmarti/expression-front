@@ -72,17 +72,6 @@ export default function CockpitWidget() {
 
   return (
     <div style={{ position: 'fixed', bottom: 28, left: 28, zIndex: 50 }}>
-      {/* Floating indicator chips above card */}
-      {INDICATORS.map((ind, i) => (
-        <FloatingChip
-          key={ind.id}
-          emoji={ind.icon}
-          score={scores[ind.id] ?? null}
-          color={ind.color}
-          style={{ bottom: 'calc(100% + 10px)', left: i * 88 }}
-        />
-      ))}
-
       {/* Main card */}
       <button
         onClick={() => navigate('/cockpit')}
