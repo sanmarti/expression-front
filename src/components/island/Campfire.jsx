@@ -2,6 +2,18 @@ import { getClimateIcon } from '../../constants/climate.js'
 
 const STATUS_CLR = { favorable: '#22c55e', attention: '#f59e0b', critical: '#ef4444', unknown: '#6b7280' }
 
+function fmtAge(iso) {
+  if (!iso) return null
+  const diff = Date.now() - new Date(iso).getTime()
+  const m = Math.floor(diff / 60000)
+  if (m < 1)  return 'just now'
+  if (m < 60) return `${m}m ago`
+  const h = Math.floor(m / 60)
+  if (h < 24) return `${h}h ago`
+  const d = Math.floor(h / 24)
+  return `${d}d ago`
+}
+
 // Animation speed by urgency — critical feels urgent, favorable feels calm
 const ANIM = {
   favorable: { ping: '3.5s', glow: '3s',   flow: '2.5s' },
@@ -39,6 +51,7 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
   const statusColor = STATUS_CLR[overall_status] || '#6b7280'
   const campEmoji   = stakeholder.emoji || '🏕️'
   const anim        = ANIM[overall_status] || ANIM.unknown
+  const lastUpdate  = fmtAge(stakeholder.climate_updated_at ?? stakeholder.climate?.updated_at)
 
   const vals = { storm, wind, temperature, visibility, tide, uv_index }
 
@@ -137,6 +150,19 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
               </span>
             ))}
           </div>
+
+          {/* Row 3: last update */}
+          {lastUpdate && (
+            <div style={{
+              fontSize: 8, color: 'rgba(255,255,255,0.28)',
+              letterSpacing: '0.05em', textTransform: 'uppercase',
+              borderTop: '1px solid rgba(255,255,255,0.07)',
+              paddingTop: 4,
+            }}>
+              Updated {lastUpdate}
+            </div>
+          )}
+
         </div>
       </foreignObject>
 
