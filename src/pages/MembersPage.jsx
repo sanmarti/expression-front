@@ -25,8 +25,8 @@ const DEMO_MEMBERS = [
   },
   {
     id: 'demo-2',
-    display_name: 'Sofia Ruiz',
-    email: 'sofia.ruiz@cocacola.com',
+    display_name: 'Marta Carreras',
+    email: 'marta.carreras@cocacola.com',
     job_title: 'Operations Manager',
     role: 'viewer',
     selected_avatar: 'pilot_18',
