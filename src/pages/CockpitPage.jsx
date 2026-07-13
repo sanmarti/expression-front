@@ -77,16 +77,38 @@ export default function CockpitPage() {
     }
   }
 
-  return (
-    <div style={{ minHeight: '100vh', background: '#0B1120', padding: '32px 24px' }}>
-      <div style={{ maxWidth: 820, margin: '0 auto' }}>
+  const cardStyle = {
+    background: 'rgba(8,13,28,0.82)',
+    backdropFilter: 'blur(18px)',
+    WebkitBackdropFilter: 'blur(18px)',
+    border: '1px solid rgba(255,255,255,0.10)',
+    borderRadius: 16,
+  }
 
-        <button onClick={() => navigate('/island')} style={{ background: 'none', border: 'none', color: '#3B82F6', cursor: 'pointer', fontSize: 14, padding: '0 0 24px 0' }}>
+  return (
+    <div style={{
+      minHeight: '100vh',
+      position: 'relative',
+      padding: '32px 24px',
+    }}>
+      {/* Background image */}
+      <div style={{
+        position: 'fixed', inset: 0, zIndex: 0,
+        backgroundImage: 'url(/cockpit-bg.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center top',
+      }} />
+      {/* Dark overlay for readability */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 1, background: 'rgba(8,13,28,0.62)' }} />
+
+      <div style={{ position: 'relative', zIndex: 2, maxWidth: 820, margin: '0 auto' }}>
+
+        <button onClick={() => navigate('/island')} style={{ background: 'none', border: 'none', color: '#60A5FA', cursor: 'pointer', fontSize: 14, padding: '0 0 24px 0', textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
           ← Back to Island
         </button>
 
         {/* ── Pilot + indicators ── */}
-        <div style={{ background: '#141E35', border: '1px solid #1C2B45', borderRadius: 16, padding: 32, marginBottom: 20, display: 'flex', gap: 36, alignItems: 'flex-start' }}>
+        <div style={{ ...cardStyle, padding: 32, marginBottom: 20, display: 'flex', gap: 36, alignItems: 'flex-start' }}>
 
           {/* Avatar */}
           <div style={{ textAlign: 'center', flexShrink: 0 }}>
@@ -95,7 +117,7 @@ export default function CockpitPage() {
                 src={imgSrc}
                 onError={() => setImgSrc(avatar.placeholder)}
                 alt={avatar.name}
-                style={{ width: 110, height: 110, borderRadius: '50%', objectFit: 'cover', objectPosition: '50% 20%', border: `4px solid ${avatar.color}`, marginBottom: 10 }}
+                style={{ width: 110, height: 110, borderRadius: '50%', objectFit: 'cover', objectPosition: '50% 20%', border: `4px solid ${avatar.color}`, marginBottom: 10, boxShadow: `0 0 20px ${avatar.color}55` }}
               />
             ) : (
               <div style={{ width: 110, height: 110, borderRadius: '50%', background: '#1C2B45', marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40 }}>✈</div>
@@ -121,7 +143,7 @@ export default function CockpitPage() {
               {INDICATORS.map((ind) => {
                 const val = scores[ind.id] ?? null
                 return (
-                  <div key={ind.id} style={{ background: '#0B1120', borderRadius: 12, padding: '14px 18px' }}>
+                  <div key={ind.id} style={{ background: 'rgba(0,0,0,0.45)', borderRadius: 12, padding: '14px 18px', border: '1px solid rgba(255,255,255,0.07)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                       <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                         <span style={{ fontSize: 16 }}>{ind.icon}</span>
@@ -131,10 +153,10 @@ export default function CockpitPage() {
                         {val !== null ? val : '—'}
                       </span>
                     </div>
-                    <div style={{ height: 6, background: '#1C2B45', borderRadius: 4, overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${val ?? 0}%`, background: ind.color, borderRadius: 4, transition: 'width 0.6s ease' }} />
+                    <div style={{ height: 6, background: 'rgba(255,255,255,0.10)', borderRadius: 4, overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${val ?? 0}%`, background: ind.color, borderRadius: 4, transition: 'width 0.6s ease', boxShadow: `0 0 8px ${ind.color}88` }} />
                     </div>
-                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.30)', marginTop: 5 }}>{ind.description}</div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 5 }}>{ind.description}</div>
                   </div>
                 )
               })}
@@ -143,7 +165,7 @@ export default function CockpitPage() {
         </div>
 
         {/* ── Questionnaire ── */}
-        <div style={{ background: '#141E35', border: '1px solid #1C2B45', borderRadius: 16, padding: 32 }}>
+        <div style={{ ...cardStyle, padding: 32 }}>
           <div style={{ fontSize: 17, fontWeight: 700, color: 'rgba(255,255,255,0.92)', marginBottom: 6 }}>Questionnaire</div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 28 }}>
             Your answers determine your cockpit indicators. Update anytime.
@@ -184,7 +206,7 @@ export default function CockpitPage() {
                             style={{
                               display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left',
                               padding: '10px 14px', borderRadius: 10,
-                              background: picked ? `${ind?.color || '#3B82F6'}18` : '#0B1120',
+                              background: picked ? `${ind?.color || '#3B82F6'}22` : 'rgba(0,0,0,0.35)',
                               border: `1.5px solid ${picked ? ind?.color || '#3B82F6' : '#1C2B45'}`,
                               cursor: 'pointer', transition: 'all 0.12s',
                             }}
