@@ -2,19 +2,6 @@ import { getClimateIcon } from '../../constants/climate.js'
 
 const STATUS_CLR = { favorable: '#22c55e', attention: '#f59e0b', critical: '#ef4444', unknown: '#6b7280' }
 
-function fmtAge(iso) {
-  if (!iso) return null
-  const diff = Date.now() - new Date(iso).getTime()
-  const m = Math.floor(diff / 60000)
-  if (m < 1)  return 'just now'
-  if (m < 60) return `${m}m ago`
-  const h = Math.floor(m / 60)
-  if (h < 24) return `${h}h ago`
-  const d = Math.floor(h / 24)
-  return `${d}d ago`
-}
-
-// Animation speed by urgency — critical feels urgent, favorable feels calm
 const ANIM = {
   favorable: { ping: '3.5s', glow: '3s',   flow: '2.5s' },
   attention:  { ping: '2s',   glow: '2s',   flow: '1.4s' },
@@ -23,6 +10,32 @@ const ANIM = {
 }
 
 const INDICATORS = ['storm', 'wind', 'temperature', 'visibility', 'tide', 'uv_index']
+
+// Hex geometry constants — computed once
+const R     = 40                              // circumradius (vertex-to-center)
+const APO   = R * Math.sin(Math.PI / 3)      // apothem (center-to-flat-edge) ≈ 34.6
+const IRAD  = 25                              // indicator emoji ring radius
+
+// Flat-top hexagon: vertices at 0°, 60°, 120°, 180°, 240°, 300°
+const HEX_PTS = Array.from({ length: 6 }, (_, i) => {
+  const a = (Math.PI / 3) * i
+  return `${(R * Math.cos(a)).toFixed(2)},${(R * Math.sin(a)).toFixed(2)}`
+}).join(' ')
+
+// Slightly enlarged hex for hit testing
+const HEX_HIT = Array.from({ length: 6 }, (_, i) => {
+  const a = (Math.PI / 3) * i
+  const r = R + 8
+  return `${(r * Math.cos(a)).toFixed(2)},${(r * Math.sin(a)).toFixed(2)}`
+}).join(' ')
+
+// 6 positions clockwise from top (-90°)
+const IPOS = Array.from({ length: 6 }, (_, i) => {
+  const a = (Math.PI / 3) * i - Math.PI / 2
+  return { x: +(IRAD * Math.cos(a)).toFixed(2), y: +(IRAD * Math.sin(a)).toFixed(2) }
+})
+
+const LINE_H = 24   // gap from anchor dot to hex bottom edge
 
 export default function Campfire({ stakeholder, isDragging, onMouseDown, onHoverChange }) {
   const x = (stakeholder.position_x ?? 50) * 10
@@ -51,20 +64,10 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
   const statusColor = STATUS_CLR[overall_status] || '#6b7280'
   const campEmoji   = stakeholder.emoji || '🏕️'
   const anim        = ANIM[overall_status] || ANIM.unknown
-  const lastUpdate  = fmtAge(stakeholder.climate_updated_at ?? stakeholder.climate?.updated_at)
+  const vals        = { storm, wind, temperature, visibility, tide, uv_index }
 
-  const vals = { storm, wind, temperature, visibility, tide, uv_index }
-
-  // Card geometry — CSS px inside foreignObject equal SVG user units 1:1
-  // cardH must match actual div content height so the glow rect sits exactly on card edges
-  // With lastUpdate row:    7+16+6+12+6+10+7 = 64px
-  // Without lastUpdate row: 7+16+6+12+7      = 48px
-  const cardW = 124
-  const cardH = lastUpdate ? 64 : 48
-  const foH   = 96
-  const lineH = 38  // gap between anchor dot and card bottom
-  const cx    = -cardW / 2
-  const cy    = -(cardH + lineH)
+  // cy = y-coordinate of hex center (negative = above anchor)
+  const cy = -(LINE_H + APO)
 
   return (
     <g
@@ -76,103 +79,101 @@ export default function Campfire({ stakeholder, isDragging, onMouseDown, onHover
       onClick={(e) => e.stopPropagation()}
     >
       {/* Transparent hit area */}
-      <rect
-        x={cx - 4} y={cy - 4}
-        width={cardW + 8} height={foH + lineH + 10}
-        fill="transparent"
-      />
+      <polygon points={HEX_HIT} transform={`translate(0,${cy})`} fill="transparent" />
 
-      {/* Connector line — animated dashes flow upward toward the card */}
+      {/* Connector line — animated dashes flowing toward anchor */}
       <line
-        x1={0} y1={0} x2={0} y2={cy + cardH}
-        stroke={statusColor} strokeWidth="1" strokeOpacity="0.55"
+        x1={0} y1={0} x2={0} y2={cy + APO}
+        stroke={statusColor} strokeWidth="1.2" strokeOpacity="0.55"
         strokeDasharray="4 3"
         style={{ animation: `flow ${anim.flow} linear infinite`, pointerEvents: 'none' }}
       />
 
       {/* Anchor dot */}
-      <circle
-        r={4}
-        fill={statusColor}
-        stroke="rgba(0,0,0,0.45)" strokeWidth="1"
+      <circle r={4.5} fill={statusColor} stroke="rgba(0,0,0,0.5)" strokeWidth="1.2"
+        style={{ pointerEvents: 'none' }} />
+
+      {/* Ping radar ring */}
+      <circle r={4.5} fill="none" stroke={statusColor} strokeWidth="1.5"
+        style={{ transformOrigin: '0 0', animation: `ping ${anim.ping} ease-out infinite`, pointerEvents: 'none' }} />
+
+      {/* Hex inner shadow layer */}
+      <polygon
+        points={HEX_PTS}
+        transform={`translate(1.5,${cy + 1.5})`}
+        fill="rgba(0,0,0,0.45)"
         style={{ pointerEvents: 'none' }}
       />
 
-      {/* Ping ring — expands outward from anchor like a radar blip */}
-      <circle
-        r={4} fill="none"
-        stroke={statusColor} strokeWidth="1.5"
-        style={{ transformOrigin: '0 0', animation: `ping ${anim.ping} ease-out infinite`, pointerEvents: 'none' }}
+      {/* Hex background fill */}
+      <polygon
+        points={HEX_PTS}
+        transform={`translate(0,${cy})`}
+        fill="rgba(5,9,20,0.88)"
+        style={{ pointerEvents: 'none' }}
       />
 
-      {/* Weather card */}
-      <foreignObject x={cx} y={cy} width={cardW} height={foH} style={{ pointerEvents: 'none', overflow: 'visible' }}>
-        <div
-          xmlns="http://www.w3.org/1999/xhtml"
-          style={{
-            width: cardW + 'px',
-            background: 'rgba(6,10,22,0.90)',
-            backdropFilter: 'blur(14px)',
-            borderRadius: 10,
-            padding: '7px 9px',
-            boxSizing: 'border-box',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 6,
-            fontFamily: 'system-ui,-apple-system,sans-serif',
-          }}
-        >
-          {/* Row 1: camp emoji in circle + camp name */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, overflow: 'hidden' }}>
-            <div style={{
-              width: 16, height: 16, borderRadius: '50%', flexShrink: 0,
-              background: 'rgba(255,255,255,0.08)',
-              border: '1px solid rgba(255,255,255,0.18)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 10, lineHeight: 1,
-            }}>
-              {campEmoji}
-            </div>
-            <span style={{
-              fontSize: 9, fontWeight: 700,
-              color: 'rgba(255,255,255,0.70)',
-              letterSpacing: '0.06em', textTransform: 'uppercase',
-              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-            }}>
-              {stakeholder.name}
-            </span>
-          </div>
+      {/* Inner hex ring — subtle secondary border */}
+      <polygon
+        points={Array.from({ length: 6 }, (_, i) => {
+          const a = (Math.PI / 3) * i
+          const r = R - 4
+          return `${(r * Math.cos(a)).toFixed(2)},${(r * Math.sin(a)).toFixed(2)}`
+        }).join(' ')}
+        transform={`translate(0,${cy})`}
+        fill="none"
+        stroke={statusColor} strokeWidth="0.6" strokeOpacity="0.20"
+        style={{ pointerEvents: 'none' }}
+      />
 
-          {/* Row 2: 6 indicator emojis */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            {INDICATORS.map((key) => (
-              <span key={key} style={{ fontSize: 12, lineHeight: 1, userSelect: 'none' }}>
-                {getClimateIcon(key, vals[key]) || '○'}
-              </span>
-            ))}
-          </div>
-
-          {/* Row 3: last update */}
-          {lastUpdate && (
-            <div style={{
-              fontSize: 8, color: 'rgba(255,255,255,0.28)',
-              letterSpacing: '0.05em', textTransform: 'uppercase',
-            }}>
-              Updated {lastUpdate}
-            </div>
-          )}
-
-        </div>
-      </foreignObject>
-
-      {/* Pulsing glow border — rendered after foreignObject so it sits on top */}
-      <rect
-        x={cx} y={cy} width={cardW} height={cardH}
-        rx={10} ry={10}
+      {/* Animated glow border */}
+      <polygon
+        points={HEX_PTS}
+        transform={`translate(0,${cy})`}
         fill="none"
         stroke={statusColor} strokeWidth="2"
         style={{ animation: `card-glow ${anim.glow} ease-in-out infinite`, pointerEvents: 'none' }}
       />
+
+      {/* Center camp emoji */}
+      <text
+        x={0} y={cy + 1}
+        textAnchor="middle" dominantBaseline="central"
+        fontSize="18"
+        style={{ pointerEvents: 'none', userSelect: 'none' }}
+      >
+        {campEmoji}
+      </text>
+
+      {/* 6 indicator emojis in a ring */}
+      {INDICATORS.map((key, i) => (
+        <text
+          key={key}
+          x={IPOS[i].x}
+          y={cy + IPOS[i].y + 1}
+          textAnchor="middle"
+          dominantBaseline="central"
+          fontSize="11"
+          style={{ pointerEvents: 'none', userSelect: 'none' }}
+        >
+          {getClimateIcon(key, vals[key]) || '·'}
+        </text>
+      ))}
+
+      {/* Camp name label below anchor */}
+      <text
+        x={0} y={13}
+        textAnchor="middle"
+        dominantBaseline="hanging"
+        fontSize="7.5"
+        fill="rgba(255,255,255,0.70)"
+        fontFamily="system-ui,-apple-system,sans-serif"
+        fontWeight="700"
+        letterSpacing="0.8"
+        style={{ pointerEvents: 'none', userSelect: 'none' }}
+      >
+        {(stakeholder.name || '').toUpperCase()}
+      </text>
     </g>
   )
 }
