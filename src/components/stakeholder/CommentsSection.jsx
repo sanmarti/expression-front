@@ -1,8 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { getComments, postComment } from '../../api/climate.js'
 import { getAvatar } from '../../constants/avatars.js'
 import useAuthStore from '../../store/authStore.js'
 import { useToast } from '../ui/Toast.jsx'
+
+const PREVIEW_LIMIT = 120
 
 function fmtStamp(d) {
   const date = new Date(d)
@@ -32,6 +35,78 @@ function Avatar({ member, size = 32 }) {
   )
 }
 
+function NoteModal({ comment, isMe, onClose }) {
+  const handleKey = useCallback((e) => { if (e.key === 'Escape') onClose() }, [onClose])
+  useEffect(() => {
+    document.addEventListener('keydown', handleKey)
+    return () => document.removeEventListener('keydown', handleKey)
+  }, [handleKey])
+
+  return createPortal(
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 9999,
+        background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: 24,
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width: '100%', maxWidth: 580, maxHeight: '80vh',
+          background: '#141E35', border: '1px solid #1C2B45',
+          borderRadius: 16, display: 'flex', flexDirection: 'column',
+          boxShadow: '0 24px 80px rgba(0,0,0,0.7)',
+        }}
+      >
+        {/* Modal header */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '20px 24px', borderBottom: '1px solid #1C2B45', flexShrink: 0 }}>
+          <Avatar member={comment} size={40} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: isMe ? '#3B82F6' : 'rgba(255,255,255,0.92)' }}>
+              {comment.display_name || 'Unknown'}
+              {isMe && <span style={{ fontSize: 11, fontWeight: 400, color: 'rgba(255,255,255,0.30)', marginLeft: 6 }}>you</span>}
+            </div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontFamily: 'monospace', marginTop: 2 }}>
+              {fmtStamp(comment.created_at)}
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            style={{
+              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)',
+              borderRadius: 8, color: 'rgba(255,255,255,0.50)', cursor: 'pointer',
+              fontSize: 18, lineHeight: 1, padding: '6px 10px', flexShrink: 0,
+            }}
+          >
+            ×
+          </button>
+        </div>
+
+        {/* Modal body */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '24px 28px' }}>
+          <p style={{
+            fontSize: 15, color: 'rgba(255,255,255,0.88)', lineHeight: 1.75,
+            margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+          }}>
+            {comment.content}
+          </p>
+        </div>
+
+        {/* Modal footer */}
+        <div style={{ padding: '14px 24px', borderTop: '1px solid #1C2B45', flexShrink: 0 }}>
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.20)', fontFamily: 'monospace' }}>
+            Press Esc to close
+          </span>
+        </div>
+      </div>
+    </div>,
+    document.body
+  )
+}
+
 export default function CommentsSection({ stakeholderId, fullHeight = false }) {
   const toast = useToast()
   const { user } = useAuthStore()
@@ -39,6 +114,7 @@ export default function CommentsSection({ stakeholderId, fullHeight = false }) {
   const [text, setText] = useState('')
   const [posting, setPosting] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [openNote, setOpenNote] = useState(null)
 
   useEffect(() => {
     getComments(stakeholderId)
@@ -82,9 +158,11 @@ export default function CommentsSection({ stakeholderId, fullHeight = false }) {
         {loading ? (
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)', textAlign: 'center', padding: '16px 0' }}>Loading…</div>
         ) : comments.length === 0 ? (
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.20)', textAlign: 'center', padding: '16px 0' }}>No comments yet. Be the first.</div>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.20)', textAlign: 'center', padding: '16px 0' }}>No intelligence notes yet. Be the first.</div>
         ) : comments.map((c) => {
           const isMe = c.user_id === user?.id
+          const isLong = c.content.length > PREVIEW_LIMIT
+          const preview = isLong ? c.content.slice(0, PREVIEW_LIMIT).trimEnd() + '…' : c.content
           return (
             <div key={c.id} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
               <Avatar member={c} size={30} />
@@ -104,8 +182,20 @@ export default function CommentsSection({ stakeholderId, fullHeight = false }) {
                   border: `1px solid ${isMe ? 'rgba(59,130,246,0.18)' : 'rgba(255,255,255,0.07)'}`,
                   borderRadius: 10, padding: '8px 12px',
                 }}>
-                  {c.content}
+                  {preview}
                 </div>
+                {isLong && (
+                  <button
+                    onClick={() => setOpenNote(c)}
+                    style={{
+                      marginTop: 5, background: 'none', border: 'none', cursor: 'pointer',
+                      fontSize: 11, fontWeight: 600, color: '#3B82F6', padding: '2px 4px',
+                      letterSpacing: '0.02em',
+                    }}
+                  >
+                    Read more →
+                  </button>
+                )}
               </div>
             </div>
           )
@@ -144,6 +234,14 @@ export default function CommentsSection({ stakeholderId, fullHeight = false }) {
           {posting ? '…' : 'Post'}
         </button>
       </div>
+
+      {openNote && (
+        <NoteModal
+          comment={openNote}
+          isMe={openNote.user_id === user?.id}
+          onClose={() => setOpenNote(null)}
+        />
+      )}
     </div>
   )
 }
