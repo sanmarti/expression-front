@@ -110,9 +110,9 @@ export default function StakeholderPage() {
   }
 
   return (
-    <div style={{ height: '100vh', overflow: 'hidden', background: '#0B1120', display: 'flex' }}>
-      {/* Sidebar — fixed height, scrolls independently if content overflows */}
-      <div style={{ width: 300, flexShrink: 0, background: '#141E35', borderRight: '1px solid #1C2B45', padding: 24, display: 'flex', flexDirection: 'column', gap: 16, height: '100vh', overflowY: 'auto' }}>
+    <div style={{ position: 'fixed', inset: 0, background: '#0B1120', display: 'flex', overflow: 'hidden' }}>
+      {/* Sidebar */}
+      <div style={{ width: 300, flexShrink: 0, background: '#141E35', borderRight: '1px solid #1C2B45', padding: 24, display: 'flex', flexDirection: 'column', gap: 16, overflowY: 'auto' }}>
         <button onClick={() => navigate('/island')} style={{ background: 'none', border: 'none', color: '#3B82F6', cursor: 'pointer', fontSize: 14, padding: 0, textAlign: 'left' }}>
           ← Back to Island
         </button>
@@ -166,7 +166,7 @@ export default function StakeholderPage() {
       </div>
 
       {/* Center — tab bar fixed, content pane fixed (no scroll) */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <div style={{ borderBottom: '1px solid #1C2B45', display: 'flex', flexShrink: 0 }}>
           {[['climate','Climate'],['history','History'],['customize','Customize'],['info','Info']].map(([t, label]) => (
             <button key={t} style={tabStyle(t)} onClick={() => setTab(t)}>
@@ -320,7 +320,7 @@ export default function StakeholderPage() {
       </div>
 
       {/* Right panel — Intelligence feed, only this scrolls */}
-      <div style={{ width: 320, flexShrink: 0, borderLeft: '1px solid #1C2B45', display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', background: '#0E1628' }}>
+      <div style={{ width: 320, flexShrink: 0, borderLeft: '1px solid #1C2B45', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#0E1628' }}>
         <div style={{ padding: '14px 20px', borderBottom: '1px solid #1C2B45', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.40)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
             Intelligence Feed
