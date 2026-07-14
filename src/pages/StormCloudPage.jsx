@@ -138,6 +138,12 @@ const FEEDS = [
   },
 ]
 
+// ─── Trend → color rule ───────────────────────────────────────────────────────
+const trendColor = (trend) =>
+  trend === '↑' ? '#22c55e'
+  : trend === '→' ? '#3b82f6'
+  : '#ef4444'  // ↓
+
 // ─── Severity helpers ─────────────────────────────────────────────────────────
 const SEV = {
   high:     { label: 'HIGH',     color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
@@ -154,9 +160,9 @@ function useSeverity() {
     let hasAttention = false
 
     for (const feed of FEEDS) {
-      const reds   = feed.indicators.filter((i) => i.color === '#ef4444').length
-      const blues  = feed.indicators.filter((i) => i.color === '#3b82f6').length
-      const greens = feed.indicators.filter((i) => i.color === '#22c55e').length
+      const reds   = feed.indicators.filter((i) => i.trend === '↓').length
+      const blues  = feed.indicators.filter((i) => i.trend === '→').length
+      const greens = feed.indicators.filter((i) => i.trend === '↑').length
 
       if (reds >= blues && reds >= greens)  hasCritical = true
       else if (blues >= greens)             hasAttention = true
@@ -241,11 +247,11 @@ function PerceptionPanel({ feed }) {
               <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.32)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>
                 {ind.label}
               </div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: ind.color }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: trendColor(ind.trend) }}>
                 {ind.value}
               </div>
             </div>
-            <span style={{ fontSize: 14, color: ind.color, fontWeight: 700 }}>{ind.trend}</span>
+            <span style={{ fontSize: 14, color: trendColor(ind.trend), fontWeight: 700 }}>{ind.trend}</span>
           </div>
         ))}
       </div>
