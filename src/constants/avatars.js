@@ -70,9 +70,9 @@ export const indicatorColor = (indicatorId, score) => {
 }
 
 export const INDICATORS = [
-  { id: 'altitude',   label: 'ALTITUDE',   sublabel: 'Vision & Ambition',      description: 'Long-term vision and the ambition to reach new heights — where you want to go.',     color: '#3B82F6', icon: '🏔️' },
-  { id: 'fuel',       label: 'FUEL',       sublabel: 'Energy & Motivation',     description: 'The energy you bring to the work and your sustained drive to keep moving forward.',  color: '#F59E0B', icon: '⛽' },
-  { id: 'navigation', label: 'NAVIGATION', sublabel: 'Strategic Clarity',       description: 'Clarity on your direction, the ability to read the terrain and adapt your course.',   color: '#14B8A6', icon: '🧭' },
-  { id: 'speed',      label: 'SPEED',      sublabel: 'Execution Pace',          description: 'Your momentum in execution — how quickly you turn decisions into tangible results.',   color: '#10B981', icon: '⚡' },
-  { id: 'weight',     label: 'WEIGHT',     sublabel: 'Load & Capacity',         description: 'The responsibilities you carry and your capacity to sustain them without breaking.',   color: '#8B5CF6', icon: '⚖️' },
+  { id: 'altitude',   label: 'ALTITUDE',   sublabel: 'Spiritual',   description: 'Your connection to purpose, meaning and transcendence — the inner compass that orients everything else.',  color: '#3B82F6', icon: '🏔️' },
+  { id: 'fuel',       label: 'FUEL',       sublabel: 'Emotional',   description: 'The quality of your emotional world — how you feel, regulate and relate to your own inner states.',        color: '#F59E0B', icon: '⛽' },
+  { id: 'navigation', label: 'NAVIGATION', sublabel: 'Rational',    description: 'The clarity and sharpness of your thinking — how well you reason, plan and make sound decisions.',          color: '#14B8A6', icon: '🧭' },
+  { id: 'speed',      label: 'SPEED',      sublabel: 'Relational',  description: 'The health and depth of your relationships — how you connect, communicate and show up for others.',         color: '#10B981', icon: '⚡' },
+  { id: 'weight',     label: 'WEIGHT',     sublabel: 'Physical',    description: 'Your physical vitality and groundedness — energy, body, rest and the foundation that carries everything.',  color: '#8B5CF6', icon: '⚖️' },
 ]
