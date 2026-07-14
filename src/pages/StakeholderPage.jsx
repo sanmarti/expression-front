@@ -150,7 +150,7 @@ export default function StakeholderPage() {
           ))}
         </div>
 
-        <div style={{ flex: 1, overflow: 'hidden', padding: 28, overflowY: 'auto' }}>
+        <div style={{ flex: 1, overflow: 'hidden', padding: 28 }}>
           {tab === 'climate' && <ClimateCard stakeholder={stakeholder} />}
           {tab === 'history' && <ClimateHistory stakeholderId={id} />}
           {tab === 'info' && (
