@@ -5,7 +5,7 @@ import { getAvatar } from '../../constants/avatars.js'
 import useAuthStore from '../../store/authStore.js'
 import { useToast } from '../ui/Toast.jsx'
 
-const PREVIEW_LIMIT = 120
+const PREVIEW_LIMIT = 100
 
 function fmtStamp(d) {
   const date = new Date(d)
@@ -184,18 +184,16 @@ export default function CommentsSection({ stakeholderId, fullHeight = false }) {
                 }}>
                   {preview}
                 </div>
-                {isLong && (
-                  <button
-                    onClick={() => setOpenNote(c)}
-                    style={{
-                      marginTop: 5, background: 'none', border: 'none', cursor: 'pointer',
-                      fontSize: 11, fontWeight: 600, color: '#3B82F6', padding: '2px 4px',
-                      letterSpacing: '0.02em',
-                    }}
-                  >
-                    Read more →
-                  </button>
-                )}
+                <button
+                  onClick={() => setOpenNote(c)}
+                  style={{
+                    marginTop: 5, background: 'none', border: 'none', cursor: 'pointer',
+                    fontSize: 11, fontWeight: 600, color: '#3B82F6', padding: '2px 4px',
+                    letterSpacing: '0.02em',
+                  }}
+                >
+                  Read more →
+                </button>
               </div>
             </div>
           )
