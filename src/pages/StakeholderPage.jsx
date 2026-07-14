@@ -33,13 +33,38 @@ export default function StakeholderPage() {
   const [tab, setTab] = useState('climate')
   const [infoForm, setInfoForm] = useState({})
   const [saving, setSaving] = useState(false)
+  const [keywords, setKeywords] = useState([])
+  const [kwInput, setKwInput] = useState('')
+  const [savingKw, setSavingKw] = useState(false)
 
   useEffect(() => {
     getStakeholder(id)
-      .then(({ data }) => { setStakeholder(data); setInfoForm(data) })
+      .then(({ data }) => { setStakeholder(data); setInfoForm(data); setKeywords(data.keywords || []) })
       .catch(() => navigate('/island'))
       .finally(() => setLoading(false))
   }, [id, navigate])
+
+  const addKeyword = () => {
+    const kw = kwInput.trim().toLowerCase()
+    if (!kw || keywords.includes(kw)) { setKwInput(''); return }
+    setKeywords((prev) => [...prev, kw])
+    setKwInput('')
+  }
+
+  const removeKeyword = (kw) => setKeywords((prev) => prev.filter((k) => k !== kw))
+
+  const saveKeywords = async () => {
+    setSavingKw(true)
+    try {
+      await updateStakeholder(id, { keywords })
+      setStakeholder((prev) => ({ ...prev, keywords }))
+      toast('Keywords saved', 'success')
+    } catch {
+      toast('Failed to save keywords', 'error')
+    } finally {
+      setSavingKw(false)
+    }
+  }
 
   const handleDelete = async () => {
     if (!confirm(`Delete "${stakeholder.name}"? This cannot be undone.`)) return
@@ -143,7 +168,7 @@ export default function StakeholderPage() {
       {/* Center — tab bar fixed, content pane fixed (no scroll) */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
         <div style={{ borderBottom: '1px solid #1C2B45', display: 'flex', flexShrink: 0 }}>
-          {[['climate','Climate'],['history','History'],['info','Info']].map(([t, label]) => (
+          {[['climate','Climate'],['history','History'],['customize','Customize'],['info','Info']].map(([t, label]) => (
             <button key={t} style={tabStyle(t)} onClick={() => setTab(t)}>
               {label}
             </button>
@@ -153,6 +178,83 @@ export default function StakeholderPage() {
         <div style={{ flex: 1, overflow: 'hidden', padding: 28 }}>
           {tab === 'climate' && <ClimateCard stakeholder={stakeholder} />}
           {tab === 'history' && <ClimateHistory stakeholderId={id} />}
+          {tab === 'customize' && (
+            <div style={{ maxWidth: 540 }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: 'rgba(255,255,255,0.90)', marginBottom: 4 }}>Customize</div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 28 }}>
+                Add keywords to categorize and identify this camp.
+              </div>
+
+              {/* Keyword input */}
+              <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+                <input
+                  value={kwInput}
+                  onChange={(e) => setKwInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addKeyword())}
+                  placeholder="Add a keyword…"
+                  style={{
+                    flex: 1, padding: '10px 14px', borderRadius: 8,
+                    background: '#0B1120', border: '1px solid #1C2B45',
+                    color: 'rgba(255,255,255,0.90)', fontSize: 14, outline: 'none',
+                  }}
+                />
+                <button
+                  onClick={addKeyword}
+                  disabled={!kwInput.trim()}
+                  style={{
+                    padding: '10px 18px', borderRadius: 8, border: 'none', cursor: 'pointer',
+                    background: kwInput.trim() ? 'rgba(59,130,246,0.20)' : 'rgba(255,255,255,0.05)',
+                    color: kwInput.trim() ? '#60A5FA' : 'rgba(255,255,255,0.25)',
+                    fontWeight: 700, fontSize: 18, transition: 'all 0.15s',
+                  }}
+                >
+                  +
+                </button>
+              </div>
+
+              {/* Keyword pills */}
+              {keywords.length > 0 ? (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 28 }}>
+                  {keywords.map((kw) => (
+                    <div key={kw} style={{
+                      display: 'flex', alignItems: 'center', gap: 6,
+                      padding: '5px 12px', borderRadius: 20,
+                      background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.28)',
+                    }}>
+                      <span style={{ fontSize: 13, color: '#93C5FD', fontWeight: 500 }}>{kw}</span>
+                      <button
+                        onClick={() => removeKeyword(kw)}
+                        style={{
+                          background: 'none', border: 'none', cursor: 'pointer',
+                          color: 'rgba(147,197,253,0.50)', fontSize: 14, lineHeight: 1,
+                          padding: '0 0 1px', display: 'flex', alignItems: 'center',
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.20)', marginBottom: 28, fontStyle: 'italic' }}>
+                  No keywords yet. Add one above.
+                </div>
+              )}
+
+              <button
+                onClick={saveKeywords}
+                disabled={savingKw}
+                style={{
+                  padding: '10px 26px', borderRadius: 8, border: 'none', cursor: 'pointer',
+                  background: 'linear-gradient(135deg,#3B82F6,#14B8A6)',
+                  color: 'white', fontWeight: 600, fontSize: 14,
+                  opacity: savingKw ? 0.65 : 1,
+                }}
+              >
+                {savingKw ? 'Saving…' : 'Save keywords'}
+              </button>
+            </div>
+          )}
           {tab === 'info' && (
             <form onSubmit={handleSaveInfo} style={{ maxWidth: 500, display: 'flex', flexDirection: 'column', gap: 18 }}>
               {[['emoji','Emoji'],['name','Name'],['description','Description'],['category','Category'],['zone','Zone']].map(([field, label]) => (
