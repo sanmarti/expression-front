@@ -12,7 +12,6 @@ const radCfg = (v) => RAD_CFG[v] || RAD_CFG['null']
 
 // ── Radar chart ─────────────────────────────────────────────────────────────
 function RadarChart({ scores, radiations, size = 320 }) {
-  const [centerHovered, setCenterHovered] = useState(false)
   const cx = size / 2
   const cy = size / 2
   const R  = size * 0.37
@@ -118,45 +117,11 @@ function RadarChart({ scores, radiations, size = 320 }) {
         )
       })}
 
-      {/* Center interactive dot + tooltip */}
-      <g
-        onMouseEnter={() => setCenterHovered(true)}
-        onMouseLeave={() => setCenterHovered(false)}
-        style={{ cursor: 'default' }}
-      >
-        {/* Invisible hit area */}
-        <circle cx={cx} cy={cy} r={16} fill="transparent" />
-        {/* Visible dot */}
-        <circle cx={cx} cy={cy} r={4}
-          fill="rgba(99,102,241,0.60)"
-          style={{ filter: 'drop-shadow(0 0 6px rgba(99,102,241,0.8))' }}
-        />
-        {/* Tooltip */}
-        {centerHovered && (
-          <g>
-            <rect
-              x={cx - 52} y={cy - 34}
-              width={104} height={22}
-              rx={6} ry={6}
-              fill="rgba(8,13,28,0.92)"
-              stroke="rgba(99,102,241,0.45)"
-              strokeWidth={1}
-            />
-            <text
-              x={cx} y={cy - 19}
-              textAnchor="middle"
-              dominantBaseline="middle"
-              fontSize="11"
-              fontWeight="600"
-              fill="rgba(255,255,255,0.80)"
-              fontFamily="system-ui,-apple-system,sans-serif"
-              style={{ pointerEvents: 'none', userSelect: 'none' }}
-            >
-              Gota de Daat
-            </text>
-          </g>
-        )}
-      </g>
+      {/* Center dot */}
+      <circle cx={cx} cy={cy} r={4}
+        fill="rgba(99,102,241,0.60)"
+        style={{ filter: 'drop-shadow(0 0 6px rgba(99,102,241,0.8))' }}
+      />
     </svg>
   )
 }
@@ -353,6 +318,7 @@ export default function ArchetypesPage() {
   const navigate = useNavigate()
   const [scores, setScores] = useState({})
   const [openDrop, setOpenDrop] = useState(null)
+  const [centerHovered, setCenterHovered] = useState(false)
 
   // Persist fear/confidence selections in localStorage
   const [radiations, setRadiations] = useState(() => {
@@ -441,6 +407,26 @@ export default function ArchetypesPage() {
         <div style={{ position: 'absolute', left: cx - 160, top: cy - 160, pointerEvents: 'none' }}>
           <RadarChart scores={scores} radiations={radiations} size={320} />
         </div>
+
+        {/* Center dot hover target — HTML so pointer-events work despite SVG parent being none */}
+        <div
+          onMouseEnter={() => setCenterHovered(true)}
+          onMouseLeave={() => setCenterHovered(false)}
+          style={{ position: 'absolute', left: cx - 16, top: cy - 16, width: 32, height: 32, borderRadius: '50%', zIndex: 6, cursor: 'default' }}
+        />
+        {centerHovered && (
+          <div style={{
+            position: 'absolute', left: cx - 60, top: cy - 46,
+            background: 'rgba(8,13,28,0.95)',
+            border: '1px solid rgba(99,102,241,0.45)',
+            borderRadius: 8, padding: '6px 14px',
+            fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.82)',
+            whiteSpace: 'nowrap', pointerEvents: 'none', zIndex: 20,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.6)',
+          }}>
+            Gota de Daat
+          </div>
+        )}
 
         {/* 5 icon nodes */}
         {INDICATORS.map((ind, i) => {
