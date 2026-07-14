@@ -140,19 +140,18 @@ export default function StakeholderPage() {
         )}
       </div>
 
-      {/* Main area — tab bar fixed, only content pane scrolls */}
+      {/* Center — tab bar fixed, content pane fixed (no scroll) */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
         <div style={{ borderBottom: '1px solid #1C2B45', display: 'flex', flexShrink: 0 }}>
-          {[['climate','Climate'],['notes','Notes'],['history','History'],['info','Info']].map(([t, label]) => (
+          {[['climate','Climate'],['history','History'],['info','Info']].map(([t, label]) => (
             <button key={t} style={tabStyle(t)} onClick={() => setTab(t)}>
               {label}
             </button>
           ))}
         </div>
 
-        <div style={{ flex: 1, overflowY: 'auto', padding: 28 }}>
+        <div style={{ flex: 1, overflow: 'hidden', padding: 28, overflowY: 'auto' }}>
           {tab === 'climate' && <ClimateCard stakeholder={stakeholder} />}
-          {tab === 'notes'   && <CommentsSection stakeholderId={id} />}
           {tab === 'history' && <ClimateHistory stakeholderId={id} />}
           {tab === 'info' && (
             <form onSubmit={handleSaveInfo} style={{ maxWidth: 500, display: 'flex', flexDirection: 'column', gap: 18 }}>
@@ -215,6 +214,21 @@ export default function StakeholderPage() {
               </button>
             </form>
           )}
+        </div>
+      </div>
+
+      {/* Right panel — Intelligence feed, only this scrolls */}
+      <div style={{ width: 320, flexShrink: 0, borderLeft: '1px solid #1C2B45', display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', background: '#0E1628' }}>
+        <div style={{ padding: '14px 20px', borderBottom: '1px solid #1C2B45', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.40)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            Intelligence Feed
+          </span>
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.20)', marginLeft: 'auto', fontFamily: 'monospace' }}>
+            ⌘+Enter to post
+          </span>
+        </div>
+        <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', padding: '16px 20px 20px' }}>
+          <CommentsSection stakeholderId={id} fullHeight />
         </div>
       </div>
     </div>

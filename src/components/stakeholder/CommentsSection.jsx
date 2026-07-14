@@ -32,7 +32,7 @@ function Avatar({ member, size = 32 }) {
   )
 }
 
-export default function CommentsSection({ stakeholderId }) {
+export default function CommentsSection({ stakeholderId, fullHeight = false }) {
   const toast = useToast()
   const { user } = useAuthStore()
   const [comments, setComments] = useState([])
@@ -70,14 +70,20 @@ export default function CommentsSection({ stakeholderId }) {
     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handlePost()
   }
 
+  const threadStyle = fullHeight
+    ? { flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 12, paddingRight: 4 }
+    : { display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16, maxHeight: 340, overflowY: 'auto', paddingRight: 4 }
+
   return (
-    <div>
-      <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.40)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 14 }}>
-        Comments {comments.length > 0 && <span style={{ color: 'rgba(255,255,255,0.20)' }}>({comments.length})</span>}
-      </div>
+    <div style={fullHeight ? { display: 'flex', flexDirection: 'column', height: '100%', gap: 0 } : {}}>
+      {!fullHeight && (
+        <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.40)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 14 }}>
+          Comments {comments.length > 0 && <span style={{ color: 'rgba(255,255,255,0.20)' }}>({comments.length})</span>}
+        </div>
+      )}
 
       {/* Thread */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16, maxHeight: 340, overflowY: 'auto', paddingRight: 4 }}>
+      <div style={threadStyle}>
         {loading ? (
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)', textAlign: 'center', padding: '16px 0' }}>Loading…</div>
         ) : comments.length === 0 ? (
@@ -113,7 +119,7 @@ export default function CommentsSection({ stakeholderId }) {
       </div>
 
       {/* Input */}
-      <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end' }}>
+      <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end', flexShrink: 0, ...(fullHeight ? { paddingTop: 12 } : {}) }}>
         <Avatar member={user || {}} size={30} />
         <div style={{ flex: 1 }}>
           <textarea
