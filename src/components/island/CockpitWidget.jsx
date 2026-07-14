@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useAuthStore from '../../store/authStore.js'
-import { getAvatar, INDICATORS, indicatorColor, radiationColor } from '../../constants/avatars.js'
+import { getAvatar, INDICATORS, indicatorColor, radiationColor, getConfidenceScore } from '../../constants/avatars.js'
 import { getCockpitScore } from '../../api/cockpit.js'
 
 function ScoreBar({ label, sublabel, icon, color, score, indicatorId }) {
@@ -71,6 +71,7 @@ export default function CockpitWidget() {
   }, [avatar?.id])
 
   const accentColor = avatar?.color || '#3B82F6'
+  const confidence = getConfidenceScore()
 
   return (
     <div style={{ position: 'fixed', bottom: 28, left: 28, zIndex: 50 }}>
@@ -142,6 +143,23 @@ export default function CockpitWidget() {
             />
           ))}
         </div>
+
+        {confidence && (
+          <>
+            <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' }} />
+            <div style={{
+              background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.22)',
+              borderRadius: 10, padding: '9px 13px',
+            }}>
+              <div style={{ fontSize: 11, color: '#10B981', fontWeight: 700, marginBottom: 3, letterSpacing: '0.04em' }}>
+                🟢 {confidence.count}/5 Green Instruments
+              </div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.60)', lineHeight: 1.4 }}>
+                {confidence.label}
+              </div>
+            </div>
+          </>
+        )}
 
         <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.20)', fontFamily: 'monospace', letterSpacing: '0.10em', textAlign: 'right' }}>
           CLICK TO ENTER COCKPIT →

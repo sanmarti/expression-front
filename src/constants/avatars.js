@@ -72,6 +72,24 @@ export const radiationColor = (indicatorId, fallback) => {
 export const indicatorColor = (indicatorId, score) =>
   radiationColor(indicatorId, scoreColor(score))
 
+const CONFIDENCE_LABELS = {
+  2: 'I inspire confidence within my sphere.',
+  3: 'I inspire confidence in my environment.',
+  4: 'I sustainably inspire confidence in my environment.',
+  5: 'I influence and inspire confidence across other environments.',
+}
+
+export const getConfidenceScore = () => {
+  try {
+    const rad = JSON.parse(localStorage.getItem('archetypes_radiation') || '{}')
+    const count = INDICATORS.filter((ind) => rad[ind.id] === 'confidence').length
+    if (count < 2) return null
+    return { count, label: CONFIDENCE_LABELS[Math.min(count, 5)] }
+  } catch {
+    return null
+  }
+}
+
 export const INDICATORS = [
   { id: 'altitude',   label: 'SPIRITUAL',  sublabel: 'Altitude',    description: 'Your connection to purpose, meaning and transcendence — the inner compass that orients everything else.',  color: '#3B82F6', icon: '🏔️' },
   { id: 'fuel',       label: 'EMOTIONAL',  sublabel: 'Fuel',        description: 'The quality of your emotional world — how you feel, regulate and relate to your own inner states.',        color: '#F59E0B', icon: '⛽' },

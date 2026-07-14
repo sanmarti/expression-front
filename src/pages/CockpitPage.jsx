@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import useAuthStore from '../store/authStore.js'
 import { getCockpitQuestions, submitCockpitAnswers } from '../api/cockpit.js'
 import { useToast } from '../components/ui/Toast.jsx'
-import { AVATARS, INDICATORS, getAvatar, scoreColor, indicatorColor, radiationColor } from '../constants/avatars.js'
+import { AVATARS, INDICATORS, getAvatar, scoreColor, indicatorColor, radiationColor, getConfidenceScore } from '../constants/avatars.js'
 
 function fmtDate(d) {
   if (!d) return null
@@ -85,6 +85,8 @@ export default function CockpitPage() {
       setSaving(false)
     }
   }
+
+  const confidence = getConfidenceScore()
 
   const cardStyle = {
     background: 'rgba(8,13,28,0.82)',
@@ -184,6 +186,21 @@ export default function CockpitPage() {
                   )
                 })}
               </div>
+
+              {confidence && (
+                <div style={{
+                  marginTop: 16,
+                  background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)',
+                  borderRadius: 10, padding: '11px 16px',
+                }}>
+                  <div style={{ fontSize: 12, color: '#10B981', fontWeight: 700, marginBottom: 4, letterSpacing: '0.04em' }}>
+                    🟢 {confidence.count}/5 Green Instruments
+                  </div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', lineHeight: 1.5 }}>
+                    {confidence.label}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
