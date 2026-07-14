@@ -13,9 +13,9 @@ const FEEDS = [
     indicators: [
       { icon: '🗳️', label: 'Political Stability',  value: 'Fragile',   color: '#ef4444', trend: '↓' },
       { icon: '⚔️', label: 'Social Tension',       value: 'Elevated',  color: '#ef4444', trend: '↑' },
-      { icon: '🤝', label: 'Institutional Trust',  value: 'Declining', color: '#f59e0b', trend: '↓' },
+      { icon: '🤝', label: 'Institutional Trust',  value: 'Declining', color: '#3b82f6', trend: '↓' },
       { icon: '📢', label: 'Public Discourse',     value: 'Polarised', color: '#ef4444', trend: '↑' },
-      { icon: '⚖️', label: 'Civil Rights Index',   value: 'Moderate',  color: '#f59e0b', trend: '→' },
+      { icon: '⚖️', label: 'Civil Rights Index',   value: 'Moderate',  color: '#3b82f6', trend: '→' },
       { icon: '🏛️', label: 'Policy Effectiveness', value: 'Improving', color: '#22c55e', trend: '↑' },
     ],
     news: [
@@ -35,9 +35,9 @@ const FEEDS = [
     indicators: [
       { icon: '🌡️', label: 'Climate Risk',      value: 'Critical',  color: '#ef4444', trend: '↑' },
       { icon: '🌿', label: 'Biodiversity',      value: 'Declining', color: '#ef4444', trend: '↓' },
-      { icon: '💧', label: 'Water Stress',      value: 'Regional',  color: '#f59e0b', trend: '↑' },
-      { icon: '🌬️', label: 'Air Quality',       value: 'Variable',  color: '#f59e0b', trend: '→' },
-      { icon: '🌱', label: 'Carbon Transition', value: 'Lagging',   color: '#f59e0b', trend: '→' },
+      { icon: '💧', label: 'Water Stress',      value: 'Regional',  color: '#3b82f6', trend: '↑' },
+      { icon: '🌬️', label: 'Air Quality',       value: 'Variable',  color: '#3b82f6', trend: '→' },
+      { icon: '🌱', label: 'Carbon Transition', value: 'Lagging',   color: '#3b82f6', trend: '→' },
       { icon: '🌊', label: 'Ocean Health',      value: 'Critical',  color: '#ef4444', trend: '↓' },
     ],
     news: [
@@ -55,12 +55,12 @@ const FEEDS = [
     color: '#f59e0b',
     description: 'Cultural shifts, identity & collective meaning',
     indicators: [
-      { icon: '🎭', label: 'Cultural Cohesion',  value: 'Strained',  color: '#f59e0b', trend: '↓' },
-      { icon: '🪞', label: 'Identity Dynamics',  value: 'Fluid',     color: '#f59e0b', trend: '→' },
+      { icon: '🎭', label: 'Cultural Cohesion',  value: 'Strained',  color: '#3b82f6', trend: '↓' },
+      { icon: '🪞', label: 'Identity Dynamics',  value: 'Fluid',     color: '#3b82f6', trend: '→' },
       { icon: '📰', label: 'Media Narrative',    value: 'Fragmented',color: '#ef4444', trend: '↓' },
       { icon: '🕊️', label: 'Shared Values',      value: 'Eroding',   color: '#ef4444', trend: '↓' },
       { icon: '🎨', label: 'Creative Expression',value: 'Thriving',  color: '#22c55e', trend: '↑' },
-      { icon: '🌐', label: 'Global vs Local',    value: 'Tension',   color: '#f59e0b', trend: '→' },
+      { icon: '🌐', label: 'Global vs Local',    value: 'Tension',   color: '#3b82f6', trend: '→' },
     ],
     news: [
       { id: 1, tag: 'CULTURE',   headline: 'Declining trust in mainstream media accelerates fragmentation of shared narratives' },
@@ -79,8 +79,8 @@ const FEEDS = [
     indicators: [
       { icon: '🧠', label: 'Mental Health Index', value: 'Declining', color: '#ef4444', trend: '↓' },
       { icon: '😰', label: 'Anxiety Levels',      value: 'High',      color: '#ef4444', trend: '↑' },
-      { icon: '🌟', label: 'Meaning & Purpose',   value: 'Searching', color: '#f59e0b', trend: '→' },
-      { icon: '🤲', label: 'Community Bonds',     value: 'Weakening', color: '#f59e0b', trend: '↓' },
+      { icon: '🌟', label: 'Meaning & Purpose',   value: 'Searching', color: '#3b82f6', trend: '→' },
+      { icon: '🤲', label: 'Community Bonds',     value: 'Weakening', color: '#3b82f6', trend: '↓' },
       { icon: '🧘', label: 'Spiritual Seeking',   value: 'Rising',    color: '#22c55e', trend: '↑' },
       { icon: '⚡', label: 'Burnout Index',       value: 'Elevated',  color: '#ef4444', trend: '↑' },
     ],
@@ -102,7 +102,7 @@ const FEEDS = [
       { icon: '🤖', label: 'AI Adoption',      value: 'Rapid',     color: '#22c55e', trend: '↑' },
       { icon: '🔐', label: 'Cyber Risk',       value: 'Elevated',  color: '#ef4444', trend: '↑' },
       { icon: '📡', label: 'Digital Access',   value: 'Expanding', color: '#22c55e', trend: '↑' },
-      { icon: '⚖️', label: 'AI Regulation',    value: 'Emerging',  color: '#f59e0b', trend: '→' },
+      { icon: '⚖️', label: 'AI Regulation',    value: 'Emerging',  color: '#3b82f6', trend: '→' },
       { icon: '🚀', label: 'Innovation Index', value: 'Strong',    color: '#22c55e', trend: '↑' },
       { icon: '🏢', label: 'Platform Power',   value: 'Dominant',  color: '#ef4444', trend: '↑' },
     ],
@@ -121,11 +121,11 @@ const FEEDS = [
     color: '#3b82f6',
     description: 'Markets, resource flows & economic resilience',
     indicators: [
-      { icon: '💹', label: 'Market Sentiment',  value: 'Cautious',   color: '#f59e0b', trend: '↓' },
+      { icon: '💹', label: 'Market Sentiment',  value: 'Cautious',   color: '#3b82f6', trend: '↓' },
       { icon: '📉', label: 'Volatility Index',  value: 'High',       color: '#ef4444', trend: '↑' },
-      { icon: '🏦', label: 'Credit Conditions', value: 'Tightening', color: '#f59e0b', trend: '↓' },
-      { icon: '💰', label: 'Liquidity',         value: 'Moderate',   color: '#f59e0b', trend: '→' },
-      { icon: '📈', label: 'Growth Outlook',    value: 'Slowing',    color: '#f59e0b', trend: '↓' },
+      { icon: '🏦', label: 'Credit Conditions', value: 'Tightening', color: '#3b82f6', trend: '↓' },
+      { icon: '💰', label: 'Liquidity',         value: 'Moderate',   color: '#3b82f6', trend: '→' },
+      { icon: '📈', label: 'Growth Outlook',    value: 'Slowing',    color: '#3b82f6', trend: '↓' },
       { icon: '👷', label: 'Employment',        value: 'Resilient',  color: '#22c55e', trend: '→' },
     ],
     news: [
@@ -154,12 +154,12 @@ function useSeverity() {
     let hasAttention = false
 
     for (const feed of FEEDS) {
-      const reds    = feed.indicators.filter((i) => i.color === '#ef4444').length
-      const oranges = feed.indicators.filter((i) => i.color === '#f59e0b').length
-      const greens  = feed.indicators.filter((i) => i.color === '#22c55e').length
+      const reds   = feed.indicators.filter((i) => i.color === '#ef4444').length
+      const blues  = feed.indicators.filter((i) => i.color === '#3b82f6').length
+      const greens = feed.indicators.filter((i) => i.color === '#22c55e').length
 
-      if (reds >= oranges && reds >= greens)  hasCritical = true
-      else if (oranges >= greens)             hasAttention = true
+      if (reds >= blues && reds >= greens)  hasCritical = true
+      else if (blues >= greens)             hasAttention = true
     }
 
     if (hasCritical)  return SEV.high
