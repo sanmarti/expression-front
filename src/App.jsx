@@ -39,7 +39,7 @@ export default function App() {
     if (!token || user) { setHydrating(false); return }
     getMe()
       .then(({ data }) => {
-        setUser({ id: data.id, email: data.email, display_name: data.display_name, avatar_url: data.avatar_url, selected_avatar: data.selected_avatar, role: data.role })
+        setUser({ id: data.id, email: data.email, display_name: data.display_name, job_title: data.job_title ?? null, avatar_url: data.avatar_url, selected_avatar: data.selected_avatar, role: data.role })
         if (data.org_id) setOrg({ id: data.org_id, name: data.org_name, slug: data.slug }, data.org_role)
       })
       .catch(() => logout())

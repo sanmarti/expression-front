@@ -122,6 +122,11 @@ export default function CockpitWidget() {
             <div style={{ fontSize: 16, fontWeight: 700, color: 'rgba(255,255,255,0.95)', letterSpacing: '0.01em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {user?.display_name || (avatar ? 'Pilot' : 'Choose pilot')}
             </div>
+            {user?.job_title && (
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.40)', marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {user.job_title}
+              </div>
+            )}
           </div>
           <div style={{ fontSize: 24, opacity: 0.20, flexShrink: 0 }}>✈️</div>
         </div>
