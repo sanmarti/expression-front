@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../styles/island.css'
 
@@ -321,8 +321,17 @@ export default function StormCloudPage() {
   const navigate     = useNavigate()
   const sev = useSeverity()
 
-  const [activeFeedId, setActiveFeedId] = useState(FEEDS[0].id)
+  const [activeFeedId, setActiveFeedId] = useState(() => {
+    try { return localStorage.getItem('stormcloud_feed_id') || FEEDS[0].id } catch { return FEEDS[0].id }
+  })
   const feed = FEEDS.find((f) => f.id === activeFeedId) || FEEDS[0]
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('stormcloud_feed_id', activeFeedId)
+      localStorage.setItem('stormcloud_feed_meta', JSON.stringify({ icon: feed.icon, label: feed.label, color: feed.color }))
+    } catch {}
+  }, [activeFeedId])
 
   return (
     <div style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>

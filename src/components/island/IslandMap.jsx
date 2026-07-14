@@ -22,6 +22,10 @@ function ConditionsPanel({ stakeholders }) {
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
 
+  const trackedFeed = (() => {
+    try { return JSON.parse(localStorage.getItem('stormcloud_feed_meta')) } catch { return null }
+  })()
+
   const counts = useMemo(() => {
     const c = { favorable: 0, attention: 0, critical: 0, unknown: 0 }
     stakeholders.forEach((s) => {
@@ -106,6 +110,11 @@ function ConditionsPanel({ stakeholders }) {
             <div style={{ fontSize: 9, color: sev.color, fontWeight: 700, letterSpacing: '0.07em', marginTop: 1 }}>
               SEVERITY: {sev.label}
             </div>
+            {trackedFeed && (
+              <div style={{ fontSize: 9, color: trackedFeed.color, fontWeight: 700, letterSpacing: '0.05em', marginTop: 2, opacity: 0.85 }}>
+                {trackedFeed.icon} {trackedFeed.label.toUpperCase()}
+              </div>
+            )}
           </div>
           <span style={{ marginLeft: 'auto', color: 'rgba(255,255,255,0.30)', fontSize: 12 }}>→</span>
         </button>
