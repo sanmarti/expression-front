@@ -157,7 +157,7 @@ export default function CockpitWidget() {
               borderRadius: 10, padding: '9px 13px',
             }}>
               <div style={{ fontSize: 11, color: '#10B981', fontWeight: 700, marginBottom: 3, letterSpacing: '0.04em' }}>
-                🟢 {confidence.count}/5 Green Instruments
+                {confidence.count}/5 Tuned Instruments
               </div>
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.60)', lineHeight: 1.4 }}>
                 {confidence.label}
