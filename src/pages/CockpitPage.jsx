@@ -124,59 +124,62 @@ export default function CockpitPage() {
           </div>
 
           {/* My Cockpit card */}
-          <div style={{ ...cardStyle, padding: '24px 28px', display: 'flex', gap: 32, alignItems: 'flex-start' }}>
+          <div style={{ ...cardStyle, padding: '28px 32px', display: 'flex', gap: 0, alignItems: 'center' }}>
 
-            {/* Avatar + name + timestamp */}
-            <div style={{ textAlign: 'center', flexShrink: 0 }}>
+            {/* Left — Avatar + identity */}
+            <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, width: 160 }}>
               {avatar ? (
                 <img
                   src={imgSrc}
                   onError={() => setImgSrc(avatar.placeholder)}
                   alt={avatar.name}
-                  style={{ width: 96, height: 96, borderRadius: '50%', objectFit: 'cover', objectPosition: '50% 20%', border: `3px solid ${avatar.color}`, marginBottom: 8, boxShadow: `0 0 18px ${avatar.color}55` }}
+                  style={{ width: 120, height: 120, borderRadius: '50%', objectFit: 'cover', objectPosition: '50% 20%', border: `3px solid ${avatar.color}`, boxShadow: `0 0 22px ${avatar.color}55`, display: 'block' }}
                 />
               ) : (
-                <div style={{ width: 96, height: 96, borderRadius: '50%', background: '#1C2B45', marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36 }}>✈️</div>
+                <div style={{ width: 120, height: 120, borderRadius: '50%', background: '#1C2B45', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40 }}>✈️</div>
               )}
-              <div style={{ fontSize: 14, fontWeight: 700, color: avatar?.color || 'rgba(255,255,255,0.7)' }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: avatar?.color || 'rgba(255,255,255,0.7)', textAlign: 'center' }}>
                 {user?.display_name || 'No pilot'}
               </div>
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)', marginTop: 3, fontFamily: 'monospace', letterSpacing: '0.04em' }}>
+              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)', fontFamily: 'monospace', letterSpacing: '0.04em', textAlign: 'center' }}>
                 {lastUpdated ? `Updated ${fmtDate(lastUpdated)}` : 'Not updated yet'}
               </div>
               {!avatar && (
-                <button onClick={() => navigate('/choose-pilot')} style={{ marginTop: 6, fontSize: 11, color: '#3B82F6', background: 'none', border: 'none', cursor: 'pointer' }}>
+                <button onClick={() => navigate('/choose-pilot')} style={{ fontSize: 11, color: '#3B82F6', background: 'none', border: 'none', cursor: 'pointer' }}>
                   Choose pilot →
                 </button>
               )}
             </div>
 
-            {/* Indicators */}
+            {/* Divider */}
+            <div style={{ width: 1, alignSelf: 'stretch', background: 'rgba(255,255,255,0.07)', margin: '0 32px', flexShrink: 0 }} />
+
+            {/* Right — Indicators */}
             <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 16 }}>
-                <div style={{ fontSize: 17, fontWeight: 700, color: 'rgba(255,255,255,0.92)' }}>My Cockpit</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>{totals.answered}/{totals.total} answered</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+                <div style={{ fontSize: 16, fontWeight: 700, color: 'rgba(255,255,255,0.92)', letterSpacing: '0.01em' }}>My Cockpit</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.30)' }}>{totals.answered}/{totals.total} answered</div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {INDICATORS.map((ind) => {
                   const val = scores[ind.id] ?? null
                   const sc = indicatorColor(ind.id, val)
                   return (
-                    <div key={ind.id} style={{ background: 'rgba(0,0,0,0.40)', borderRadius: 10, padding: '12px 14px', border: '1px solid rgba(255,255,255,0.07)' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                    <div key={ind.id}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <span style={{ fontSize: 14, color: ind.color }}>{ind.icon}</span>
-                          <span style={{ fontSize: 12, fontWeight: 700, color: ind.color }}>{ind.label}</span>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: ind.color, letterSpacing: '0.04em' }}>{ind.label}</span>
+                          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)' }}>— {ind.sublabel}</span>
                         </div>
-                        <span style={{ fontSize: 18, fontWeight: 800, color: sc }}>
+                        <span style={{ fontSize: 14, fontWeight: 800, color: sc, fontFamily: 'monospace' }}>
                           {val !== null ? val : '—'}
                         </span>
                       </div>
-                      <div style={{ height: 5, background: 'rgba(255,255,255,0.10)', borderRadius: 3, overflow: 'hidden' }}>
-                        <div style={{ height: '100%', width: `${val ?? 0}%`, background: sc, borderRadius: 3, transition: 'width 0.6s ease', boxShadow: `0 0 6px ${sc}88` }} />
+                      <div style={{ height: 4, background: 'rgba(255,255,255,0.08)', borderRadius: 2, overflow: 'hidden' }}>
+                        <div style={{ height: '100%', width: `${val ?? 0}%`, background: sc, borderRadius: 2, transition: 'width 0.6s ease', boxShadow: `0 0 5px ${sc}88` }} />
                       </div>
-                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.30)', marginTop: 4 }}>{ind.sublabel}</div>
                     </div>
                   )
                 })}
