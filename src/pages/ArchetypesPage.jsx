@@ -12,6 +12,7 @@ const radCfg = (v) => RAD_CFG[v] || RAD_CFG['null']
 
 // ── Radar chart ─────────────────────────────────────────────────────────────
 function RadarChart({ scores, radiations, size = 320 }) {
+  const [centerHovered, setCenterHovered] = useState(false)
   const cx = size / 2
   const cy = size / 2
   const R  = size * 0.37
@@ -81,14 +82,14 @@ function RadarChart({ scores, radiations, size = 320 }) {
         const col = radCfg(radiations[ind.id]).color
         const dur = '3s'
         const begin = `${i * 0.65}s`
-        const kt = '0; 0.45; 0.55; 1'
-        const ks = '0.42 0 0.18 1; 0 0 1 1; 0.72 0 1 0.60'
+        const kt = '0; 0.45; 0.60; 1'
+        const ks = '0.42 0 0.18 1; 0 0 1 1; 0 0 1 1'
         return (
           <g key={`hb-${i}`}>
-            {/* Moving dot */}
+            {/* Moving dot — shoots to score, pulses, fades out (no return) */}
             <circle r={3} fill={col} filter="url(#hbGlow)">
-              <animate attributeName="cx" values={`${cx};${cx+dx};${cx+dx};${cx}`} keyTimes={kt} keySplines={ks} calcMode="spline" dur={dur} begin={begin} repeatCount="indefinite" />
-              <animate attributeName="cy" values={`${cy};${cy+dy};${cy+dy};${cy}`} keyTimes={kt} keySplines={ks} calcMode="spline" dur={dur} begin={begin} repeatCount="indefinite" />
+              <animate attributeName="cx" values={`${cx};${cx+dx};${cx+dx};${cx+dx}`} keyTimes={kt} keySplines={ks} calcMode="spline" dur={dur} begin={begin} repeatCount="indefinite" />
+              <animate attributeName="cy" values={`${cy};${cy+dy};${cy+dy};${cy+dy}`} keyTimes={kt} keySplines={ks} calcMode="spline" dur={dur} begin={begin} repeatCount="indefinite" />
               <animate attributeName="opacity" values="0;1;1;0" keyTimes={kt} dur={dur} begin={begin} repeatCount="indefinite" />
               <animate attributeName="r" values="3;7;8;3" keyTimes={kt} dur={dur} begin={begin} repeatCount="indefinite" />
             </circle>
@@ -117,11 +118,45 @@ function RadarChart({ scores, radiations, size = 320 }) {
         )
       })}
 
-      {/* Center dot */}
-      <circle cx={cx} cy={cy} r={4}
-        fill="rgba(99,102,241,0.60)"
-        style={{ filter: 'drop-shadow(0 0 6px rgba(99,102,241,0.8))' }}
-      />
+      {/* Center interactive dot + tooltip */}
+      <g
+        onMouseEnter={() => setCenterHovered(true)}
+        onMouseLeave={() => setCenterHovered(false)}
+        style={{ cursor: 'default' }}
+      >
+        {/* Invisible hit area */}
+        <circle cx={cx} cy={cy} r={16} fill="transparent" />
+        {/* Visible dot */}
+        <circle cx={cx} cy={cy} r={4}
+          fill="rgba(99,102,241,0.60)"
+          style={{ filter: 'drop-shadow(0 0 6px rgba(99,102,241,0.8))' }}
+        />
+        {/* Tooltip */}
+        {centerHovered && (
+          <g>
+            <rect
+              x={cx - 52} y={cy - 34}
+              width={104} height={22}
+              rx={6} ry={6}
+              fill="rgba(8,13,28,0.92)"
+              stroke="rgba(99,102,241,0.45)"
+              strokeWidth={1}
+            />
+            <text
+              x={cx} y={cy - 19}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              fontSize="11"
+              fontWeight="600"
+              fill="rgba(255,255,255,0.80)"
+              fontFamily="system-ui,-apple-system,sans-serif"
+              style={{ pointerEvents: 'none', userSelect: 'none' }}
+            >
+              Gota de Daat
+            </text>
+          </g>
+        )}
+      </g>
     </svg>
   )
 }
