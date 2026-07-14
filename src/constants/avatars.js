@@ -58,16 +58,19 @@ export const scoreColor = (score) =>
   : score >= 40  ? '#F59E0B'
   :                '#EF4444'
 
-// Returns the radiation color for an indicator if the user has set one in Archetypes,
-// otherwise falls back to scoreColor(score)
-export const indicatorColor = (indicatorId, score) => {
+// Returns green/red if radiation is set, otherwise falls back to the given default
+export const radiationColor = (indicatorId, fallback) => {
   try {
     const rad = JSON.parse(localStorage.getItem('archetypes_radiation') || '{}')[indicatorId]
     if (rad === 'confidence') return '#10B981'
     if (rad === 'fear')       return '#EF4444'
   } catch {}
-  return scoreColor(score)
+  return fallback
 }
+
+// Returns green/red if radiation is set, otherwise falls back to scoreColor(score)
+export const indicatorColor = (indicatorId, score) =>
+  radiationColor(indicatorId, scoreColor(score))
 
 export const INDICATORS = [
   { id: 'altitude',   label: 'SPIRITUAL',  sublabel: 'Altitude',    description: 'Your connection to purpose, meaning and transcendence — the inner compass that orients everything else.',  color: '#3B82F6', icon: '🏔️' },

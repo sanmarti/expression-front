@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import useAuthStore from '../store/authStore.js'
 import { getCockpitQuestions, submitCockpitAnswers } from '../api/cockpit.js'
 import { useToast } from '../components/ui/Toast.jsx'
-import { AVATARS, INDICATORS, getAvatar, scoreColor, indicatorColor } from '../constants/avatars.js'
+import { AVATARS, INDICATORS, getAvatar, scoreColor, indicatorColor, radiationColor } from '../constants/avatars.js'
 
 function fmtDate(d) {
   if (!d) return null
@@ -169,8 +169,8 @@ export default function CockpitPage() {
                     <div key={ind.id}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span style={{ fontSize: 14, color: ind.color }}>{ind.icon}</span>
-                          <span style={{ fontSize: 12, fontWeight: 700, color: ind.color, letterSpacing: '0.04em' }}>{ind.label}</span>
+                          <span style={{ fontSize: 14, color: radiationColor(ind.id, ind.color) }}>{ind.icon}</span>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: radiationColor(ind.id, ind.color), letterSpacing: '0.04em' }}>{ind.label}</span>
                           <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)' }}>— {ind.sublabel}</span>
                         </div>
                         <span style={{ fontSize: 14, fontWeight: 800, color: sc, fontFamily: 'monospace' }}>

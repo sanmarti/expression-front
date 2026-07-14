@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useAuthStore from '../../store/authStore.js'
-import { getAvatar, INDICATORS, indicatorColor } from '../../constants/avatars.js'
+import { getAvatar, INDICATORS, indicatorColor, radiationColor } from '../../constants/avatars.js'
 import { getCockpitScore } from '../../api/cockpit.js'
 
 function ScoreBar({ label, sublabel, icon, color, score, indicatorId }) {
-  const pct = score ?? 0
-  const sc = indicatorColor(indicatorId, score)
+  const pct  = score ?? 0
+  const sc   = indicatorColor(indicatorId, score)
+  const titl = radiationColor(indicatorId, color)
   return (
     <div style={{ marginBottom: 10 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', fontFamily: 'monospace', letterSpacing: '0.05em' }}>
-          <span style={{ color }}>{icon}</span> {label}{sublabel && <span style={{ color: 'rgba(255,255,255,0.30)', fontWeight: 400 }}>: {sublabel}</span>}
+        <span style={{ fontSize: 12, color: titl, fontFamily: 'monospace', letterSpacing: '0.05em' }}>
+          <span style={{ color: titl }}>{icon}</span> {label}{sublabel && <span style={{ color: 'rgba(255,255,255,0.30)', fontWeight: 400 }}>: {sublabel}</span>}
         </span>
         <span style={{ fontSize: 12, color: sc, fontWeight: 700, fontFamily: 'monospace' }}>
           {score != null ? `${score}%` : '—'}
