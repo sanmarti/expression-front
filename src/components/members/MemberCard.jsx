@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { INDICATORS, getAvatar, scoreColor, radiationColor } from '../../constants/avatars.js'
+import { INDICATORS, getAvatar, indicatorColor, radiationColor } from '../../constants/avatars.js'
 
 const ROLE_CFG = {
   admin:  { label: 'Admin',     bg: 'rgba(59,130,246,0.15)',  border: 'rgba(59,130,246,0.35)',  color: '#3B82F6' },
@@ -43,7 +43,7 @@ function AvatarDisplay({ member, size = 120 }) {
 
 function ScoreBar({ indicator, value }) {
   const pct = Math.round(Math.max(0, Math.min(100, value ?? 0)))
-  const sc = scoreColor(pct)
+  const sc = indicatorColor(indicator.id, pct)
   return (
     <div style={{ marginBottom: 10 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
