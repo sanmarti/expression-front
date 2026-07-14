@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { getComments, postComment } from '../../api/climate.js'
 import { getAvatar } from '../../constants/avatars.js'
 import useAuthStore from '../../store/authStore.js'
@@ -39,25 +39,20 @@ export default function CommentsSection({ stakeholderId, fullHeight = false }) {
   const [text, setText] = useState('')
   const [posting, setPosting] = useState(false)
   const [loading, setLoading] = useState(true)
-  const bottomRef = useRef(null)
 
   useEffect(() => {
     getComments(stakeholderId)
-      .then(({ data }) => setComments(data))
+      .then(({ data }) => setComments([...data].reverse()))
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [stakeholderId])
-
-  useEffect(() => {
-    if (!loading) bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [comments.length, loading])
 
   const handlePost = async () => {
     if (!text.trim()) return
     setPosting(true)
     try {
       const { data } = await postComment(stakeholderId, text.trim())
-      setComments((prev) => [...prev, data])
+      setComments((prev) => [data, ...prev])
       setText('')
     } catch {
       toast('Failed to post comment', 'error')
@@ -115,7 +110,6 @@ export default function CommentsSection({ stakeholderId, fullHeight = false }) {
             </div>
           )
         })}
-        <div ref={bottomRef} />
       </div>
 
       {/* Input */}
