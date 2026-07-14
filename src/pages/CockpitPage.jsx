@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import useAuthStore from '../store/authStore.js'
 import { getCockpitQuestions, submitCockpitAnswers } from '../api/cockpit.js'
 import { useToast } from '../components/ui/Toast.jsx'
-import { AVATARS, INDICATORS, getAvatar, scoreColor, indicatorColor, radiationColor, getConfidenceScore } from '../constants/avatars.js'
+import { AVATARS, INDICATORS, getAvatar, scoreColor, indicatorColor, radiationColor, getConfidenceScore, getConfidenceCount } from '../constants/avatars.js'
 
 function fmtDate(d) {
   if (!d) return null
@@ -86,7 +86,18 @@ export default function CockpitPage() {
     }
   }
 
-  const confidence = getConfidenceScore()
+  const confidence      = getConfidenceScore()
+  const tuneCount       = getConfidenceCount()
+
+  const BULB_FILTER = [
+    'grayscale(1) brightness(0.18)',
+    'grayscale(0.75) brightness(0.38)',
+    'grayscale(0.35) brightness(0.62)',
+    'brightness(1.10) drop-shadow(0 0 8px rgba(251,191,36,0.55))',
+    'brightness(1.55) drop-shadow(0 0 18px rgba(251,191,36,0.80))',
+    'brightness(2.20) drop-shadow(0 0 30px rgba(251,191,36,1.00))',
+  ]
+  const BULB_SIZE = [26, 28, 32, 38, 44, 54]
 
   const cardStyle = {
     background: 'rgba(8,13,28,0.82)',
@@ -146,6 +157,13 @@ export default function CockpitPage() {
               <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)', fontFamily: 'monospace', letterSpacing: '0.04em', textAlign: 'center' }}>
                 {lastUpdated ? `Updated ${fmtDate(lastUpdated)}` : 'Not updated yet'}
               </div>
+              <span style={{
+                fontSize: BULB_SIZE[tuneCount],
+                filter: BULB_FILTER[tuneCount],
+                transition: 'font-size 0.5s ease, filter 0.5s ease',
+                display: 'block', textAlign: 'center', marginTop: 6,
+                lineHeight: 1,
+              }}>💡</span>
               {!avatar && (
                 <button onClick={() => navigate('/choose-pilot')} style={{ fontSize: 11, color: '#3B82F6', background: 'none', border: 'none', cursor: 'pointer' }}>
                   Choose pilot →

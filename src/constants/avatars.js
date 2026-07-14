@@ -79,6 +79,15 @@ const CONFIDENCE_LABELS = {
   5: 'I influence and inspire confidence across other environments.',
 }
 
+export const getConfidenceCount = () => {
+  try {
+    const rad = JSON.parse(localStorage.getItem('archetypes_radiation') || '{}')
+    return INDICATORS.filter((ind) => rad[ind.id] === 'confidence').length
+  } catch {
+    return 0
+  }
+}
+
 export const getConfidenceScore = () => {
   try {
     const rad = JSON.parse(localStorage.getItem('archetypes_radiation') || '{}')
