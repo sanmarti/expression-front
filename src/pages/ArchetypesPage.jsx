@@ -87,7 +87,7 @@ function RadarChart({ scores, radiations, size = 320 }) {
         return (
           <g key={`hb-${i}`}>
             {/* Moving dot — shoots to score, pulses, fades out (no return) */}
-            <circle r={3} fill={col} filter="url(#hbGlow)">
+            <circle cx={cx} cy={cy} r={3} opacity={0} fill={col} filter="url(#hbGlow)">
               <animate attributeName="cx" values={`${cx};${cx+dx};${cx+dx};${cx+dx}`} keyTimes={kt} keySplines={ks} calcMode="spline" dur={dur} begin={begin} repeatCount="indefinite" />
               <animate attributeName="cy" values={`${cy};${cy+dy};${cy+dy};${cy+dy}`} keyTimes={kt} keySplines={ks} calcMode="spline" dur={dur} begin={begin} repeatCount="indefinite" />
               <animate attributeName="opacity" values="0;1;1;0" keyTimes={kt} dur={dur} begin={begin} repeatCount="indefinite" />
