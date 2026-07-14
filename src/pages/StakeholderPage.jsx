@@ -85,9 +85,9 @@ export default function StakeholderPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0B1120', display: 'flex' }}>
-      {/* Sidebar */}
-      <div style={{ width: 300, flexShrink: 0, background: '#141E35', borderRight: '1px solid #1C2B45', padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ height: '100vh', overflow: 'hidden', background: '#0B1120', display: 'flex' }}>
+      {/* Sidebar — fixed height, scrolls independently if content overflows */}
+      <div style={{ width: 300, flexShrink: 0, background: '#141E35', borderRight: '1px solid #1C2B45', padding: 24, display: 'flex', flexDirection: 'column', gap: 16, height: '100vh', overflowY: 'auto' }}>
         <button onClick={() => navigate('/island')} style={{ background: 'none', border: 'none', color: '#3B82F6', cursor: 'pointer', fontSize: 14, padding: 0, textAlign: 'left' }}>
           ← Back to Island
         </button>
@@ -140,9 +140,9 @@ export default function StakeholderPage() {
         )}
       </div>
 
-      {/* Main area */}
-      <div style={{ flex: 1, overflow: 'auto' }}>
-        <div style={{ borderBottom: '1px solid #1C2B45', display: 'flex' }}>
+      {/* Main area — tab bar fixed, only content pane scrolls */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
+        <div style={{ borderBottom: '1px solid #1C2B45', display: 'flex', flexShrink: 0 }}>
           {[['climate','Climate'],['notes','Notes'],['history','History'],['info','Info']].map(([t, label]) => (
             <button key={t} style={tabStyle(t)} onClick={() => setTab(t)}>
               {label}
@@ -150,7 +150,7 @@ export default function StakeholderPage() {
           ))}
         </div>
 
-        <div style={{ padding: 28 }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: 28 }}>
           {tab === 'climate' && <ClimateCard stakeholder={stakeholder} />}
           {tab === 'notes'   && <CommentsSection stakeholderId={id} />}
           {tab === 'history' && <ClimateHistory stakeholderId={id} />}
