@@ -227,7 +227,7 @@ export default function StakeholderPage() {
             ⌘+Enter to post
           </span>
         </div>
-        <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', padding: '16px 20px 20px' }}>
+        <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', padding: '16px 20px 20px' }}>
           <CommentsSection stakeholderId={id} fullHeight />
         </div>
       </div>

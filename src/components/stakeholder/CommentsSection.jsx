@@ -75,7 +75,7 @@ export default function CommentsSection({ stakeholderId, fullHeight = false }) {
     : { display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16, maxHeight: 340, overflowY: 'auto', paddingRight: 4 }
 
   return (
-    <div style={fullHeight ? { display: 'flex', flexDirection: 'column', height: '100%', gap: 0 } : {}}>
+    <div style={fullHeight ? { display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, gap: 0 } : {}}>
       {!fullHeight && (
         <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.40)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 14 }}>
           Comments {comments.length > 0 && <span style={{ color: 'rgba(255,255,255,0.20)' }}>({comments.length})</span>}
