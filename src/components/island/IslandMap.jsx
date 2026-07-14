@@ -1,4 +1,4 @@
-import { useRef, useState, useMemo } from 'react'
+import { useRef, useState, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Campfire from './Campfire.jsx'
 import StakeholderTooltip from './StakeholderTooltip.jsx'
@@ -12,7 +12,14 @@ const STATUS_CFG = {
   unknown:    { icon: '⚫', color: '#6b7280', label: 'Unknown' },
 }
 
+const SEV_CFG = {
+  critical: { label: 'HIGH',     color: '#ef4444', icon: '⛈️' },
+  attention: { label: 'MODERATE', color: '#f59e0b', icon: '🌧️' },
+  default:   { label: 'LOW',      color: '#22c55e', icon: '🌤️' },
+}
+
 function ConditionsPanel({ stakeholders }) {
+  const navigate = useNavigate()
   const [open, setOpen] = useState(false)
 
   const counts = useMemo(() => {
@@ -33,13 +40,18 @@ function ConditionsPanel({ stakeholders }) {
     return groups
   }, [stakeholders])
 
+  const sev = counts.critical > 0 ? SEV_CFG.critical
+            : counts.attention > 0 ? SEV_CFG.attention
+            : SEV_CFG.default
+
   return (
     <div style={{
       position: 'absolute', top: 70, right: 16, zIndex: 40,
       background: 'rgba(11,17,32,0.88)', backdropFilter: 'blur(10px)',
       border: '1px solid rgba(255,255,255,0.10)', borderRadius: 12,
-      minWidth: 180,
+      minWidth: 188,
     }}>
+      {/* Status summary toggle */}
       <button
         onClick={() => setOpen((v) => !v)}
         style={{
@@ -72,6 +84,32 @@ function ConditionsPanel({ stakeholders }) {
           ))}
         </div>
       )}
+
+      {/* Storm Cloud CTA */}
+      <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+        <button
+          onClick={() => navigate('/storm-cloud')}
+          style={{
+            width: '100%', padding: '10px 14px', background: 'none', border: 'none',
+            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
+            borderRadius: '0 0 12px 12px',
+            transition: 'background 0.15s',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+          onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
+        >
+          <span style={{ fontSize: 18 }}>{sev.icon}</span>
+          <div style={{ textAlign: 'left' }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.80)', letterSpacing: '0.04em' }}>
+              Storm Cloud
+            </div>
+            <div style={{ fontSize: 9, color: sev.color, fontWeight: 700, letterSpacing: '0.07em', marginTop: 1 }}>
+              SEVERITY: {sev.label}
+            </div>
+          </div>
+          <span style={{ marginLeft: 'auto', color: 'rgba(255,255,255,0.30)', fontSize: 12 }}>→</span>
+        </button>
+      </div>
     </div>
   )
 }

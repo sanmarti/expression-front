@@ -19,6 +19,7 @@ import AcceptInvitePage from './pages/AcceptInvitePage.jsx'
 import ChoosePilotPage from './pages/ChoosePilotPage.jsx'
 import CockpitPage from './pages/CockpitPage.jsx'
 import ArchetypesPage from './pages/ArchetypesPage.jsx'
+import StormCloudPage from './pages/StormCloudPage.jsx'
 
 function ProtectedRoute({ children, requireOrg = false, requireSuperAdmin = false }) {
   const { token, org, user } = useAuthStore()
@@ -118,6 +119,15 @@ export default function App() {
             element={
               <ProtectedRoute requireSuperAdmin>
                 <AdminPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/storm-cloud"
+            element={
+              <ProtectedRoute requireOrg>
+                <StormCloudPage />
               </ProtectedRoute>
             }
           />
