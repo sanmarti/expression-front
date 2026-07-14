@@ -58,6 +58,17 @@ export const scoreColor = (score) =>
   : score >= 40  ? '#F59E0B'
   :                '#EF4444'
 
+// Returns the radiation color for an indicator if the user has set one in Archetypes,
+// otherwise falls back to scoreColor(score)
+export const indicatorColor = (indicatorId, score) => {
+  try {
+    const rad = JSON.parse(localStorage.getItem('archetypes_radiation') || '{}')[indicatorId]
+    if (rad === 'confidence') return '#10B981'
+    if (rad === 'fear')       return '#EF4444'
+  } catch {}
+  return scoreColor(score)
+}
+
 export const INDICATORS = [
   { id: 'altitude',   label: 'ALTITUDE',   sublabel: 'Vision & Ambition',      description: 'Long-term vision and the ambition to reach new heights — where you want to go.',     color: '#3B82F6', icon: '🏔️' },
   { id: 'fuel',       label: 'FUEL',       sublabel: 'Energy & Motivation',     description: 'The energy you bring to the work and your sustained drive to keep moving forward.',  color: '#F59E0B', icon: '⛽' },

@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useAuthStore from '../../store/authStore.js'
-import { getAvatar, INDICATORS, scoreColor } from '../../constants/avatars.js'
+import { getAvatar, INDICATORS, indicatorColor } from '../../constants/avatars.js'
 import { getCockpitScore } from '../../api/cockpit.js'
 
-function ScoreBar({ label, sublabel, icon, color, score }) {
+function ScoreBar({ label, sublabel, icon, color, score, indicatorId }) {
   const pct = score ?? 0
-  const sc = scoreColor(score)
+  const sc = indicatorColor(indicatorId, score)
   return (
     <div style={{ marginBottom: 10 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
@@ -137,6 +137,7 @@ export default function CockpitWidget() {
               icon={ind.icon}
               color={ind.color}
               score={scores[ind.id] ?? null}
+              indicatorId={ind.id}
             />
           ))}
         </div>

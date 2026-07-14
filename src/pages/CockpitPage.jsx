@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import useAuthStore from '../store/authStore.js'
 import { getCockpitQuestions, submitCockpitAnswers } from '../api/cockpit.js'
 import { useToast } from '../components/ui/Toast.jsx'
-import { AVATARS, INDICATORS, getAvatar, scoreColor } from '../constants/avatars.js'
+import { AVATARS, INDICATORS, getAvatar, scoreColor, indicatorColor } from '../constants/avatars.js'
 
 function fmtDate(d) {
   if (!d) return null
@@ -161,7 +161,7 @@ export default function CockpitPage() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 {INDICATORS.map((ind) => {
                   const val = scores[ind.id] ?? null
-                  const sc = scoreColor(val)
+                  const sc = indicatorColor(ind.id, val)
                   return (
                     <div key={ind.id} style={{ background: 'rgba(0,0,0,0.40)', borderRadius: 10, padding: '12px 14px', border: '1px solid rgba(255,255,255,0.07)' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
