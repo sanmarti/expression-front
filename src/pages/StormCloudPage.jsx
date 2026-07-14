@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import useIslandStore from '../store/islandStore.js'
 import '../styles/island.css'
 
 // ─── Intelligence feeds ───────────────────────────────────────────────────────
@@ -146,15 +145,27 @@ const SEV = {
   low:      { label: 'LOW',      color: '#22c55e', bg: 'rgba(34,197,94,0.12)' },
 }
 
-function useSeverity(stakeholders) {
+// Severity is derived from the feed indicator colours across all 6 feeds.
+// Per feed: whichever colour (red/orange/green) has the most indicators wins.
+// Overall: any feed rated critical → HIGH; any feed rated attention → MODERATE; else LOW.
+function useSeverity() {
   return useMemo(() => {
-    const getStatus = (s) => s.overall_status ?? s.climate?.overall_status ?? 'unknown'
-    const crit = stakeholders.filter((s) => getStatus(s) === 'critical').length
-    const att  = stakeholders.filter((s) => getStatus(s) === 'attention').length
-    if (crit > 0) return { ...SEV.high,     crit, att }
-    if (att  > 0) return { ...SEV.moderate,  crit, att }
-    return           { ...SEV.low,          crit, att }
-  }, [stakeholders])
+    let hasCritical = false
+    let hasAttention = false
+
+    for (const feed of FEEDS) {
+      const reds    = feed.indicators.filter((i) => i.color === '#ef4444').length
+      const oranges = feed.indicators.filter((i) => i.color === '#f59e0b').length
+      const greens  = feed.indicators.filter((i) => i.color === '#22c55e').length
+
+      if (reds >= oranges && reds >= greens)  hasCritical = true
+      else if (oranges >= greens)             hasAttention = true
+    }
+
+    if (hasCritical)  return SEV.high
+    if (hasAttention) return SEV.moderate
+    return SEV.low
+  }, [])
 }
 
 // ─── Feed selector ────────────────────────────────────────────────────────────
@@ -308,8 +319,7 @@ function NewsFeed({ feed }) {
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function StormCloudPage() {
   const navigate     = useNavigate()
-  const stakeholders = useIslandStore((s) => s.stakeholders)
-  const sev          = useSeverity(stakeholders)
+  const sev = useSeverity()
 
   const [activeFeedId, setActiveFeedId] = useState(FEEDS[0].id)
   const feed = FEEDS.find((f) => f.id === activeFeedId) || FEEDS[0]
