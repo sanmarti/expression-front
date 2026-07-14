@@ -374,7 +374,7 @@ export default function StormCloudPage() {
       <div style={{ position: 'relative', zIndex: 2, paddingTop: 56 }}>
 
         {/* Spacer so the Earth photo shows through at the top */}
-        <div style={{ height: '42vh' }} />
+        <div style={{ height: '22vh' }} />
 
         <FeedSelector activeFeedId={activeFeedId} onChange={setActiveFeedId} />
 
