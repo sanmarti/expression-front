@@ -321,7 +321,7 @@ export default function ArchetypesPage() {
       {/* Background image — save to public/archetypes-bg.jpg */}
       <div style={{
         position: 'fixed', inset: 0, zIndex: 0,
-        backgroundImage: 'url(/archetypes-bg.jpg)',
+        backgroundImage: 'url(/archetypes-bg.png)',
         backgroundSize: 'cover', backgroundPosition: 'center',
         opacity: 0.35,
       }} />
