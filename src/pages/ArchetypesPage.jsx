@@ -38,6 +38,10 @@ function RadarChart({ scores, radiations, size = 320 }) {
           <feGaussianBlur stdDeviation="4" result="blur" />
           <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
         </filter>
+        <filter id="hbGlow" x="-120%" y="-120%" width="340%" height="340%">
+          <feGaussianBlur stdDeviation="3.5" result="blur" />
+          <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+        </filter>
       </defs>
 
       {/* Grid pentagons */}
@@ -66,6 +70,37 @@ function RadarChart({ scores, radiations, size = 320 }) {
         strokeWidth="2"
         filter="url(#softGlow)"
       />
+
+      {/* Heartbeat pulses — travel from center to score along each axis */}
+      {INDICATORS.map((ind, i) => {
+        const s = scores[ind.id] ?? 0
+        if (s === 0) return null
+        const angle = toRad(i)
+        const dx = (s / 100) * R * Math.cos(angle)
+        const dy = (s / 100) * R * Math.sin(angle)
+        const col = radCfg(radiations[ind.id]).color
+        const dur = '3s'
+        const begin = `${i * 0.65}s`
+        const kt = '0; 0.45; 0.55; 1'
+        const ks = '0.42 0 0.18 1; 0 0 1 1; 0.72 0 1 0.60'
+        return (
+          <g key={`hb-${i}`}>
+            {/* Moving dot */}
+            <circle r={3} fill={col} filter="url(#hbGlow)">
+              <animate attributeName="cx" values={`${cx};${cx+dx};${cx+dx};${cx}`} keyTimes={kt} keySplines={ks} calcMode="spline" dur={dur} begin={begin} repeatCount="indefinite" />
+              <animate attributeName="cy" values={`${cy};${cy+dy};${cy+dy};${cy}`} keyTimes={kt} keySplines={ks} calcMode="spline" dur={dur} begin={begin} repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0;1;1;0" keyTimes={kt} dur={dur} begin={begin} repeatCount="indefinite" />
+              <animate attributeName="r" values="3;7;8;3" keyTimes={kt} dur={dur} begin={begin} repeatCount="indefinite" />
+            </circle>
+            {/* Ripple ring that fires as dot arrives */}
+            <circle cx={cx+dx} cy={cy+dy} fill="none" stroke={col} strokeWidth={1.5}>
+              <animate attributeName="r"       values="0;0;5;20;20"       keyTimes="0;0.42;0.50;0.62;1" dur={dur} begin={begin} repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0;0;0.85;0;0"      keyTimes="0;0.42;0.50;0.62;1" dur={dur} begin={begin} repeatCount="indefinite" />
+              <animate attributeName="strokeWidth" values="2;2;1.5;0.5;0" keyTimes="0;0.42;0.50;0.62;1" dur={dur} begin={begin} repeatCount="indefinite" />
+            </circle>
+          </g>
+        )
+      })}
 
       {/* Score dots colored by radiation */}
       {INDICATORS.map((ind, i) => {
