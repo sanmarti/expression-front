@@ -18,6 +18,7 @@ import AdminPage from './pages/AdminPage.jsx'
 import AcceptInvitePage from './pages/AcceptInvitePage.jsx'
 import ChoosePilotPage from './pages/ChoosePilotPage.jsx'
 import CockpitPage from './pages/CockpitPage.jsx'
+import ArchetypesPage from './pages/ArchetypesPage.jsx'
 
 function ProtectedRoute({ children, requireOrg = false, requireSuperAdmin = false }) {
   const { token, org, user } = useAuthStore()
@@ -61,7 +62,8 @@ export default function App() {
           <Route path="/login" element={<Navigate to="/" replace />} />
           <Route path="/accept/:token" element={<AcceptInvitePage />} />
           <Route path="/choose-pilot" element={<ProtectedRoute><ChoosePilotPage /></ProtectedRoute>} />
-          <Route path="/cockpit" element={<ProtectedRoute requireOrg><CockpitPage /></ProtectedRoute>} />
+          <Route path="/cockpit"     element={<ProtectedRoute requireOrg><CockpitPage /></ProtectedRoute>} />
+          <Route path="/archetypes" element={<ProtectedRoute requireOrg><ArchetypesPage /></ProtectedRoute>} />
 
           <Route
             path="/create-org"

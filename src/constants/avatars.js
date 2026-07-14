@@ -59,8 +59,9 @@ export const scoreColor = (score) =>
   :                '#EF4444'
 
 export const INDICATORS = [
-  { id: 'altitude',   label: 'ALTITUDE',   sublabel: 'Vision & Ambition',   description: 'Long-term vision and ambition',  color: '#3B82F6', icon: '🏔️' },
-  { id: 'fuel',       label: 'FUEL',       sublabel: 'Energy & Motivation',  description: 'Energy levels and motivation',   color: '#F59E0B', icon: '⛽' },
-  { id: 'navigation', label: 'NAVIGATION', sublabel: 'Strategic Clarity',    description: 'Clarity on strategy and path',   color: '#14B8A6', icon: '🧭' },
-  { id: 'speed',      label: 'SPEED',      sublabel: 'Execution Pace',       description: 'Speed and execution momentum',   color: '#10B981', icon: '⚡' },
+  { id: 'altitude',   label: 'ALTITUDE',   sublabel: 'Vision & Ambition',      description: 'Long-term vision and the ambition to reach new heights — where you want to go.',     color: '#3B82F6', icon: '🏔️' },
+  { id: 'fuel',       label: 'FUEL',       sublabel: 'Energy & Motivation',     description: 'The energy you bring to the work and your sustained drive to keep moving forward.',  color: '#F59E0B', icon: '⛽' },
+  { id: 'navigation', label: 'NAVIGATION', sublabel: 'Strategic Clarity',       description: 'Clarity on your direction, the ability to read the terrain and adapt your course.',   color: '#14B8A6', icon: '🧭' },
+  { id: 'speed',      label: 'SPEED',      sublabel: 'Execution Pace',          description: 'Your momentum in execution — how quickly you turn decisions into tangible results.',   color: '#10B981', icon: '⚡' },
+  { id: 'weight',     label: 'WEIGHT',     sublabel: 'Load & Capacity',         description: 'The responsibilities you carry and your capacity to sustain them without breaking.',   color: '#8B5CF6', icon: '⚖️' },
 ]

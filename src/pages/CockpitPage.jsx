@@ -104,9 +104,24 @@ export default function CockpitPage() {
       <div style={{ position: 'relative', zIndex: 2, flexShrink: 0, padding: '24px 24px 16px' }}>
         <div style={{ maxWidth: 820, margin: '0 auto' }}>
 
-          <button onClick={() => navigate('/island')} style={{ background: 'none', border: 'none', color: '#60A5FA', cursor: 'pointer', fontSize: 14, padding: '0 0 16px 0', textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
-            ← Back to Island
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 16 }}>
+            <button onClick={() => navigate('/island')} style={{ background: 'none', border: 'none', color: '#60A5FA', cursor: 'pointer', fontSize: 14, padding: 0, textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
+              ← Back to Island
+            </button>
+            <button
+              onClick={() => navigate('/archetypes')}
+              style={{
+                padding: '8px 18px', borderRadius: 10, border: '1px solid rgba(139,92,246,0.40)',
+                background: 'rgba(139,92,246,0.12)', color: '#c4b5fd',
+                cursor: 'pointer', fontSize: 13, fontWeight: 700, letterSpacing: '0.03em',
+                backdropFilter: 'blur(8px)',
+                boxShadow: '0 0 16px rgba(139,92,246,0.20)',
+                transition: 'all 0.15s',
+              }}
+            >
+              ✦ My Archetypes
+            </button>
+          </div>
 
           {/* My Cockpit card */}
           <div style={{ ...cardStyle, padding: '24px 28px', display: 'flex', gap: 32, alignItems: 'flex-start' }}>
