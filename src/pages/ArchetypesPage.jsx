@@ -193,7 +193,7 @@ function IndicatorNode({ indicator, score, x, y, idx, radiation, onSetRadiation,
   return (
     <div
       ref={nodeRef}
-      style={{ position: 'absolute', left: x - 44, top: y - 44, width: 88, zIndex: isOpen ? 40 : 10 }}
+      style={{ position: 'absolute', left: x - 44, top: y - 44, width: 88, zIndex: isOpen ? 40 : hovered ? 60 : 10 }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
